@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Darul Attar - Sacred Scents</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+    <script src="https://accounts.google.com/gsi/client" async></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              serif: ['"Playfair Display"', 'serif'],
+              sans: ['Lato', 'sans-serif'],
+            },
+            colors: {
+              'brand-gold': '#C0A080',
+              'brand-dark': '#111111',
+              'brand-light': '#F5F5F5',
+            },
+            animation: {
+              'fade-in': 'fadeIn 1s ease-out forwards',
+              'fade-in-up': 'fadeInUp 0.8s ease-out forwards',
+              'slow-pan': 'slowPan 15s ease-in-out infinite alternate',
+            },
+            keyframes: {
+              fadeIn: {
+                'from': { opacity: '0' },
+                'to': { opacity: '1' },
+              },
+              fadeInUp: {
+                'from': { opacity: '0', transform: 'translateY(20px)' },
+                'to': { opacity: '1', transform: 'translateY(0)' },
+              },
+              slowPan: {
+                '0%': { transform: 'scale(1) translateX(0)' },
+                '100%': { transform: 'scale(1.1) translateX(-20px)' },
+              }
+            },
+          },
+        },
+        plugins: [
+          function({ addUtilities }) {
+            addUtilities({
+              '.scrollbar-hide': {
+                /* IE and Edge */
+                '-ms-overflow-style': 'none',
+                /* Firefox */
+                'scrollbar-width': 'none',
+                /* Safari and Chrome */
+                '&::-webkit-scrollbar': {
+                  display: 'none'
+                }
+              }
+            })
+          }
+        ]
+      }
+    </script>
+<script type="importmap">
+{
+  "imports": {
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "framer-motion": "https://aistudiocdn.com/framer-motion@^11.3.18/"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+<body class="antialiased bg-brand-dark">
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+</body>
+</html>
