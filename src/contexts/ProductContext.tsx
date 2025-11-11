@@ -51,6 +51,7 @@ export const ProductProvider: React.FC<{ children: ReactNode }> = ({ children })
             ...p, 
             id: p._id,
             categories: p.categories || [],
+            imageUrl: p.imageUrl ? p.imageUrl.replace('/upload/', '/upload/q_auto:good,f_auto/') : '',
         }));
         
         // --- Dynamic Categorization Logic based on User's Lists ---
@@ -86,7 +87,7 @@ export const ProductProvider: React.FC<{ children: ReactNode }> = ({ children })
         // --- Image Override Logic ---
         const barbaryLondon = mappedData.find(p => p.name === 'Barbary London');
         if (barbaryLondon) {
-          barbaryLondon.imageUrl = 'https://res.cloudinary.com/dy3jvbisa/image/upload/v1762511400/Barbary_London_jntova.png';
+          barbaryLondon.imageUrl = 'https://res.cloudinary.com/dy3jvbisa/image/upload/v1762511400/Barbary_London_jntova.png'.replace('/upload/', '/upload/q_auto:good,f_auto/');
         }
 
         setProducts(mappedData);

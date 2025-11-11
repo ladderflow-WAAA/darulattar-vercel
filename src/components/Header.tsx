@@ -48,6 +48,7 @@ const Header: React.FC<HeaderProps> = ({ navigate, onLoginClick }) => {
     { name: 'HOME', page: { name: 'home' } },
     { name: 'COLLECTION', page: { name: 'home', props: { section: 'collection' } } },
     { name: 'OUR STORY', page: { name: 'home', props: { section: 'about' } } },
+    { name: 'BLOG', page: { name: 'blog' } },
     { name: 'CONTACT', page: { name: 'home', props: { section: 'contact' } } }
   ];
 

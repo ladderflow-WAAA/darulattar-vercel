@@ -1,5 +1,8 @@
+
 import React from 'react';
-import { motion, Variants } from 'framer-motion';
+// Fix: Use 'import type' for Variants to fix type resolution issues with framer-motion.
+import { motion } from 'framer-motion';
+import type { Variants } from 'framer-motion';
 import { PageState } from '../App';
 
 interface HomeProps {
@@ -53,13 +56,13 @@ const Home: React.FC<HomeProps> = React.forwardRef<HTMLElement, HomeProps>(({ na
           className="font-serif text-5xl md:text-7xl lg:text-8xl font-bold leading-tight tracking-tighter"
           variants={itemVariants}
         >
-          Scent, Rooted<br/> in <span className="italic text-brand-gold">Tradition</span>
+          Original Oud & Natural<br/> Arabic <span className="italic text-brand-gold">Attar Oils</span>
         </motion.h1>
         <motion.p 
           className="mt-6 text-lg md:text-xl max-w-2xl text-gray-300 font-light"
           variants={itemVariants}
         >
-          Explore our collection of traditional attars, crafted with<br/> care and quality ingredients.
+          Discover authentic, handcrafted fragrance oils, rooted in tradition.<br/> Explore our collection of long-lasting, non-alcoholic perfumes.
         </motion.p>
         <motion.div variants={itemVariants}>
           <motion.button 

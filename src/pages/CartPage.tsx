@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { PageState } from '../App';
 import { useCart } from '../contexts/CartContext';
 import { ArrowLeftIcon } from '../components/icons/ArrowLeftIcon';
@@ -7,6 +7,7 @@ import { PlusIcon } from '../components/icons/PlusIcon';
 import { TrashIcon } from '../components/icons/TrashIcon';
 import { WhatsappIcon } from '../components/icons/WhatsappIcon';
 import { motion, AnimatePresence } from 'framer-motion';
+import { setMetadata } from '../utils/metadata';
 
 interface CartPageProps {
   navigate: (pageState: PageState) => void;
@@ -16,6 +17,10 @@ const CartPage: React.FC<CartPageProps> = ({ navigate }) => {
   const { cartItems, removeFromCart, updateQuantity, cartTotal, cartCount, clearCart } = useCart();
   const [formData, setFormData] = useState({ name: '', address: '', phone: '' });
   const [errors, setErrors] = useState({ name: false, address: false, phone: false });
+
+  useEffect(() => {
+    setMetadata('Your Shopping Cart - Darul Attar', 'Review your selected items and proceed to order your favorite Arabic attar and oud oils.');
+  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;

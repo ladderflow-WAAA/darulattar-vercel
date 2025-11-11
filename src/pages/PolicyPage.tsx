@@ -1,8 +1,12 @@
-import React from 'react';
-import { motion, Variants } from 'framer-motion';
+
+import React, { useEffect } from 'react';
+// Fix: Use 'import type' for Variants to fix type resolution issues with framer-motion.
+import { motion } from 'framer-motion';
+import type { Variants } from 'framer-motion';
 import { PageState } from '../App';
 import { ArrowLeftIcon } from '../components/icons/ArrowLeftIcon';
 import { policyData } from '../data/policyContent';
+import { setMetadata } from '../utils/metadata';
 
 interface PolicyPageProps {
   navigate: (pageState: PageState) => void;
@@ -11,6 +15,16 @@ interface PolicyPageProps {
 
 const PolicyPage: React.FC<PolicyPageProps> = ({ navigate, pageType }) => {
   const pageContent = policyData[pageType];
+
+  useEffect(() => {
+    if (pageContent) {
+      setMetadata(
+        `${pageContent.title} | Darul Attar`,
+        `Read the ${pageContent.title.toLowerCase()} for Darul Attar. Understand our terms, policies, and the story behind our natural attar oils.`
+      );
+    }
+  }, [pageContent]);
+
 
   if (!pageContent) {
     return (

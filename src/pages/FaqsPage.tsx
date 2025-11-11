@@ -1,10 +1,14 @@
-import React, { useState } from 'react';
-import { motion, AnimatePresence, Variants } from 'framer-motion';
+
+import React, { useState, useEffect } from 'react';
+// Fix: Use 'import type' for Variants to fix type resolution issues with framer-motion.
+import { motion, AnimatePresence } from 'framer-motion';
+import type { Variants } from 'framer-motion';
 import { PageState } from '../App';
 import { faqs } from '../data/policyContent';
 import { ArrowLeftIcon } from '../components/icons/ArrowLeftIcon';
 import { PlusIcon } from '../components/icons/PlusIcon';
 import { MinusIcon } from '../components/icons/MinusIcon';
+import { setMetadata } from '../utils/metadata';
 
 interface FaqsPageProps {
   navigate: (pageState: PageState) => void;
@@ -47,6 +51,13 @@ const AccordionItem: React.FC<{ faq: { question: string, answer: string }, isOpe
 
 const FaqsPage: React.FC<FaqsPageProps> = ({ navigate }) => {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
+
+  useEffect(() => {
+    setMetadata(
+      'Frequently Asked Questions | Darul Attar',
+      'Find answers to common questions about buying attar online, payment methods, shipping, returns, and the difference between attar and perfume.'
+    );
+  }, []);
 
   const handleAccordionClick = (index: number) => {
     setOpenIndex(openIndex === index ? null : index);

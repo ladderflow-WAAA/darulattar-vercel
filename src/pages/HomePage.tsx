@@ -5,6 +5,7 @@ import Collection from '../components/Collection';
 import About from '../components/About';
 import Contact from '../components/Contact';
 import { PageState } from '../App';
+import { setMetadata } from '../utils/metadata';
 
 interface HomePageProps {
   navigate: (pageState: PageState) => void;
@@ -15,6 +16,13 @@ const HomePage: React.FC<HomePageProps> = ({ navigate, section }) => {
   const collectionRef = useRef<HTMLElement>(null);
   const aboutRef = useRef<HTMLElement>(null);
   const contactRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    setMetadata(
+      'Darul Attar: Original Oud & Natural Arabic Attar Oils',
+      'Discover authentic, non-alcoholic Arabic attar and original oud oil at Darul Attar. Shop our collection of luxury, long-lasting fragrance oils, including Mysore Sandal, musk, and amber.'
+    );
+  }, []);
 
   useEffect(() => {
     const refs = {

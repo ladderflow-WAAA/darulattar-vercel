@@ -1,10 +1,13 @@
+
 import React, { useState, useMemo, useEffect } from 'react';
 import { Product, useProducts, Variant } from '../contexts/ProductContext';
 import { PageState } from '../App';
 import { useCart } from '../contexts/CartContext';
 import { PlusIcon } from '../components/icons/PlusIcon';
 import { MinusIcon } from '../components/icons/MinusIcon';
-import { motion, AnimatePresence, Variants } from 'framer-motion';
+// Fix: Use 'import type' for Variants to fix type resolution issues with framer-motion.
+import { motion, AnimatePresence } from 'framer-motion';
+import type { Variants } from 'framer-motion';
 import { Review, useReviews } from '../contexts/ReviewsContext';
 import { StarIcon } from '../components/icons/StarIcon';
 import { TrashIcon } from '../components/icons/TrashIcon';
@@ -13,6 +16,8 @@ import Breadcrumbs from '../components/Breadcrumbs';
 import ImageZoom from '../components/ImageZoom';
 import RelatedProducts from '../components/RelatedProducts';
 import { useAuth } from '../contexts/AuthContext';
+import { setMetadata } from '../utils/metadata';
+import ProductSchema from '../components/ProductSchema';
 
 // Helper component for star rating display
 const StarRating: React.FC<{ rating: number; className?: string }> = ({ rating, className = 'h-5 w-5' }) => {
@@ -152,18 +157,24 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ productId, naviga
   
   const [selectedVariant, setSelectedVariant] = useState<Variant | null>(null);
   const [quantity, setQuantity] = useState(1);
-
-  useEffect(() => {
-    if (product) {
-      setSelectedVariant(product.variants[0]);
-      setQuantity(1);
-    }
-  }, [product]);
-
+  
   const productReviews = useMemo(() => {
     if (!product) return [];
     return getReviewsForProduct(product.id);
   }, [getReviewsForProduct, product]);
+  
+  useEffect(() => {
+    if (product) {
+      setSelectedVariant(product.variants[0]);
+      setQuantity(1);
+      const metaDescription = `Discover ${product.name}, a premium non-alcoholic attar oil by Darul Attar. A ${product.categories[0] || 'unique'} fragrance with notes of ${product.scentProfile.top}, ${product.scentProfile.heart}, and ${product.scentProfile.base}. Shop original oud and natural attar online.`;
+      setMetadata(
+        `${product.name} - Natural Attar Oil | Darul Attar`,
+        metaDescription.substring(0, 160)
+      );
+    }
+  }, [product]);
+
 
   const averageRating = useMemo(() => {
     if (productReviews.length === 0) return 0;
@@ -207,101 +218,107 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ productId, naviga
   };
 
   return (
-    <div className="bg-brand-dark overflow-hidden">
-      <div className="max-w-screen-2xl mx-auto px-8 sm:px-12 lg:px-16 pt-40 pb-12 font-sans">
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, ease: 'easeOut' }}
-        >
-          <Breadcrumbs items={breadcrumbs} navigate={navigate} />
-        </motion.div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 mt-8 items-start">
-          {/* Image */}
-          <motion.div 
-            className="w-full"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.8, ease: 'easeOut' }}
-          >
-              <div className="relative w-full aspect-[4/5] bg-black">
-                <ImageZoom imageUrl={product.imageUrl} />
-              </div>
-          </motion.div>
-
-          {/* Product Info */}
+    <>
+      <ProductSchema product={product} reviews={productReviews} />
+      <div className="bg-brand-dark overflow-hidden">
+        <div className="max-w-screen-2xl mx-auto px-8 sm:px-12 lg:px-16 pt-40 pb-12 font-sans">
           <motion.div
-            className="w-full"
-            variants={infoContainerVariants}
-            initial="hidden"
-            animate="visible"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, ease: 'easeOut' }}
           >
-            <motion.h1 variants={infoItemVariants} className="text-4xl md:text-5xl font-thin text-white font-serif">{product.name}</motion.h1>
-            
-            <motion.div variants={infoItemVariants} className="mt-3 flex items-center space-x-2">
-              {productReviews.length > 0 ? (
-                <>
-                  <StarRating rating={averageRating} />
-                  <span className="text-gray-400 text-sm">({productReviews.length} reviews)</span>
-                </>
-              ) : (
-                 <span className="text-gray-500 text-sm">No reviews yet</span>
-              )}
-            </motion.div>
-
-            <motion.p variants={infoItemVariants} className="mt-4 text-3xl text-brand-gold font-serif">₹{selectedVariant.price.toFixed(2)}</motion.p>
-            <motion.div variants={infoItemVariants} className="mt-6 pt-6 border-t border-gray-800">
-                <p className="text-gray-300 leading-relaxed font-light">{product.description}</p>
-            </motion.div>
-            
-            <motion.div variants={infoItemVariants} className="mt-8">
-                <h3 className="text-md font-semibold text-gray-100 tracking-widest uppercase">Scent Profile</h3>
-                <ul className="mt-3 text-gray-400 space-y-2 font-light">
-                    <li><strong className="text-gray-300 font-normal">Top Notes:</strong> {product.scentProfile.top}</li>
-                    <li><strong className="text-gray-300 font-normal">Heart Notes:</strong> {product.scentProfile.heart}</li>
-                    <li><strong className="text-gray-300 font-normal">Base Notes:</strong> {product.scentProfile.base}</li>
-                </ul>
-            </motion.div>
-            
-            <motion.div variants={infoItemVariants} className="mt-8">
-                <h3 className="text-md font-semibold text-gray-100 tracking-widest uppercase">Size</h3>
-                 <div className="mt-3 flex items-center space-x-3">
-                  {product.variants.map(variant => (
-                    <button
-                      key={variant.size}
-                      onClick={() => setSelectedVariant(variant)}
-                      className={`px-4 py-2 border rounded-sm transition-colors duration-200 ${selectedVariant.size === variant.size ? 'bg-brand-gold text-brand-dark border-brand-gold' : 'border-gray-600 text-gray-300 hover:border-gray-400'}`}
-                    >
-                      {variant.size}
-                    </button>
-                  ))}
-                </div>
-            </motion.div>
-
-            <motion.div variants={infoItemVariants} className="mt-10 flex items-center space-x-4">
-                <div className="flex items-center border border-gray-700">
-                    <motion.button onClick={() => setQuantity(q => Math.max(1, q - 1))} className="p-3 text-gray-400 hover:bg-gray-800 transition" whileTap={{ scale: 0.9 }}><MinusIcon /></motion.button>
-                    <span className="px-5 text-lg font-medium text-white">{quantity}</span>
-                    <motion.button onClick={() => setQuantity(q => q + 1)} className="p-3 text-gray-400 hover:bg-gray-800 transition" whileTap={{ scale: 0.9 }}><PlusIcon/></motion.button>
-                </div>
-                <motion.button 
-                    onClick={handleAddToCart}
-                    className="w-full bg-brand-gold text-brand-dark py-4 px-10 tracking-widest text-sm font-bold uppercase"
-                    whileHover={{ scale: 1.05, backgroundColor: '#FFFFFF' }}
-                    whileTap={{ scale: 0.95 }}
-                    transition={{ duration: 0.3 }}
-                >
-                  <span>Add to Cart</span>
-                </motion.button>
-            </motion.div>
-
-            <ReviewsSection productId={product.id} infoItemVariants={infoItemVariants} onLoginRequest={onLoginRequest} />
+            <Breadcrumbs items={breadcrumbs} navigate={navigate} />
           </motion.div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 mt-8 items-start">
+            {/* Image */}
+            <motion.div 
+              className="w-full"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.8, ease: 'easeOut' }}
+            >
+                <div className="relative w-full aspect-[4/5] bg-black">
+                  <ImageZoom 
+                    imageUrl={product.imageUrl} 
+                    altText={`${product.name} - ${product.categories[0] || 'Arabic'} fragrance with ${product.scentProfile.top} notes`}
+                  />
+                </div>
+            </motion.div>
+
+            {/* Product Info */}
+            <motion.div
+              className="w-full"
+              variants={infoContainerVariants}
+              initial="hidden"
+              animate="visible"
+            >
+              <motion.h1 variants={infoItemVariants} className="text-4xl md:text-5xl font-thin text-white font-serif">{product.name}</motion.h1>
+              
+              <motion.div variants={infoItemVariants} className="mt-3 flex items-center space-x-2">
+                {productReviews.length > 0 ? (
+                  <>
+                    <StarRating rating={averageRating} />
+                    <span className="text-gray-400 text-sm">({productReviews.length} reviews)</span>
+                  </>
+                ) : (
+                  <span className="text-gray-500 text-sm">No reviews yet</span>
+                )}
+              </motion.div>
+
+              <motion.p variants={infoItemVariants} className="mt-4 text-3xl text-brand-gold font-serif">₹{selectedVariant.price.toFixed(2)}</motion.p>
+              <motion.div variants={infoItemVariants} className="mt-6 pt-6 border-t border-gray-800">
+                  <p className="text-gray-300 leading-relaxed font-light">{product.description}</p>
+              </motion.div>
+              
+              <motion.div variants={infoItemVariants} className="mt-8">
+                  <h3 className="text-md font-semibold text-gray-100 tracking-widest uppercase">Scent Profile</h3>
+                  <ul className="mt-3 text-gray-400 space-y-2 font-light">
+                      <li><strong className="text-gray-300 font-normal">Top Notes:</strong> {product.scentProfile.top}</li>
+                      <li><strong className="text-gray-300 font-normal">Heart Notes:</strong> {product.scentProfile.heart}</li>
+                      <li><strong className="text-gray-300 font-normal">Base Notes:</strong> {product.scentProfile.base}</li>
+                  </ul>
+              </motion.div>
+              
+              <motion.div variants={infoItemVariants} className="mt-8">
+                  <h3 className="text-md font-semibold text-gray-100 tracking-widest uppercase">Size</h3>
+                  <div className="mt-3 flex items-center space-x-3">
+                    {product.variants.map(variant => (
+                      <button
+                        key={variant.size}
+                        onClick={() => setSelectedVariant(variant)}
+                        className={`px-4 py-2 border rounded-sm transition-colors duration-200 ${selectedVariant.size === variant.size ? 'bg-brand-gold text-brand-dark border-brand-gold' : 'border-gray-600 text-gray-300 hover:border-gray-400'}`}
+                      >
+                        {variant.size}
+                      </button>
+                    ))}
+                  </div>
+              </motion.div>
+
+              <motion.div variants={infoItemVariants} className="mt-10 flex items-center space-x-4">
+                  <div className="flex items-center border border-gray-700">
+                      <motion.button onClick={() => setQuantity(q => Math.max(1, q - 1))} className="p-3 text-gray-400 hover:bg-gray-800 transition" whileTap={{ scale: 0.9 }}><MinusIcon /></motion.button>
+                      <span className="px-5 text-lg font-medium text-white">{quantity}</span>
+                      <motion.button onClick={() => setQuantity(q => q + 1)} className="p-3 text-gray-400 hover:bg-gray-800 transition" whileTap={{ scale: 0.9 }}><PlusIcon/></motion.button>
+                  </div>
+                  <motion.button 
+                      onClick={handleAddToCart}
+                      className="w-full bg-brand-gold text-brand-dark py-4 px-10 tracking-widest text-sm font-bold uppercase"
+                      whileHover={{ scale: 1.05, backgroundColor: '#FFFFFF' }}
+                      whileTap={{ scale: 0.95 }}
+                      transition={{ duration: 0.3 }}
+                  >
+                    <span>Add to Cart</span>
+                  </motion.button>
+              </motion.div>
+
+              <ReviewsSection productId={product.id} infoItemVariants={infoItemVariants} onLoginRequest={onLoginRequest} />
+            </motion.div>
+          </div>
         </div>
+        <RelatedProducts products={relatedProducts} navigate={navigate} />
       </div>
-      <RelatedProducts products={relatedProducts} navigate={navigate} />
-    </div>
+    </>
   );
 };
 

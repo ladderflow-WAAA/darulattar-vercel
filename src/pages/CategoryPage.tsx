@@ -1,13 +1,17 @@
+
 import React, { useState, useMemo, useEffect } from 'react';
 import { PageState } from '../App';
 import { Product, useProducts } from '../contexts/ProductContext';
 import ProductCard from '../components/ProductCard';
-import { motion, AnimatePresence, Variants } from 'framer-motion';
+// Fix: Use 'import type' for Variants to fix type resolution issues with framer-motion.
+import { motion, AnimatePresence } from 'framer-motion';
+import type { Variants } from 'framer-motion';
 import SortDropdown, { SortOption } from '../components/SortDropdown';
 import FilterPanel from '../components/FilterPanel';
 import { FilterIcon } from '../components/icons/FilterIcon';
 import { XIcon } from '../components/icons/XIcon';
 import Breadcrumbs from '../components/Breadcrumbs';
+import { setMetadata } from '../utils/metadata';
 
 interface CategoryPageProps {
   navigate: (pageState: PageState) => void;
@@ -28,6 +32,15 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ navigate, category }) => {
     if (!category) return [];
     return products.filter(p => p.categories.includes(category));
   }, [category, products]);
+
+  useEffect(() => {
+    if (category) {
+      setMetadata(
+        `${category} Collection - Arabic Attar & Oud | Darul Attar`,
+        `Explore our collection of ${category.toLowerCase()} attars. Find long-lasting, non-alcoholic perfumes like natural oud oil, musk, and sandalwood attar.`
+      );
+    }
+  }, [category]);
 
   const priceBounds = useMemo(() => {
     if (categoryProducts.length === 0) return { min: 0, max: 1000 };

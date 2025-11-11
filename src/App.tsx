@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { CartProvider } from './contexts/CartContext';
 import Header from './components/Header';
@@ -7,7 +8,9 @@ import ProductDetailPage from './pages/ProductDetailPage';
 import CartPage from './pages/CartPage';
 import CategoryPage from './pages/CategoryPage';
 import { CustomImageProvider } from './contexts/CustomImageContext';
-import { AnimatePresence, motion, Transition } from 'framer-motion';
+// Fix: Use 'import type' for Transition to fix type resolution issues with framer-motion.
+import { AnimatePresence, motion } from 'framer-motion';
+import type { Transition } from 'framer-motion';
 import CheckoutPage from './pages/CheckoutPage';
 import OrderConfirmationPage from './pages/OrderConfirmationPage';
 import PolicyPage from './pages/PolicyPage';
@@ -22,9 +25,10 @@ import DashboardPage from './pages/DashboardPage';
 import { ProductProvider, useProducts } from './contexts/ProductContext';
 import NewArrivalsPage from './pages/NewArrivalsPage';
 import HomePageSkeleton from './components/HomePageSkeleton';
+import BlogPage from './pages/BlogPage';
 
 export interface PageState {
-  name: 'home' | 'product' | 'cart' | 'category' | 'checkout' | 'orderConfirmation' | 'terms' | 'privacy' | 'shipping' | 'ourStory' | 'faqs' | 'search' | 'dashboard' | 'newArrivals';
+  name: 'home' | 'product' | 'cart' | 'category' | 'checkout' | 'orderConfirmation' | 'terms' | 'privacy' | 'shipping' | 'ourStory' | 'faqs' | 'search' | 'dashboard' | 'newArrivals' | 'blog';
   props?: Record<string, any>;
 }
 
@@ -72,6 +76,8 @@ const PageRenderer: React.FC<{ page: PageState; navigate: (pageState: PageState)
       return <DashboardPage navigate={navigate} />;
     case 'newArrivals':
       return <NewArrivalsPage navigate={navigate} />;
+    case 'blog':
+      return <BlogPage navigate={navigate} />;
     case 'home':
     default:
       return <HomePage navigate={navigate} section={page.props?.section} />;

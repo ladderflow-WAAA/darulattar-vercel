@@ -1,8 +1,11 @@
+
 import React from 'react';
 import { Logo } from './Logo';
 import { InstagramIcon } from './icons/InstagramIcon';
 import { WhatsappIcon } from './icons/WhatsappIcon';
-import { motion, Variants } from 'framer-motion';
+// Fix: Use 'import type' for Variants to fix type resolution issues with framer-motion.
+import { motion } from 'framer-motion';
+import type { Variants } from 'framer-motion';
 import { PageState } from '../App';
 
 interface FooterProps {
@@ -71,6 +74,7 @@ const Footer: React.FC<FooterProps> = ({ navigate }) => {
               <h4 className="font-semibold tracking-wider text-white uppercase font-sans">About</h4>
               <ul className="mt-4 space-y-3 text-sm font-light">
                 <li><motion.button onClick={() => navigate({ name: 'ourStory' })} className="text-gray-400" whileHover={linkHover}>Our Story</motion.button></li>
+                <li><motion.button onClick={() => navigate({ name: 'blog' })} className="text-gray-400" whileHover={linkHover}>Blog</motion.button></li>
                 <li><motion.button onClick={() => navigate({ name: 'home', props: { section: 'contact' } })} className="text-gray-400" whileHover={linkHover}>Contact Us</motion.button></li>
                 <li><motion.button onClick={() => navigate({ name: 'faqs' })} className="text-gray-400" whileHover={linkHover}>FAQs</motion.button></li>
               </ul>

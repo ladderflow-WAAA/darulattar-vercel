@@ -3,9 +3,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 interface ImageZoomProps {
   imageUrl: string;
+  altText: string;
 }
 
-const ImageZoom: React.FC<ImageZoomProps> = ({ imageUrl }) => {
+const ImageZoom: React.FC<ImageZoomProps> = ({ imageUrl, altText }) => {
   const [isHovering, setIsHovering] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
@@ -27,7 +28,7 @@ const ImageZoom: React.FC<ImageZoomProps> = ({ imageUrl }) => {
         <motion.img
           key={imageUrl}
           src={imageUrl}
-          alt="Product"
+          alt={altText}
           className="w-full h-full object-cover"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}

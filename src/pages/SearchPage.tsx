@@ -1,10 +1,14 @@
-import React, { useState, useMemo } from 'react';
+
+import React, { useState, useMemo, useEffect } from 'react';
 import { PageState } from '../App';
 import { useProducts } from '../contexts/ProductContext';
 import ProductCard from '../components/ProductCard';
 import { ArrowLeftIcon } from '../components/icons/ArrowLeftIcon';
-import { motion, Variants } from 'framer-motion';
+// Fix: Use 'import type' for Variants to fix type resolution issues with framer-motion.
+import { motion } from 'framer-motion';
+import type { Variants } from 'framer-motion';
 import SortDropdown, { SortOption } from '../components/SortDropdown';
+import { setMetadata } from '../utils/metadata';
 
 interface SearchPageProps {
   navigate: (pageState: PageState) => void;
@@ -14,6 +18,15 @@ interface SearchPageProps {
 const SearchPage: React.FC<SearchPageProps> = ({ navigate, query }) => {
   const { products } = useProducts();
   const [sortOption, setSortOption] = useState<SortOption>('default');
+
+  useEffect(() => {
+    if (query) {
+      setMetadata(
+        `Search results for "${query}" | Darul Attar`,
+        `Find natural attar oils and premium oud fragrances matching "${query}". Shop our collection of non-alcoholic Arabic perfumes.`
+      );
+    }
+  }, [query]);
 
   const searchResults = useMemo(() => {
     if (!query) return [];

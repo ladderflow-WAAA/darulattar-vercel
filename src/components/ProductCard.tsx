@@ -106,7 +106,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, navigate }) => {
       <div style={{ transform: "translateZ(40px)" }} className="relative w-full aspect-[4/5] bg-gray-900 overflow-hidden">
         <img
           src={imageUrl}
-          alt={name}
+          alt={`${name} - ${product.categories.length > 0 ? product.categories[0] : 'premium attar oil'}`}
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
         />
       </div>
