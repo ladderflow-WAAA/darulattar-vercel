@@ -1,0 +1,107 @@
+@import url('https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Oxanium:wght@200..800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  background-color: #0a0a0a; /* brand-dark */
+  color: #d1d5db; /* gray-300 */
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0a0a0a; 
+}
+
+::-webkit-scrollbar-thumb {
+  background: #333; 
+  border-radius: 0px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #C0A080; /* brand-gold */
+}
+
+/* Range Slider Styling */
+.thumb {
+  pointer-events: none;
+  position: absolute;
+  height: 0;
+  width: 100%;
+  outline: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background: transparent;
+}
+
+.thumb::-webkit-slider-runnable-track {
+  background: transparent;
+  border: transparent;
+}
+
+.thumb::-moz-range-track {
+  background: transparent;
+  border: transparent;
+}
+
+.thumb--zindex-3 {
+  z-index: 30;
+}
+
+.thumb--zindex-4 {
+  z-index: 40;
+}
+
+.thumb::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  background-color: #C0A080; /* brand-gold */
+  border: 2px solid #0a0a0a; 
+  border-radius: 50%;
+  cursor: pointer;
+  height: 18px;
+  width: 18px;
+  margin-top: -7px; 
+  pointer-events: all;
+  position: relative;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.thumb:active::-webkit-slider-thumb {
+  transform: scale(1.2);
+  box-shadow: 0 0 0 4px rgba(192, 160, 128, 0.2);
+}
+
+.thumb::-moz-range-thumb {
+  background-color: #C0A080; 
+  border: 2px solid #0a0a0a;
+  border-radius: 50%;
+  cursor: pointer;
+  height: 18px;
+  width: 18px;
+  pointer-events: all;
+  position: relative;
+  transition: transform 0.2s ease;
+}
+
+/* Hide number input arrows */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type=number] {
+  -moz-appearance: textfield;
+}
+
+/* Selection Color */
+::selection {
+  background-color: #C0A080;
+  color: #0a0a0a;
+}
