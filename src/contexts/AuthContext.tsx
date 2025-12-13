@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 
-const API_BASE_URL = 'https://darulattarecombackend.netlify.app/';
+const API_BASE_URL = 'https://darulattarecombackend.netlify.app/api/auth';
 
 interface User {
   id: string;
