@@ -31,7 +31,7 @@ interface ProductContextType {
 const ProductContext = createContext<ProductContextType | undefined>(undefined);
 
 // Using the production API URL
-const API_URL = 'https://darulattar-api.onrender.com/api/products';
+const API_URL = 'https://darulattarecombackend.netlify.app/products';
 
 export const ProductProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [products, setProducts] = useState<Product[]>([]);
