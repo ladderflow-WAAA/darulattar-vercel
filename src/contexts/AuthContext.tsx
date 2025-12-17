@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 
-const API_BASE_URL = 'https://darulattarecombackend.netlify.app/api/auth';
+const API_BASE_URL = 'https://ecommerce-backend-puce.vercel.app/api/auth';
 
 interface User {
   id: string;
