@@ -26,12 +26,25 @@ interface ProductContextType {
   isLoading: boolean;
   error: string | null;
   getProductById: (id: string) => Product | undefined;
+  getProductBySlug: (slug: string) => Product | undefined;
 }
 
 const ProductContext = createContext<ProductContextType | undefined>(undefined);
 
 // Using the production API URL
 const API_URL = 'https://ecommerce-backend-puce.vercel.app/api/products';
+
+// Helper to create URL-friendly product names
+export const slugify = (text: string) => {
+  return text
+    .toString()
+    .toLowerCase()
+    .replace(/\s+/g, '-')     // Replace spaces with -
+    .replace(/[^\w\-]+/g, '') // Remove all non-word chars
+    .replace(/\-\-+/g, '-')   // Replace multiple - with single -
+    .replace(/^-+/, '')       // Trim - from start
+    .replace(/-+$/, '');      // Trim - from end
+};
 
 export const ProductProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -61,7 +74,6 @@ export const ProductProvider: React.FC<{ children: ReactNode }> = ({ children })
         }));
         
         // --- Smart Categorization Logic ---
-        // Automatically assigns categories based on keywords in product names if not already set by backend
         const categoryRules: { [category: string]: string[] } = {
           "Best Sellers": [
             "cool water", "one million", "poison", "hugo", "tom ford", "savage", "imperial"
@@ -111,7 +123,11 @@ export const ProductProvider: React.FC<{ children: ReactNode }> = ({ children })
     return products.find(p => p.id === id);
   };
 
-  const value = { products, isLoading, error, getProductById };
+  const getProductBySlug = (slug: string) => {
+    return products.find(p => slugify(p.name) === slug);
+  };
+
+  const value = { products, isLoading, error, getProductById, getProductBySlug };
 
   return (
     <ProductContext.Provider value={value}>

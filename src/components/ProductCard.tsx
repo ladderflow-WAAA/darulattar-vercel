@@ -1,7 +1,7 @@
 import React, { useRef, useMemo } from 'react';
 import { motion, useMotionValue, useSpring, useTransform, AnimatePresence } from 'framer-motion';
 import { useCart } from '../contexts/CartContext';
-import { Product } from '../contexts/ProductContext';
+import { Product, slugify } from '../contexts/ProductContext';
 import { PageState } from '../App';
 import { PlusIcon } from './icons/PlusIcon';
 import { MinusIcon } from './icons/MinusIcon';
@@ -95,7 +95,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, navigate }) => {
       ref={ref}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      onClick={() => navigate({ name: 'product', props: { id: product.id } })}
+      // UPDATE: Pass slug instead of ID to the navigation props
+      onClick={() => navigate({ name: 'product', props: { slug: slugify(product.name), name: product.name } })}
       style={{
         rotateX,
         rotateY,

@@ -146,14 +146,14 @@ const ReviewsSection: React.FC<{ productId: string, infoItemVariants: Variants, 
 
 
 interface ProductDetailPageProps {
-  productId: string;
+  productSlug: string; // Changed from productId to productSlug
   navigate: (pageState: PageState) => void;
   onLoginRequest: () => void;
 }
 
-const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ productId, navigate, onLoginRequest }) => {
-  const { getProductById, products } = useProducts();
-  const product = getProductById(productId);
+const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ productSlug, navigate, onLoginRequest }) => {
+  const { getProductBySlug, products } = useProducts();
+  const product = getProductBySlug(productSlug);
   
   const { addToCart } = useCart();
   const { addToast } = useToasts();
@@ -235,7 +235,7 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ productId, naviga
           </motion.div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 mt-10 items-start">
-            {/* Image Section - REMOVED STICKY HERE */}
+            {/* Image Section - REMOVED sticky top-32 */}
             <motion.div 
               className="w-full"
               initial={{ opacity: 0 }}

@@ -81,7 +81,7 @@ const Header: React.FC<HeaderProps> = ({ navigate, onLoginClick }) => {
               animate={{ opacity: 1, width: '100%' }}
               exit={{ opacity: 0, width: 0 }}
               transition={{ duration: 0.3, ease: 'easeInOut' }}
-              // FIXED: Added top-1/2 -translate-y-1/2 to vertically center it on mobile
+              // Ensure it's centered vertically and visible on all screens
               className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg block px-4" 
             >
               <form onSubmit={handleSearchSubmit} className="relative w-full">

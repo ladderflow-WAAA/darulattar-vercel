@@ -19,7 +19,7 @@ import ToastContainer from './components/ToastContainer';
 import { AuthProvider } from './contexts/AuthContext';
 import AuthModal from './components/AuthModal';
 import DashboardPage from './pages/DashboardPage';
-import { ProductProvider, useProducts } from './contexts/ProductContext';
+import { ProductProvider, useProducts, slugify } from './contexts/ProductContext';
 import NewArrivalsPage from './pages/NewArrivalsPage';
 import HomePageSkeleton from './components/HomePageSkeleton';
 import BlogPage from './pages/BlogPage';
@@ -33,9 +33,9 @@ export interface PageState {
 // --- Route Wrappers ---
 
 const ProductRoute = ({ navigate, setIsAuthModalOpen }: { navigate: any, setIsAuthModalOpen: any }) => {
-  const { id } = useParams();
-  if (!id) return null; 
-  return <ProductDetailPage productId={id} navigate={navigate} onLoginRequest={() => setIsAuthModalOpen(true)} />;
+  const { slug } = useParams();
+  // Pass the slug instead of ID
+  return <ProductDetailPage productSlug={slug || ''} navigate={navigate} onLoginRequest={() => setIsAuthModalOpen(true)} />;
 };
 
 const CategoryRoute = ({ navigate }: { navigate: any }) => {
@@ -109,11 +109,12 @@ const AppContent: React.FC<{ navigate: (page: PageState) => void, isAuthModalOpe
             <Header navigate={navigate} onLoginClick={() => setIsAuthModalOpen(true)} />
             <main className="flex-grow flex flex-col">
                 <AnimatePresence mode="wait">
-                    {/* Wrapped Routes in a div with the key to fix TypeScript error and trigger animation */}
+                    {/* Wrapped Routes in a div with the key to fix TypeScript error and ensure animation triggers */}
                     <div key={location.pathname + location.search} className="w-full flex-grow">
                         <Routes location={location}>
                             <Route path="/" element={<AnimatedPage><HomeRoute navigate={navigate} /></AnimatedPage>} />
-                            <Route path="/product/:id" element={<AnimatedPage><ProductRoute navigate={navigate} setIsAuthModalOpen={setIsAuthModalOpen} /></AnimatedPage>} />
+                            {/* Changed parameter from :id to :slug */}
+                            <Route path="/product/:slug" element={<AnimatedPage><ProductRoute navigate={navigate} setIsAuthModalOpen={setIsAuthModalOpen} /></AnimatedPage>} />
                             <Route path="/cart" element={<AnimatedPage><CartPage navigate={navigate} /></AnimatedPage>} />
                             <Route path="/category/:category" element={<AnimatedPage><CategoryRoute navigate={navigate} /></AnimatedPage>} />
                             <Route path="/search" element={<AnimatedPage><SearchRoute navigate={navigate} /></AnimatedPage>} />
@@ -156,7 +157,15 @@ const App: React.FC = () => {
         }
         break;
       case 'product':
-        routerNavigate(`/product/${pageState.props?.id}`);
+        // Use slug if provided, otherwise fallback (should usually be name now)
+        const slug = pageState.props?.slug || slugify(pageState.props?.name || '');
+        if (slug) {
+            routerNavigate(`/product/${slug}`);
+        } else if (pageState.props?.id) {
+             // Fallback if we only have ID (though we should use slug)
+             // Ideally we find the product to get the name, but this simple shim assumes components pass the name/slug
+             routerNavigate(`/product/${pageState.props.id}`); 
+        }
         break;
       case 'cart':
         routerNavigate('/cart');
