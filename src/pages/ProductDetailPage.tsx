@@ -235,9 +235,9 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ productId, naviga
           </motion.div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 mt-10 items-start">
-            {/* Image Section */}
+            {/* Image Section - REMOVED STICKY HERE */}
             <motion.div 
-              className="w-full sticky top-32"
+              className="w-full"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.8 }}

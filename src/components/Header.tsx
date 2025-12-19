@@ -59,7 +59,7 @@ const Header: React.FC<HeaderProps> = ({ navigate, onLoginClick }) => {
       transition={{ duration: 0.5, ease: 'easeOut' }}
       className={`fixed top-0 left-0 right-0 z-50 py-3 font-sans transition-all duration-300 border-b ${isScrolled || isSearchOpen ? 'bg-black/90 backdrop-blur-md border-brand-gold/20 shadow-2xl' : 'bg-transparent border-transparent'}`}
     >
-      <div className="max-w-screen-2xl mx-auto px-8 sm:px-12 lg:px-16 flex justify-between items-center h-16">
+      <div className="max-w-screen-2xl mx-auto px-8 sm:px-12 lg:px-16 flex justify-between items-center h-16 relative">
         
         {/* Logo Section */}
         <motion.div 
@@ -81,16 +81,17 @@ const Header: React.FC<HeaderProps> = ({ navigate, onLoginClick }) => {
               animate={{ opacity: 1, width: '100%' }}
               exit={{ opacity: 0, width: 0 }}
               transition={{ duration: 0.3, ease: 'easeInOut' }}
-              className="absolute left-1/2 -translate-x-1/2 w-full max-w-lg hidden md:block"
+              // FIXED: Added top-1/2 -translate-y-1/2 to vertically center it on mobile
+              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg block px-4" 
             >
-              <form onSubmit={handleSearchSubmit} className="relative">
+              <form onSubmit={handleSearchSubmit} className="relative w-full">
                 <input
                   ref={searchInputRef}
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search for musk, oud, rose..."
-                  className="w-full bg-[#111] border border-gray-700 text-white placeholder-gray-500 rounded-sm py-2 pl-5 pr-12 focus:outline-none focus:border-brand-gold focus:ring-1 focus:ring-brand-gold transition-all"
+                  className="w-full bg-[#111] border border-gray-700 text-white placeholder-gray-500 rounded-sm py-2 pl-5 pr-12 focus:outline-none focus:border-brand-gold focus:ring-1 focus:ring-brand-gold transition-all shadow-lg"
                 />
                 <button type="submit" className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-brand-gold">
                   <SearchIcon />
@@ -121,7 +122,7 @@ const Header: React.FC<HeaderProps> = ({ navigate, onLoginClick }) => {
         </AnimatePresence>
         
         {/* Actions (Search, Cart, Login) */}
-        <div className="flex items-center justify-end space-x-6">
+        <div className="flex items-center justify-end space-x-6 z-10">
             <motion.button 
               onClick={() => setIsSearchOpen(o => !o)}
               aria-label="Search products"
