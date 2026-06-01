@@ -18,8 +18,10 @@ const Header: React.FC<HeaderProps> = ({ navigate, onLoginClick }) => {
   const { isAuthenticated, user, logout } = useAuth();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const mobileMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -28,12 +30,28 @@ const Header: React.FC<HeaderProps> = ({ navigate, onLoginClick }) => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-  
+
   useEffect(() => {
     if (isSearchOpen && searchInputRef.current) {
       searchInputRef.current.focus();
     }
   }, [isSearchOpen]);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (mobileMenuRef.current && !mobileMenuRef.current.contains(e.target as Node)) {
+        setIsMobileMenuOpen(false);
+      }
+    };
+    if (isMobileMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      document.body.style.overflow = 'hidden';
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.body.style.overflow = '';
+    };
+  }, [isMobileMenuOpen]);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -52,6 +70,15 @@ const Header: React.FC<HeaderProps> = ({ navigate, onLoginClick }) => {
     { name: 'CONTACT', page: { name: 'home', props: { section: 'contact' } } }
   ];
 
+  const handleAdminClick = () => {
+    window.location.href = '/admin';
+  };
+
+  const handleNavClick = (page: PageState) => {
+    navigate(page);
+    setIsMobileMenuOpen(false);
+  };
+
   return (
     <motion.header 
       initial={{ y: -100 }}
@@ -59,11 +86,11 @@ const Header: React.FC<HeaderProps> = ({ navigate, onLoginClick }) => {
       transition={{ duration: 0.5, ease: 'easeOut' }}
       className={`fixed top-0 left-0 right-0 z-50 py-3 font-sans transition-all duration-300 border-b ${isScrolled || isSearchOpen ? 'bg-black/90 backdrop-blur-md border-brand-gold/20 shadow-2xl' : 'bg-transparent border-transparent'}`}
     >
-      <div className="max-w-screen-2xl mx-auto px-8 sm:px-12 lg:px-16 flex justify-between items-center h-16 relative">
+      <div className="max-w-screen-2xl mx-auto px-4 sm:px-12 lg:px-16 flex justify-between items-center h-16 relative">
         
         {/* Logo Section */}
         <motion.div 
-          className="relative w-40 h-full flex items-center"
+          className="relative w-28 sm:w-40 h-full flex items-center"
           whileHover={{ scale: 1.05 }}
           transition={{ type: 'spring', stiffness: 300 }}
         >
@@ -81,7 +108,6 @@ const Header: React.FC<HeaderProps> = ({ navigate, onLoginClick }) => {
               animate={{ opacity: 1, width: '100%' }}
               exit={{ opacity: 0, width: 0 }}
               transition={{ duration: 0.3, ease: 'easeInOut' }}
-              // Ensure it's centered vertically and visible on all screens
               className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg block px-4" 
             >
               <form onSubmit={handleSearchSubmit} className="relative w-full">
@@ -121,8 +147,8 @@ const Header: React.FC<HeaderProps> = ({ navigate, onLoginClick }) => {
           )}
         </AnimatePresence>
         
-        {/* Actions (Search, Cart, Login) */}
-        <div className="flex items-center justify-end space-x-6 z-10">
+        {/* Actions (Search, Cart, Login, Hamburger) */}
+        <div className="flex items-center justify-end space-x-3 sm:space-x-6 z-10">
             <motion.button 
               onClick={() => setIsSearchOpen(o => !o)}
               aria-label="Search products"
@@ -170,7 +196,7 @@ const Header: React.FC<HeaderProps> = ({ navigate, onLoginClick }) => {
                     </motion.button>
                     <button 
                         onClick={logout}
-                        className="text-xs tracking-wider text-gray-400 hover:text-white transition-colors"
+                        className="hidden sm:block text-xs tracking-wider text-gray-400 hover:text-white transition-colors"
                         >
                         LOGOUT
                     </button>
@@ -184,8 +210,118 @@ const Header: React.FC<HeaderProps> = ({ navigate, onLoginClick }) => {
                     LOGIN
                 </motion.button>
             )}
+            <button
+                onClick={handleAdminClick}
+                className="hidden sm:block text-xs tracking-wider text-gray-500 hover:text-brand-gold transition"
+                title="Admin"
+            >
+                ADMIN
+            </button>
+
+            {/* Hamburger Button */}
+            <button
+                onClick={() => setIsMobileMenuOpen(true)}
+                className="lg:hidden text-gray-300 hover:text-brand-gold transition"
+                aria-label="Open menu"
+            >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+            </button>
         </div>
       </div>
+
+      {/* Mobile Menu Drawer */}
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/60 z-40 lg:hidden"
+            />
+            <motion.div
+              ref={mobileMenuRef}
+              initial={{ x: '100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '100%' }}
+              transition={{ type: 'tween', duration: 0.3 }}
+              className="fixed top-0 right-0 bottom-0 w-72 bg-brand-charcoal border-l border-gray-800 z-50 lg:hidden flex flex-col"
+            >
+              <div className="flex items-center justify-between p-4 border-b border-gray-800">
+                <span className="text-sm text-gray-400 tracking-widest uppercase">Menu</span>
+                <button
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="text-gray-300 hover:text-brand-gold transition"
+                  aria-label="Close menu"
+                >
+                  <XIcon />
+                </button>
+              </div>
+
+              <div className="flex-1 overflow-y-auto py-6 px-4 space-y-6">
+                <div className="space-y-1">
+                  {navLinks.map((link) => (
+                    <button
+                      key={link.name}
+                      onClick={() => handleNavClick(link.page as PageState)}
+                      className="block w-full text-left py-3 text-sm tracking-widest text-gray-300 hover:text-brand-gold transition border-b border-gray-800/50"
+                    >
+                      {link.name}
+                    </button>
+                  ))}
+                  <button
+                    onClick={() => { handleAdminClick(); setIsMobileMenuOpen(false); }}
+                    className="block w-full text-left py-3 text-sm tracking-widest text-gray-500 hover:text-brand-gold transition border-b border-gray-800/50"
+                  >
+                    ADMIN
+                  </button>
+                </div>
+
+                <div className="pt-4 border-t border-gray-800">
+                  {isAuthenticated && user ? (
+                    <div className="space-y-3">
+                      <div className="flex items-center space-x-3">
+                        {user.picture ? (
+                          <img src={user.picture} alt={user.name} className="w-10 h-10 rounded-full border border-gray-600" />
+                        ) : (
+                          <div className="w-10 h-10 rounded-full bg-brand-gold text-brand-dark flex items-center justify-center font-bold">{user.name.charAt(0)}</div>
+                        )}
+                        <div>
+                          <p className="text-white text-sm font-medium">{user.name}</p>
+                          <p className="text-gray-400 text-xs">{user.email}</p>
+                        </div>
+                      </div>
+                      <div className="flex space-x-3">
+                        <button
+                          onClick={() => handleNavClick({ name: 'dashboard' })}
+                          className="flex-1 text-center text-xs text-brand-gold border border-brand-gold/50 px-3 py-2 rounded-sm hover:bg-brand-gold hover:text-brand-dark transition"
+                        >
+                          DASHBOARD
+                        </button>
+                        <button
+                          onClick={() => { logout(); setIsMobileMenuOpen(false); }}
+                          className="flex-1 text-center text-xs text-red-400 border border-red-900/50 px-3 py-2 rounded-sm hover:bg-red-900/20 transition"
+                        >
+                          LOGOUT
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => { onLoginClick(); setIsMobileMenuOpen(false); }}
+                      className="w-full text-center text-xs tracking-wider font-semibold text-brand-gold border border-brand-gold/50 px-4 py-2.5 rounded-sm hover:bg-brand-gold hover:text-brand-dark transition"
+                    >
+                      LOGIN
+                    </button>
+                  )}
+                </div>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </motion.header>
   );
 };

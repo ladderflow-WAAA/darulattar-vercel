@@ -133,8 +133,8 @@ const CartPage: React.FC<CartPageProps> = ({ navigate }) => {
                   variants={itemVariants}
                   layout
                 >
-                  <div className="w-20 h-24 flex-shrink-0 bg-black overflow-hidden rounded-sm border border-gray-800">
-                    <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" />
+                    <div className="w-20 h-24 flex-shrink-0 bg-black overflow-hidden rounded-sm border border-gray-800">
+                    <img src={item.imageUrl} alt={item.name} loading="lazy" className="w-full h-full object-cover" />
                   </div>
                   
                   <div className="flex-grow min-w-0">
@@ -219,6 +219,26 @@ const CartPage: React.FC<CartPageProps> = ({ navigate }) => {
                     
                     <div className="mt-4 text-center">
                         <p className="text-xs text-gray-600">Secure checkout. Pay via UPI/Cash after confirmation.</p>
+                    </div>
+                    <div className="mt-6 pt-6 border-t border-gray-800">
+                        <div className="grid grid-cols-2 gap-3 text-[10px] text-gray-500">
+                            <div className="flex items-center space-x-1.5">
+                                <svg className="w-3.5 h-3.5 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
+                                <span>100% Authentic</span>
+                            </div>
+                            <div className="flex items-center space-x-1.5">
+                                <svg className="w-3.5 h-3.5 text-brand-gold flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>
+                                <span>Alcohol-Free</span>
+                            </div>
+                            <div className="flex items-center space-x-1.5">
+                                <svg className="w-3.5 h-3.5 text-blue-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>
+                                <span>UPI / Cash Pay</span>
+                            </div>
+                            <div className="flex items-center space-x-1.5">
+                                <svg className="w-3.5 h-3.5 text-yellow-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" /></svg>
+                                <span>Store Pickup</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </motion.div>

@@ -1,29 +1,35 @@
-import React, { useState } from 'react';
+import React, { useState, Suspense } from 'react';
 import { CartProvider } from './contexts/CartContext';
 import Header from './components/Header';
 import Footer from './components/Footer';
-import HomePage from './pages/HomePage';
-import ProductDetailPage from './pages/ProductDetailPage';
-import CartPage from './pages/CartPage';
-import CategoryPage from './pages/CategoryPage';
 import { CustomImageProvider } from './contexts/CustomImageContext';
 import { AnimatePresence, motion } from 'framer-motion';
-import CheckoutPage from './pages/CheckoutPage';
-import OrderConfirmationPage from './pages/OrderConfirmationPage';
-import PolicyPage from './pages/PolicyPage';
-import FaqsPage from './pages/FaqsPage';
 import { ReviewsProvider } from './contexts/ReviewsContext';
-import SearchPage from './pages/SearchPage';
 import { ToastProvider } from './contexts/ToastContext';
 import ToastContainer from './components/ToastContainer';
 import { AuthProvider } from './contexts/AuthContext';
 import AuthModal from './components/AuthModal';
-import DashboardPage from './pages/DashboardPage';
 import { ProductProvider, useProducts, slugify } from './contexts/ProductContext';
-import NewArrivalsPage from './pages/NewArrivalsPage';
 import HomePageSkeleton from './components/HomePageSkeleton';
-import BlogPage from './pages/BlogPage';
 import { Routes, Route, useNavigate, useLocation, useParams, useSearchParams } from 'react-router-dom';
+import { AdminProvider } from './contexts/AdminContext';
+import ChatBot from './components/ChatBot';
+import WhatsAppButton from './components/WhatsAppButton';
+
+const HomePage = React.lazy(() => import('./pages/HomePage'));
+const ProductDetailPage = React.lazy(() => import('./pages/ProductDetailPage'));
+const CartPage = React.lazy(() => import('./pages/CartPage'));
+const CategoryPage = React.lazy(() => import('./pages/CategoryPage'));
+const CheckoutPage = React.lazy(() => import('./pages/CheckoutPage'));
+const OrderConfirmationPage = React.lazy(() => import('./pages/OrderConfirmationPage'));
+const PolicyPage = React.lazy(() => import('./pages/PolicyPage'));
+const FaqsPage = React.lazy(() => import('./pages/FaqsPage'));
+const SearchPage = React.lazy(() => import('./pages/SearchPage'));
+const DashboardPage = React.lazy(() => import('./pages/DashboardPage'));
+const NewArrivalsPage = React.lazy(() => import('./pages/NewArrivalsPage'));
+const BlogPage = React.lazy(() => import('./pages/BlogPage'));
+const AdminLoginPage = React.lazy(() => import('./pages/AdminLoginPage'));
+const AdminDashboardPage = React.lazy(() => import('./pages/AdminDashboardPage'));
 
 export interface PageState {
   name: 'home' | 'product' | 'cart' | 'category' | 'checkout' | 'orderConfirmation' | 'terms' | 'privacy' | 'shipping' | 'ourStory' | 'faqs' | 'search' | 'dashboard' | 'newArrivals' | 'blog';
@@ -34,7 +40,6 @@ export interface PageState {
 
 const ProductRoute = ({ navigate, setIsAuthModalOpen }: { navigate: any, setIsAuthModalOpen: any }) => {
   const { slug } = useParams();
-  // Pass the slug instead of ID
   return <ProductDetailPage productSlug={slug || ''} navigate={navigate} onLoginRequest={() => setIsAuthModalOpen(true)} />;
 };
 
@@ -78,7 +83,9 @@ const AnimatedPage = ({ children }: { children: React.ReactNode }) => (
         }}
         className="min-h-screen"
     >
-        {children}
+        <Suspense fallback={<div className="min-h-screen bg-brand-dark" />}>
+          {children}
+        </Suspense>
     </motion.div>
 );
 
@@ -109,11 +116,9 @@ const AppContent: React.FC<{ navigate: (page: PageState) => void, isAuthModalOpe
             <Header navigate={navigate} onLoginClick={() => setIsAuthModalOpen(true)} />
             <main className="flex-grow flex flex-col">
                 <AnimatePresence mode="wait">
-                    {/* Wrapped Routes in a div with the key to fix TypeScript error and ensure animation triggers */}
                     <div key={location.pathname + location.search} className="w-full flex-grow">
                         <Routes location={location}>
                             <Route path="/" element={<AnimatedPage><HomeRoute navigate={navigate} /></AnimatedPage>} />
-                            {/* Changed parameter from :id to :slug */}
                             <Route path="/product/:slug" element={<AnimatedPage><ProductRoute navigate={navigate} setIsAuthModalOpen={setIsAuthModalOpen} /></AnimatedPage>} />
                             <Route path="/cart" element={<AnimatedPage><CartPage navigate={navigate} /></AnimatedPage>} />
                             <Route path="/category/:category" element={<AnimatedPage><CategoryRoute navigate={navigate} /></AnimatedPage>} />
@@ -128,6 +133,8 @@ const AppContent: React.FC<{ navigate: (page: PageState) => void, isAuthModalOpe
                             <Route path="/dashboard" element={<AnimatedPage><DashboardPage navigate={navigate} /></AnimatedPage>} />
                             <Route path="/new-arrivals" element={<AnimatedPage><NewArrivalsPage navigate={navigate} /></AnimatedPage>} />
                             <Route path="/blog" element={<AnimatedPage><BlogPage navigate={navigate} /></AnimatedPage>} />
+                            <Route path="/admin/login" element={<Suspense fallback={<div className="min-h-screen bg-brand-dark" />}><AdminLoginPage /></Suspense>} />
+                            <Route path="/admin" element={<Suspense fallback={<div className="min-h-screen bg-brand-dark" />}><AdminDashboardPage /></Suspense>} />
                             <Route path="*" element={<AnimatedPage><HomeRoute navigate={navigate} /></AnimatedPage>} />
                         </Routes>
                     </div>
@@ -136,6 +143,8 @@ const AppContent: React.FC<{ navigate: (page: PageState) => void, isAuthModalOpe
             <Footer navigate={navigate} />
             <ToastContainer />
             <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
+            <WhatsAppButton />
+            <ChatBot />
         </div>
     );
 };
@@ -157,13 +166,10 @@ const App: React.FC = () => {
         }
         break;
       case 'product':
-        // Use slug if provided, otherwise fallback (should usually be name now)
         const slug = pageState.props?.slug || slugify(pageState.props?.name || '');
         if (slug) {
             routerNavigate(`/product/${slug}`);
         } else if (pageState.props?.id) {
-             // Fallback if we only have ID (though we should use slug)
-             // Ideally we find the product to get the name, but this simple shim assumes components pass the name/slug
              routerNavigate(`/product/${pageState.props.id}`); 
         }
         break;
@@ -213,6 +219,7 @@ const App: React.FC = () => {
 
   return (
     <AuthProvider>
+      <AdminProvider>
       <ProductProvider>
         <CartProvider>
           <CustomImageProvider>
@@ -224,6 +231,7 @@ const App: React.FC = () => {
           </CustomImageProvider>
         </CartProvider>
       </ProductProvider>
+      </AdminProvider>
     </AuthProvider>
   );
 };

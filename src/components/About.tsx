@@ -60,6 +60,7 @@ const About = React.forwardRef<HTMLElement, AboutProps>(({ navigate }, ref) => {
              <img 
                src="https://res.cloudinary.com/dy3jvbisa/image/upload/v1762523772/b67a73b3-c5cf-4046-93d3-f1777206b110_balhkq.jpg"
                alt="Traditional perfume bottles and ingredients"
+               loading="lazy"
                className="w-full h-full object-cover opacity-80 hover:opacity-100 transition-opacity duration-700 grayscale-[20%]"
              />
              <div className="absolute inset-0 bg-gradient-to-t from-brand-dark/80 via-transparent to-transparent"></div>
