@@ -1,60 +1,90 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { supabase } from '../lib/supabase';
 
 interface Message {
   role: 'user' | 'bot';
   text: string;
 }
 
-const SYSTEM_PROMPT = `You are Attar AI, the official fragrance expert for Darul Attar, a premium attar and oud house based in Chennai, India. Your role is to help customers discover, understand, and choose the perfect fragrance.
+interface ProductInfo {
+  name: string;
+  description: string;
+  scent_profile: { top: string; heart: string; base: string };
+  variants: { size: string; price: number }[];
+  categories: string[];
+  slug: string;
+}
 
-## YOUR EXPERTISE
-- Attars, oud oils, perfume oils — types, origins, extraction methods
-- Scent profiles: top notes, heart notes, base notes
-- Fragrance families: floral, woody, musk, gourmand, spicy, fresh, aquatic
-- How to choose a fragrance by season, occasion, gender preference, or budget
-- Application tips: pulse points, longevity, layering techniques
-- Storage: keep away from sunlight, heat, and humidity
-- Differences: oil-based vs alcohol-based, attar vs perfume, natural vs synthetic
-- History: Kannauj attar tradition, Indian perfumery, Middle Eastern oud culture
+const slugify = (text: string) =>
+  text.toLowerCase().replace(/\s+/g, '-').replace(/[^\w\-]+/g, '').replace(/\-\-+/g, '-').replace(/^-+/, '').replace(/-+$/, '');
 
-## LANGUAGE
-- Respond in English by default
-- If the user writes in Tamil or Tanglish (Tamil+English mix), respond in Tanglish naturally
-- Tanglish example: "Ivanaga 3ml variant ₹120 ku available iruku. Top notes la Bergamot, Lavender irukum"
-- Keep responses casual and warm, not robotic
-
-## PRODUCT RECOMMENDATIONS
-When asked for recommendations:
-1. Ask about their preference: floral/woody/fresh/sweet/spicy
-2. Ask about occasion: daily wear, special event, gift, travel
-3. Suggest 1-2 products with specific variant (size) and price
-4. Mention key notes so they know what to expect
-5. Price range: most products are ₹120-₹450 (6ml-12ml)
-
-## RESPONSE RULES
-- Maximum 4 sentences. Be concise.
-- No markdown formatting. No asterisks, no bullet points.
-- Be warm and friendly, like a knowledgeable shopkeeper
-- If asked something outside fragrances say: "Naa attar matum fragrance related questions ku dhaan answer pannuven. Please ask me about perfumes, attars, or scents!"
-- If you don't know a specific product, suggest similar ones from Darul Attar's collection
-- Never mention competitors by name — just describe the scent profile
-
-## CONTEXT
-Darul Attar is based in Chennai, India. Products are premium attars and perfume oils, alcohol-free, concentrated. Shipping across India. Available in 3ml, 6ml, and 12ml glass roll-on bottles.`;
+const SITE_URL = 'https://darulattar.in';
 
 const ChatBot: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'bot', text: "Welcome to Darul Attar. I'm Attar AI. Ask me about our fragrances, attars, or oud oils." },
+    { role: 'bot', text: "Welcome to Darul Attar! I'm Attar AI. Ask me about our products, fragrances, or get recommendations." },
   ]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const [catalog, setCatalog] = useState<ProductInfo[]>([]);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  useEffect(() => {
+    if (isOpen && catalog.length === 0) {
+      (async () => {
+        const { data } = await supabase.from('products').select('*');
+        if (data) {
+          const mapped: ProductInfo[] = data.map((p: any) => ({
+            name: p.name,
+            description: p.description,
+            scent_profile: p.scent_profile || { top: '', heart: '', base: '' },
+            variants: p.variants || [],
+            categories: p.categories || [],
+            slug: slugify(p.name),
+          }));
+          setCatalog(mapped);
+        }
+      })();
+    }
+  }, [isOpen, catalog.length]);
+
+  const buildProductCatalogText = () => {
+    if (catalog.length === 0) return '';
+    return catalog.map((p) => {
+      const prices = p.variants.map((v) => `₹${v.price} (${v.size})`).join(', ');
+      const notes = [p.scent_profile.top, p.scent_profile.heart, p.scent_profile.base].filter(Boolean).join(' | ');
+      return `- ${p.name}: ${p.description.split('.')[0]}. Prices: ${prices}. URL: ${SITE_URL}/product/${p.slug}. Notes: ${notes}`;
+    }).join('\n');
+  };
+
+  const SYSTEM_PROMPT = `You are Attar AI, the official fragrance expert for Darul Attar (chennai, India). You ONLY recommend products from the catalog below. Never make up a product that isn't listed.
+
+## CATALOG (your complete product list — only recommend from here):
+${buildProductCatalogText() || 'Loading catalog...'}
+
+## LANGUAGE
+- Default: English. If user writes Tamil/Tanglish, reply in Tanglish naturally.
+- Tanglish example: "Ivanaga 6ml variant ₹120 ku available iruku."
+
+## RECOMMENDATION RULES
+- ONLY recommend products from the CATALOG above. Never suggest anything not listed.
+- When recommending, include: product name, size+price, 1 key note, and the URL
+- URL format: ${SITE_URL}/product/<slug> where slug is product name lowercase with hyphens (e.g. darul-attars-cool-water)
+- When user asks for "link" or "product link", respond with the actual clickable URL like: ${SITE_URL}/product/product-name
+- Price range: check the catalog for actual prices
+- If user asks about a product not in catalog, say: "Sorry, that product isn't currently in our collection. Here's what we have: [suggest 2 similar items from catalog]"
+
+## RULES
+- Max 4 sentences. No markdown. No asterisks or bullets.
+- Warm, friendly, like a knowledgeable shopkeeper
+- If asked non-fragrance: politely decline
+- Never mention competitor brands`;
 
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -66,9 +96,9 @@ const ChatBot: React.FC = () => {
     setLoading(true);
 
     try {
-      const apiKey = import.meta.env.VITE_OPENROUTER_API_KEY || process.env.OPENROUTER_API_KEY || '';
+      const apiKey = import.meta.env.VITE_OPENROUTER_API_KEY || (typeof process !== 'undefined' && process.env.OPENROUTER_API_KEY) || '';
       if (!apiKey) {
-        setMessages((prev) => [...prev, { role: 'bot', text: 'AI service is not configured. Set OPENROUTER_API_KEY in your environment.' }]);
+        setMessages((prev) => [...prev, { role: 'bot', text: 'AI service is not configured.' }]);
         setLoading(false);
         return;
       }
@@ -78,28 +108,25 @@ const ChatBot: React.FC = () => {
         content: m.text,
       }));
 
-      const res = await fetch(
-        'https://openrouter.ai/api/v1/chat/completions',
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${apiKey}`,
-            'HTTP-Referer': 'https://darulattar.com',
-            'X-Title': 'Darul Attar',
-          },
-          body: JSON.stringify({
-            model: 'openai/gpt-4o-mini',
-            messages: [
-              { role: 'system', content: SYSTEM_PROMPT },
-              ...chatHistory,
-              { role: 'user', content: userMsg },
-            ],
-            temperature: 0.7,
-            max_tokens: 200,
-          }),
-        }
-      );
+      const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`,
+          'HTTP-Referer': SITE_URL,
+          'X-Title': 'Darul Attar',
+        },
+        body: JSON.stringify({
+          model: 'openai/gpt-4o-mini',
+          messages: [
+            { role: 'system', content: SYSTEM_PROMPT },
+            ...chatHistory,
+            { role: 'user', content: userMsg },
+          ],
+          temperature: 0.7,
+          max_tokens: 300,
+        }),
+      });
 
       if (!res.ok) throw new Error('API request failed');
 
@@ -114,11 +141,22 @@ const ChatBot: React.FC = () => {
     }
   };
 
+  const renderMessage = (text: string) => {
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    const parts = text.split(urlRegex);
+    return parts.map((part, i) => {
+      if (part.match(urlRegex)) {
+        return <a key={i} href={part} target="_blank" rel="noopener noreferrer" className="text-brand-gold underline hover:text-white break-all">{part}</a>;
+      }
+      return part;
+    });
+  };
+
   return (
     <>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-6 right-6 z-50 w-14 h-14 bg-brand-gold text-brand-dark rounded-full flex items-center justify-center shadow-xl hover:bg-white transition z-50"
+        className="fixed bottom-6 right-6 z-50 w-14 h-14 bg-brand-gold text-brand-dark rounded-full flex items-center justify-center shadow-xl hover:bg-white transition"
       >
         {isOpen ? (
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -141,7 +179,7 @@ const ChatBot: React.FC = () => {
             className="fixed bottom-24 right-6 z-50 w-80 sm:w-96 h-[500px] bg-brand-charcoal border border-gray-700 rounded-lg shadow-2xl flex flex-col overflow-hidden"
           >
             <div className="bg-brand-gold/10 border-b border-gray-700 px-4 py-3 flex items-center space-x-2">
-              <div className="w-8 h-8 bg-brand-gold flex items-center justify-center text-brand-dark">
+              <div className="w-8 h-8 bg-brand-gold flex items-center justify-center text-brand-dark rounded-sm">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                 </svg>
@@ -156,13 +194,13 @@ const ChatBot: React.FC = () => {
               {messages.map((msg, i) => (
                 <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                   <div
-                    className={`max-w-[80%] px-3 py-2 rounded-lg text-sm ${
+                    className={`max-w-[80%] px-3 py-2 rounded-lg text-sm leading-relaxed ${
                       msg.role === 'user'
                         ? 'bg-brand-gold text-brand-dark'
                         : 'bg-gray-800 text-gray-200'
                     }`}
                   >
-                    {msg.text}
+                    {msg.role === 'bot' ? renderMessage(msg.text) : msg.text}
                   </div>
                 </div>
               ))}
