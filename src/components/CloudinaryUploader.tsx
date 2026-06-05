@@ -13,49 +13,48 @@ declare global {
 
 const CloudinaryUploader: React.FC<CloudinaryUploaderProps> = ({ onUpload, maxFiles = 1 }) => {
   const widgetRef = useRef<any>(null);
+  const callbackRef = useRef(onUpload);
+  callbackRef.current = onUpload;
 
   useEffect(() => {
-    if (window.cloudinary) {
-      widgetRef.current = window.cloudinary.createUploadWidget(
-        {
-          cloudName: 'dy3jvbisa',
-          uploadPreset: 'darulattar_preset',
-          sources: ['local', 'url', 'camera', 'dropbox'],
-          multiple: maxFiles > 1,
-          maxFiles,
-          cropping: false,
-          styles: {
-            palette: {
-              window: '#050505',
-              windowBorder: '#C0A080',
-              tabIcon: '#C0A080',
-              menuIcons: '#C0A080',
-              textDark: '#050505',
-              textLight: '#FFFFFF',
-              link: '#C0A080',
-              action: '#C0A080',
-              inactiveTabIcon: '#6B7280',
-              error: '#F44336',
-              inProgress: '#C0A080',
-              complete: '#4CAF50',
-              sourceBg: '#1a1a1a',
-            },
+    if (widgetRef.current || !window.cloudinary) return;
+    widgetRef.current = window.cloudinary.createUploadWidget(
+      {
+        cloudName: 'dy3jvbisa',
+        uploadPreset: 'darulattar_preset',
+        sources: ['local', 'url', 'camera', 'dropbox'],
+        multiple: maxFiles > 1,
+        maxFiles,
+        cropping: false,
+        styles: {
+          palette: {
+            window: '#050505',
+            windowBorder: '#C0A080',
+            tabIcon: '#C0A080',
+            menuIcons: '#C0A080',
+            textDark: '#050505',
+            textLight: '#FFFFFF',
+            link: '#C0A080',
+            action: '#C0A080',
+            inactiveTabIcon: '#6B7280',
+            error: '#F44336',
+            inProgress: '#C0A080',
+            complete: '#4CAF50',
+            sourceBg: '#1a1a1a',
           },
         },
-        (error: any, result: any) => {
-          if (!error && result && result.event === 'success') {
-            onUpload([result.info.secure_url]);
-          }
+      },
+      (error: any, result: any) => {
+        if (!error && result && result.event === 'success') {
+          callbackRef.current([result.info.secure_url]);
         }
-      );
-    }
-  }, [onUpload, maxFiles]);
+      }
+    );
+  }, [maxFiles]);
 
   const openWidget = useCallback(() => {
     if (widgetRef.current) {
       widgetRef.current.open();
-    } else {
-      alert('Cloudinary widget is loading. Please try again.');
     }
   }, []);
 
