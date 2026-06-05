@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '../lib/supabase';
 
@@ -20,12 +20,23 @@ const slugify = (text: string) =>
   text.toLowerCase().replace(/\s+/g, '-').replace(/[^\w\-]+/g, '').replace(/\-\-+/g, '-').replace(/^-+/, '').replace(/-+$/, '');
 
 const SITE_URL = 'https://darulattar.in';
+const WHATSAPP_NUMBER = '919578994377';
+const STORAGE_KEY = 'darulattar_chat_messages';
 
 const ChatBot: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState<Message[]>([
-    { role: 'bot', text: "Welcome to Darul Attar! I'm Attar AI. Ask me about our products, fragrances, or get recommendations." },
-  ]);
+  const [messages, setMessages] = useState<Message[]>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      return saved ? JSON.parse(saved) : [
+        { role: 'bot', text: "Welcome to Darul Attar! I'm Attar AI. Ask me about our products, fragrances, or get recommendations." },
+      ];
+    } catch {
+      return [
+        { role: 'bot', text: "Welcome to Darul Attar! I'm Attar AI. Ask me about our products, fragrances, or get recommendations." },
+      ];
+    }
+  });
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [catalog, setCatalog] = useState<ProductInfo[]>([]);
@@ -33,6 +44,10 @@ const ChatBot: React.FC = () => {
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+
+  useEffect(() => {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(messages)); } catch {}
   }, [messages]);
 
   useEffect(() => {
@@ -59,32 +74,46 @@ const ChatBot: React.FC = () => {
     return catalog.map((p) => {
       const prices = p.variants.map((v) => `₹${v.price} (${v.size})`).join(', ');
       const notes = [p.scent_profile.top, p.scent_profile.heart, p.scent_profile.base].filter(Boolean).join(' | ');
-      return `- ${p.name}: ${p.description.split('.')[0]}. Prices: ${prices}. URL: ${SITE_URL}/product/${p.slug}. Notes: ${notes}`;
+      return `- ${p.name}: ${p.description.split('.')[0]}. Prices: ${prices}. Notes: ${notes}. URL: ${SITE_URL}/product/${p.slug}`;
     }).join('\n');
   };
 
-  const SYSTEM_PROMPT = `You are Attar AI, the official fragrance expert for Darul Attar (chennai, India). You ONLY recommend products from the catalog below. Never make up a product that isn't listed.
+  const SYSTEM_PROMPT = `You are Attar AI, the helpful fragrance advisor at Darul Attar (Chennai, India). You ONLY recommend products from the catalog below. Never recommend anything not listed.
 
-## CATALOG (your complete product list — only recommend from here):
+## CATALOG (your complete product list — recommend only from here):
 ${buildProductCatalogText() || 'Loading catalog...'}
 
 ## LANGUAGE
 - Default: English. If user writes Tamil/Tanglish, reply in Tanglish naturally.
 - Tanglish example: "Ivanaga 6ml variant ₹120 ku available iruku."
 
-## RECOMMENDATION RULES
-- ONLY recommend products from the CATALOG above. Never suggest anything not listed.
-- When recommending, include: product name, size+price, 1 key note, and the URL
-- URL format: ${SITE_URL}/product/<slug> where slug is product name lowercase with hyphens (e.g. darul-attars-cool-water)
-- When user asks for "link" or "product link", respond with the actual clickable URL like: ${SITE_URL}/product/product-name
-- Price range: check the catalog for actual prices
-- If user asks about a product not in catalog, say: "Sorry, that product isn't currently in our collection. Here's what we have: [suggest 2 similar items from catalog]"
+## YOUR PERSONALITY — HONEST SALES ASSISTANT
+- Be warm, kind, and helpful, like a trusted shopkeeper who genuinely cares.
+- NEVER overpromise or exaggerate. If a product is mild, say so. If it doesn't last long, mention it.
+- Underpromise and deliver: "This one is subtle and soft, perfect if you prefer light scents."
+- Be honest: "Ivaanga fragrance lam soft ah irukum, heavy expect panna koodathu."
+- If a user seems unsure, guide them gently with questions: "Entha type notes pidikkum? Floral ah, woody ah, fresh ah?"
 
-## RULES
-- Max 4 sentences. No markdown. No asterisks or bullets.
-- Warm, friendly, like a knowledgeable shopkeeper
-- If asked non-fragrance: politely decline
-- Never mention competitor brands`;
+## UPSELLING (do this naturally, not pushy)
+When someone clearly wants to buy or asks about a specific product:
+1. Recommend the product they asked about
+2. Add: "Nenga [size] variant select pannitenga? Vera size um available iruku."
+3. If they choose a small size, mention: "Inga 12ml um iruku, long term use ku value for money."
+4. Always end with: "I want to buy" nu soltenga na WhatsApp la order pannalam — link below.
+- WhatsApp order link for any product: https://wa.me/${WHATSAPP_NUMBER}?text=I%27m%20interested%20in%20[PRODUCT_NAME]%20([SIZE])%20-%20%E2%82%B9[PRICE]
+- When user shows purchase intent, output the WhatsApp link with the product pre-filled.
+
+## PRODUCT LINKS
+- Product page URL format: ${SITE_URL}/product/<slug>
+- When user asks for "link" or "product link", give the clickable URL.
+- WhatsApp order link: https://wa.me/${WHATSAPP_NUMBER}?text=I'm%20interested%20in%20[product%20name]%20[product%20size]
+
+## RESPONSE RULES
+- Max 4 sentences. No markdown. No asterisks or bullet points.
+- Be warm, conversational. Use Tanglish naturally when user messages in Tamil.
+- If asked non-fragrance: politely decline.
+- Never mention competitor brands.
+- Important: URLs must be plain text (no markdown formatting) so they render as clickable links.`;
 
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -124,7 +153,7 @@ ${buildProductCatalogText() || 'Loading catalog...'}
             { role: 'user', content: userMsg },
           ],
           temperature: 0.7,
-          max_tokens: 300,
+          max_tokens: 400,
         }),
       });
 
@@ -150,6 +179,13 @@ ${buildProductCatalogText() || 'Loading catalog...'}
       }
       return part;
     });
+  };
+
+  const clearChat = () => {
+    setMessages([
+      { role: 'bot', text: "Welcome to Darul Attar! I'm Attar AI. Ask me about our products, fragrances, or get recommendations." },
+    ]);
+    localStorage.removeItem(STORAGE_KEY);
   };
 
   return (
@@ -178,16 +214,19 @@ ${buildProductCatalogText() || 'Loading catalog...'}
             transition={{ duration: 0.2 }}
             className="fixed bottom-24 right-6 z-50 w-80 sm:w-96 h-[500px] bg-brand-charcoal border border-gray-700 rounded-lg shadow-2xl flex flex-col overflow-hidden"
           >
-            <div className="bg-brand-gold/10 border-b border-gray-700 px-4 py-3 flex items-center space-x-2">
-              <div className="w-8 h-8 bg-brand-gold flex items-center justify-center text-brand-dark rounded-sm">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-                </svg>
+            <div className="bg-brand-gold/10 border-b border-gray-700 px-4 py-3 flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <div className="w-8 h-8 bg-brand-gold flex items-center justify-center text-brand-dark rounded-sm">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                  </svg>
+                </div>
+                <div>
+                  <p className="text-white text-sm font-semibold">Attar AI</p>
+                  <p className="text-gray-400 text-xs">Attar & Oud Specialist</p>
+                </div>
               </div>
-              <div>
-                <p className="text-white text-sm font-semibold">Attar AI</p>
-                <p className="text-gray-400 text-xs">Attar & Oud Specialist</p>
-              </div>
+              <button onClick={clearChat} className="text-gray-500 hover:text-white text-xs transition" title="Clear chat">↺</button>
             </div>
 
             <div className="flex-1 overflow-y-auto p-4 space-y-3">

@@ -70,9 +70,27 @@ const assignSmartCategories = (productName: string, existingCategories: string[]
   return Array.from(unique);
 };
 
+const CACHE_KEY = 'darulattar_products_cache';
+const CACHE_AGE = 5 * 60 * 1000;
+
+const loadCached = (): Product[] | null => {
+  try {
+    const raw = localStorage.getItem(CACHE_KEY);
+    if (!raw) return null;
+    const { data, time } = JSON.parse(raw);
+    if (Date.now() - time > CACHE_AGE) { localStorage.removeItem(CACHE_KEY); return null; }
+    return data;
+  } catch { return null; }
+};
+
+const saveCache = (data: Product[]) => {
+  try { localStorage.setItem(CACHE_KEY, JSON.stringify({ data, time: Date.now() })); } catch {}
+};
+
 export const ProductProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const cached = loadCached();
+  const [products, setProducts] = useState<Product[]>(cached || []);
+  const [isLoading, setIsLoading] = useState(!cached);
   const [error, setError] = useState<string | null>(null);
 
   const fetchProducts = async () => {
@@ -108,9 +126,10 @@ export const ProductProvider: React.FC<{ children: ReactNode }> = ({ children })
       }
 
       setProducts(mappedData);
+      saveCache(mappedData);
     } catch (e: any) {
       console.error("Product Fetch Error:", e);
-      setError("We are updating our collection. Please check back shortly.");
+      if (!cached) setError("We are updating our collection. Please check back shortly.");
     } finally {
       setIsLoading(false);
     }
