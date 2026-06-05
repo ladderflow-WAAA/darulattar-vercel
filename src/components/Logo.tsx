@@ -12,8 +12,8 @@ export const Logo: React.FC<LogoProps> = ({ className = 'h-14 w-auto object-cont
         <img
             src={logoSrc}
             alt="Darul Attar - Authentic Oud & Attar"
-            className={className}
-            style={style}
+            className={`${className} border-none outline-none`}
+            style={{ ...style, border: 'none', outline: 'none' }}
             width="200"
             height="80"
             loading="eager" 
