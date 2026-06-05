@@ -89,11 +89,27 @@ const AnimatedPage = ({ children }: { children: React.ReactNode }) => (
     </motion.div>
 );
 
+// --- Admin Content (isolated from AnimatePresence) ---
+
+const AdminContent: React.FC = () => {
+    return (
+        <div className="bg-brand-dark text-gray-300 min-h-screen font-sans selection:bg-brand-gold selection:text-brand-dark">
+            <Suspense fallback={<div className="min-h-screen bg-brand-dark" />}>
+                <Routes>
+                    <Route path="/admin/login" element={<AdminLoginPage />} />
+                    <Route path="/admin" element={<AdminDashboardPage />} />
+                </Routes>
+            </Suspense>
+        </div>
+    );
+};
+
 // --- Main Content ---
 
 const AppContent: React.FC<{ navigate: (page: PageState) => void, isAuthModalOpen: boolean, setIsAuthModalOpen: (isOpen: boolean) => void }> = ({ navigate, isAuthModalOpen, setIsAuthModalOpen }) => {
     const { isLoading, error } = useProducts();
     const location = useLocation();
+    const isAdminRoute = location.pathname.startsWith('/admin');
 
     if (isLoading) {
         return <HomePageSkeleton />;
@@ -109,6 +125,10 @@ const AppContent: React.FC<{ navigate: (page: PageState) => void, isAuthModalOpe
                 </button>
             </div>
         );
+    }
+
+    if (isAdminRoute) {
+        return <AdminContent />;
     }
 
     return (
@@ -133,8 +153,6 @@ const AppContent: React.FC<{ navigate: (page: PageState) => void, isAuthModalOpe
                             <Route path="/dashboard" element={<AnimatedPage><DashboardPage navigate={navigate} /></AnimatedPage>} />
                             <Route path="/new-arrivals" element={<AnimatedPage><NewArrivalsPage navigate={navigate} /></AnimatedPage>} />
                             <Route path="/blog" element={<AnimatedPage><BlogPage navigate={navigate} /></AnimatedPage>} />
-                            <Route path="/admin/login" element={<Suspense fallback={<div className="min-h-screen bg-brand-dark" />}><AdminLoginPage /></Suspense>} />
-                            <Route path="/admin" element={<Suspense fallback={<div className="min-h-screen bg-brand-dark" />}><AdminDashboardPage /></Suspense>} />
                             <Route path="*" element={<AnimatedPage><HomeRoute navigate={navigate} /></AnimatedPage>} />
                         </Routes>
                     </div>
