@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAdmin } from '../contexts/AdminContext';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -9,9 +9,43 @@ type CategoryGroup = 'Best Sellers' | 'Floral & Fresh' | 'Woody & Musk' | 'Gourm
 
 const CATEGORIES: CategoryGroup[] = ['Best Sellers', 'Floral & Fresh', 'Woody & Musk', 'Gourmand & Spicy'];
 
+interface ProductRow {
+  id: string;
+  name: string;
+  image_url: string;
+  categories: string[];
+  created_at: string;
+}
+
 const AdminDashboardPage: React.FC = () => {
   const { isAdmin, isLoading, logout, admin } = useAdmin();
   const navigate = useNavigate();
+
+  const [productList, setProductList] = useState<ProductRow[]>([]);
+  const [loadingProducts, setLoadingProducts] = useState(true);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  const fetchProductList = useCallback(async () => {
+    setLoadingProducts(true);
+    const { data, error } = await supabase
+      .from('products')
+      .select('id, name, image_url, categories, created_at')
+      .order('created_at', { ascending: false });
+    if (!error && data) setProductList(data);
+    setLoadingProducts(false);
+  }, []);
+
+  useEffect(() => {
+    if (!isLoading && isAdmin) fetchProductList();
+  }, [isLoading, isAdmin, fetchProductList]);
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('Delete this product?')) return;
+    setDeletingId(id);
+    const { error } = await supabase.from('products').delete().eq('id', id);
+    if (!error) setProductList((prev) => prev.filter((p) => p.id !== id));
+    setDeletingId(null);
+  };
 
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -79,6 +113,7 @@ const AdminDashboardPage: React.FC = () => {
       if (insertError) throw insertError;
 
       setMessage({ type: 'success', text: 'Product uploaded successfully!' });
+      fetchProductList();
       setName('');
       setDescription('');
       setTopNotes('');
@@ -127,6 +162,50 @@ const AdminDashboardPage: React.FC = () => {
             {message.text}
           </div>
         )}
+
+        {/* Product List */}
+        <div className="bg-black/50 border border-gray-800 rounded-sm p-6 mb-8">
+          <div className="flex items-center justify-between border-b border-gray-700 pb-2 mb-4">
+            <h2 className="text-lg font-serif text-white">Your Products ({productList.length})</h2>
+            <button
+              onClick={fetchProductList}
+              className="text-xs text-brand-gold hover:text-white transition"
+            >
+              Refresh
+            </button>
+          </div>
+          {loadingProducts ? (
+            <p className="text-gray-500 text-sm">Loading products...</p>
+          ) : productList.length === 0 ? (
+            <p className="text-gray-500 text-sm">No products yet. Upload your first product below.</p>
+          ) : (
+            <div className="space-y-3">
+              {productList.map((p) => (
+                <div key={p.id} className="flex items-center gap-4 bg-brand-charcoal/50 border border-gray-700/50 rounded-sm p-3">
+                  <img
+                    src={p.image_url || '/placeholder.png'}
+                    alt={p.name}
+                    className="w-12 h-12 object-cover rounded-sm flex-shrink-0"
+                  />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-white text-sm font-medium truncate">{p.name}</p>
+                    <p className="text-gray-500 text-xs">
+                      {p.categories?.length ? p.categories.join(', ') : 'Uncategorized'} &middot;{' '}
+                      {new Date(p.created_at).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => handleDelete(p.id)}
+                    disabled={deletingId === p.id}
+                    className="text-red-500 hover:text-red-400 text-xs flex-shrink-0 disabled:opacity-50"
+                  >
+                    {deletingId === p.id ? '...' : 'Delete'}
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
 
         <form onSubmit={handleSubmit} className="space-y-8">
           <div className="bg-black/50 border border-gray-800 rounded-sm p-6 space-y-5">
