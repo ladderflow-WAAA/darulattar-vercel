@@ -1,4 +1,4 @@
-import React, { useState, Suspense } from 'react';
+import React, { useState, Suspense, useMemo } from 'react';
 import { CartProvider } from './contexts/CartContext';
 import Header from './components/Header';
 import Footer from './components/Footer';
@@ -89,27 +89,11 @@ const AnimatedPage = ({ children }: { children: React.ReactNode }) => (
     </motion.div>
 );
 
-// --- Admin Content (isolated from AnimatePresence) ---
-
-const AdminContent: React.FC = () => {
-    return (
-        <div className="bg-brand-dark text-gray-300 min-h-screen font-sans selection:bg-brand-gold selection:text-brand-dark">
-            <Suspense fallback={<div className="min-h-screen bg-brand-dark" />}>
-                <Routes>
-                    <Route path="/admin/login" element={<AdminLoginPage />} />
-                    <Route path="/admin" element={<AdminDashboardPage />} />
-                </Routes>
-            </Suspense>
-        </div>
-    );
-};
-
 // --- Main Content ---
 
 const AppContent: React.FC<{ navigate: (page: PageState) => void, isAuthModalOpen: boolean, setIsAuthModalOpen: (isOpen: boolean) => void }> = ({ navigate, isAuthModalOpen, setIsAuthModalOpen }) => {
     const { isLoading, error } = useProducts();
     const location = useLocation();
-    const isAdminRoute = location.pathname.startsWith('/admin');
 
     if (isLoading) {
         return <HomePageSkeleton />;
@@ -125,10 +109,6 @@ const AppContent: React.FC<{ navigate: (page: PageState) => void, isAuthModalOpe
                 </button>
             </div>
         );
-    }
-
-    if (isAdminRoute) {
-        return <AdminContent />;
     }
 
     return (
@@ -172,6 +152,8 @@ const AppContent: React.FC<{ navigate: (page: PageState) => void, isAuthModalOpe
 const App: React.FC = () => {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const routerNavigate = useNavigate();
+  const location = useLocation();
+  const isAdminRoute = location.pathname.startsWith('/admin');
 
   const navigate = (pageState: PageState) => {
     window.scrollTo(0, 0);
@@ -234,6 +216,21 @@ const App: React.FC = () => {
         routerNavigate('/');
     }
   };
+
+  if (isAdminRoute) {
+    return (
+      <AuthProvider>
+        <AdminProvider>
+          <Suspense fallback={<div className="min-h-screen bg-brand-dark" />}>
+            <Routes>
+              <Route path="/admin/login" element={<AdminLoginPage />} />
+              <Route path="/admin" element={<AdminDashboardPage />} />
+            </Routes>
+          </Suspense>
+        </AdminProvider>
+      </AuthProvider>
+    );
+  }
 
   return (
     <AuthProvider>
