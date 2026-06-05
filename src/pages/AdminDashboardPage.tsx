@@ -3,6 +3,7 @@ import { useAdmin } from '../contexts/AdminContext';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import CloudinaryUploader from '../components/CloudinaryUploader';
+import { supabase } from '../lib/supabase';
 
 type CategoryGroup = 'Best Sellers' | 'Floral & Fresh' | 'Woody & Musk' | 'Gourmand & Spicy';
 
@@ -62,8 +63,8 @@ const AdminDashboardPage: React.FC = () => {
     const productData = {
       name,
       description,
-      imageUrl,
-      scentProfile: { top: topNotes, heart: heartNotes, base: baseNotes },
+      image_url: imageUrl,
+      scent_profile: { top: topNotes, heart: heartNotes, base: baseNotes },
       categories: selectedCategories,
       variants: variants
         .filter((v) => v.size && v.price)
@@ -71,33 +72,23 @@ const AdminDashboardPage: React.FC = () => {
     };
 
     try {
-      const token = localStorage.getItem('darulAttarAdminToken');
-      const res = await fetch('https://ecommerce-backend-puce.vercel.app/api/products', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
-        body: JSON.stringify(productData),
-      });
+      const { error: insertError } = await supabase
+        .from('products')
+        .insert([productData]);
 
-      if (res.ok) {
-        setMessage({ type: 'success', text: 'Product uploaded successfully!' });
-        setName('');
-        setDescription('');
-        setTopNotes('');
-        setHeartNotes('');
-        setBaseNotes('');
-        setSelectedCategories([]);
-        setImageUrl('');
-        setVariants([{ size: '3ml', price: '' }]);
-      } else {
-        const err = await res.json().catch(() => ({}));
-        setMessage({ type: 'error', text: err.msg || 'Failed to upload product.' });
-      }
-    } catch {
-      setMessage({ type: 'error', text: 'Product submitted locally. Backend not available.' });
-      setMessage({ type: 'success', text: 'Product data ready for submission once backend is connected.' });
+      if (insertError) throw insertError;
+
+      setMessage({ type: 'success', text: 'Product uploaded successfully!' });
+      setName('');
+      setDescription('');
+      setTopNotes('');
+      setHeartNotes('');
+      setBaseNotes('');
+      setSelectedCategories([]);
+      setImageUrl('');
+      setVariants([{ size: '3ml', price: '' }]);
+    } catch (err: any) {
+      setMessage({ type: 'error', text: err.message || 'Failed to upload product.' });
     } finally {
       setSubmitting(false);
     }
@@ -267,7 +258,7 @@ const AdminDashboardPage: React.FC = () => {
           <div className="bg-black/50 border border-gray-800 rounded-sm p-6 space-y-5">
             <h2 className="text-lg font-serif text-white border-b border-gray-700 pb-2">Product Image *</h2>
             {imageUrl ? (
-              <div className="relative">
+              <div className="relative inline-block">
                 <img src={imageUrl} alt="Preview" className="w-48 h-48 object-cover rounded-sm" />
                 <button
                   type="button"

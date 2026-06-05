@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { supabase } from '../lib/supabase';
 
 export interface Variant {
   size: string;
@@ -12,7 +13,7 @@ export interface ScentProfile {
 }
 
 export interface Product {
-  id: string; 
+  id: string;
   name: string;
   description: string;
   imageUrl: string;
@@ -27,23 +28,46 @@ interface ProductContextType {
   error: string | null;
   getProductById: (id: string) => Product | undefined;
   getProductBySlug: (slug: string) => Product | undefined;
+  refreshProducts: () => Promise<void>;
 }
 
 const ProductContext = createContext<ProductContextType | undefined>(undefined);
 
-// Using the production API URL
-const API_URL = 'https://ecommerce-backend-puce.vercel.app/api/products';
-
-// Helper to create URL-friendly product names
 export const slugify = (text: string) => {
   return text
     .toString()
     .toLowerCase()
-    .replace(/\s+/g, '-')     // Replace spaces with -
-    .replace(/[^\w\-]+/g, '') // Remove all non-word chars
-    .replace(/\-\-+/g, '-')   // Replace multiple - with single -
-    .replace(/^-+/, '')       // Trim - from start
-    .replace(/-+$/, '');      // Trim - from end
+    .replace(/\s+/g, '-')
+    .replace(/[^\w\-]+/g, '')
+    .replace(/\-\-+/g, '-')
+    .replace(/^-+/, '')
+    .replace(/-+$/, '');
+};
+
+const categoryRules: { [category: string]: string[] } = {
+  "Best Sellers": [
+    "cool water", "one million", "poison", "hugo", "tom ford", "savage", "imperial"
+  ],
+  "Floral & Fresh": [
+    "cool water", "satin", "sabaya", "rose", "jasmine", "jasmin", "lovely", "lavender", "dove", "brute", "charlie", "titan"
+  ],
+  "Woody & Musk": [
+    "rolex", "jawad", "sandal", "majuma", "musk", "aseel", "dunhill", "oud", "afc", "nabeel"
+  ],
+  "Gourmand & Spicy": [
+    "barbary", "million", "ultra male", "shanaya", "chocolate", "biscuit", "vanilla", "vennila", "strawberry", "magnet", "desire"
+  ]
+};
+
+const assignSmartCategories = (productName: string, existingCategories: string[]): string[] => {
+  const unique = new Set<string>(existingCategories);
+  const nameLower = productName.toLowerCase();
+  for (const [category, keywords] of Object.entries(categoryRules)) {
+    if (keywords.some(kw => nameLower.includes(kw))) {
+      unique.add(category);
+    }
+  }
+  return Array.from(unique);
 };
 
 export const ProductProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
@@ -51,71 +75,48 @@ export const ProductProvider: React.FC<{ children: ReactNode }> = ({ children })
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        setIsLoading(true);
-        setError(null);
-        
-        const response = await fetch(API_URL);
-        if (!response.ok) {
-          throw new Error('Unable to connect to the catalogue server.');
-        }
-        
-        const data = await response.json();
-        
-        // Transform and Optimize Data
-        let mappedData: Product[] = data.map((p: any) => ({ 
-            ...p, 
-            id: p._id,
-            categories: p.categories || [],
-            // Auto-optimize Cloudinary images for format and quality
-            imageUrl: p.imageUrl ? p.imageUrl.replace('/upload/', '/upload/q_auto:good,f_auto/') : '',
-        }));
-        
-        // --- Smart Categorization Logic ---
-        const categoryRules: { [category: string]: string[] } = {
-          "Best Sellers": [
-            "cool water", "one million", "poison", "hugo", "tom ford", "savage", "imperial"
-          ],
-          "Floral & Fresh": [
-            "cool water", "satin", "sabaya", "rose", "jasmine", "jasmin", "lovely", "lavender", "dove", "brute", "charlie", "titan"
-          ],
-          "Woody & Musk": [
-            "rolex", "jawad", "sandal", "majuma", "musk", "aseel", "dunhill", "oud", "afc", "nabeel"
-          ],
-          "Gourmand & Spicy": [
-            "barbary", "million", "ultra male", "shanaya", "chocolate", "biscuit", "vanilla", "vennila", "strawberry", "magnet", "desire"
-          ]
-        };
+  const fetchProducts = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
 
-        mappedData = mappedData.map((product: Product) => {
-          const newCategories = new Set<string>(product.categories);
-          const productNameLower = product.name.toLowerCase();
+      const { data, error: fetchError } = await supabase
+        .from('products')
+        .select('*')
+        .order('created_at', { ascending: false });
 
-          for (const [category, keywords] of Object.entries(categoryRules)) {
-            if (keywords.some(kw => productNameLower.includes(kw))) {
-              newCategories.add(category);
-            }
-          }
+      if (fetchError) throw fetchError;
 
-          return { ...product, categories: Array.from(newCategories) };
-        });
+      let mappedData: Product[] = (data || []).map((p: any) => ({
+        id: p.id,
+        name: p.name,
+        description: p.description,
+        imageUrl: p.image_url ? p.image_url.replace('/upload/', '/upload/q_auto:good,f_auto/') : '',
+        scentProfile: p.scent_profile || { top: '', heart: '', base: '' },
+        variants: p.variants || [],
+        categories: p.categories || [],
+      }));
 
-        // --- Specific Overrides (if needed) ---
-        const barbaryLondon = mappedData.find(p => p.name === 'Barbary London');
-        if (barbaryLondon) {
-          barbaryLondon.imageUrl = 'https://res.cloudinary.com/dy3jvbisa/image/upload/v1762511400/Barbary_London_jntova.png'.replace('/upload/', '/upload/q_auto:good,f_auto/');
-        }
+      mappedData = mappedData.map((product: Product) => ({
+        ...product,
+        categories: assignSmartCategories(product.name, product.categories),
+      }));
 
-        setProducts(mappedData);
-      } catch (e: any) {
-        console.error("Product Fetch Error:", e);
-        setError("We are updating our collection. Please check back shortly.");
-      } finally {
-        setIsLoading(false);
+      const barbaryLondon = mappedData.find(p => p.name === 'Barbary London');
+      if (barbaryLondon) {
+        barbaryLondon.imageUrl = 'https://res.cloudinary.com/dy3jvbisa/image/upload/v1762511400/Barbary_London_jntova.png'.replace('/upload/', '/upload/q_auto:good,f_auto/');
       }
-    };
+
+      setProducts(mappedData);
+    } catch (e: any) {
+      console.error("Product Fetch Error:", e);
+      setError("We are updating our collection. Please check back shortly.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchProducts();
   }, []);
 
@@ -127,7 +128,7 @@ export const ProductProvider: React.FC<{ children: ReactNode }> = ({ children })
     return products.find(p => slugify(p.name) === slug);
   };
 
-  const value = { products, isLoading, error, getProductById, getProductBySlug };
+  const value = { products, isLoading, error, getProductById, getProductBySlug, refreshProducts: fetchProducts };
 
   return (
     <ProductContext.Provider value={value}>

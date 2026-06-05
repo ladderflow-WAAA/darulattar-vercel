@@ -6,7 +6,7 @@ interface Message {
   text: string;
 }
 
-const SYSTEM_PROMPT = `You are Oudh Sage, an AI assistant specialized exclusively in attar, oud, and premium perfume oils. Your expertise covers:
+const SYSTEM_PROMPT = `You are Attar AI, an AI assistant specialized exclusively in attar, oud, and premium perfume oils. Your expertise covers:
 - Types of attars and oud oils
 - Scent profiles, notes, and fragrance families
 - How to choose perfumes based on personal preferences
@@ -20,12 +20,14 @@ You must ONLY answer questions related to attar, oud, perfumes, fragrances, and 
 
 Keep responses concise, informative, and helpful. Reference Darul Attar's collection when relevant.
 
+You can also respond in Tanglish (Tamil + English mix) if the user messages in Tamil or Tanglish. Adapt naturally to the user's language.
+
 Do not use markdown formatting. Keep responses to 3-4 sentences maximum.`;
 
 const ChatBot: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'bot', text: "Welcome to Darul Attar. I'm Oudh Sage. Ask me about our fragrances, attars, or oud oils." },
+    { role: 'bot', text: "Welcome to Darul Attar. I'm Attar AI. Ask me about our fragrances, attars, or oud oils." },
   ]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -45,38 +47,37 @@ const ChatBot: React.FC = () => {
     setLoading(true);
 
     try {
-      const apiKey = (typeof process !== 'undefined' && process.env?.API_KEY) || '';
+      const apiKey = (typeof process !== 'undefined' && process.env?.OPENROUTER_API_KEY) || '';
       if (!apiKey) {
-        setMessages((prev) => [...prev, { role: 'bot', text: 'AI service is not configured. Set GEMINI_API_KEY in your environment.' }]);
+        setMessages((prev) => [...prev, { role: 'bot', text: 'AI service is not configured. Set OPENROUTER_API_KEY in your environment.' }]);
         setLoading(false);
         return;
       }
 
       const chatHistory = messages.map((m) => ({
-        role: m.role === 'user' ? 'user' : 'model',
-        parts: [{ text: m.text }],
+        role: m.role === 'user' ? 'user' : 'assistant',
+        content: m.text,
       }));
 
       const res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+        'https://openrouter.ai/api/v1/chat/completions',
         {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${apiKey}`,
+            'HTTP-Referer': 'https://darulattar.com',
+            'X-Title': 'Darul Attar',
+          },
           body: JSON.stringify({
-            systemInstruction: {
-              parts: [{ text: SYSTEM_PROMPT }],
-            },
-            contents: [
+            model: 'openai/gpt-4o-mini',
+            messages: [
+              { role: 'system', content: SYSTEM_PROMPT },
               ...chatHistory,
-              {
-                role: 'user',
-                parts: [{ text: userMsg }],
-              },
+              { role: 'user', content: userMsg },
             ],
-            generationConfig: {
-              temperature: 0.7,
-              maxOutputTokens: 200,
-            },
+            temperature: 0.7,
+            max_tokens: 200,
           }),
         }
       );
@@ -84,7 +85,7 @@ const ChatBot: React.FC = () => {
       if (!res.ok) throw new Error('API request failed');
 
       const data = await res.json();
-      const botText = data?.candidates?.[0]?.content?.parts?.[0]?.text || 'Unable to respond.';
+      const botText = data?.choices?.[0]?.message?.content || 'Unable to respond.';
 
       setMessages((prev) => [...prev, { role: 'bot', text: botText }]);
     } catch {
@@ -121,11 +122,13 @@ const ChatBot: React.FC = () => {
             className="fixed bottom-24 right-6 z-50 w-80 sm:w-96 h-[500px] bg-brand-charcoal border border-gray-700 rounded-lg shadow-2xl flex flex-col overflow-hidden"
           >
             <div className="bg-brand-gold/10 border-b border-gray-700 px-4 py-3 flex items-center space-x-2">
-              <div className="w-8 h-8 bg-brand-gold rounded-full flex items-center justify-center text-brand-dark font-bold text-xs">
-                OS
+              <div className="w-8 h-8 bg-brand-gold flex items-center justify-center text-brand-dark">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                </svg>
               </div>
               <div>
-                <p className="text-white text-sm font-semibold">Oudh Sage</p>
+                <p className="text-white text-sm font-semibold">Attar AI</p>
                 <p className="text-gray-400 text-xs">Attar & Oud Specialist</p>
               </div>
             </div>

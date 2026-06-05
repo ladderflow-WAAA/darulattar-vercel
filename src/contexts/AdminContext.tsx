@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
+import { supabase } from '../lib/supabase';
 
 interface AdminUser {
   email: string;
@@ -15,59 +16,44 @@ interface AdminContextType {
 
 const AdminContext = createContext<AdminContextType | undefined>(undefined);
 
-const ADMIN_CREDENTIALS = {
-  email: 'admin@darulattar.com',
-  password: 'admin123',
-};
-
 export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [admin, setAdmin] = useState<AdminUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    const stored = localStorage.getItem('darulAttarAdmin');
-    if (stored) {
-      try {
-        setAdmin(JSON.parse(stored));
-      } catch {
-        localStorage.removeItem('darulAttarAdmin');
-      }
+  const checkAndSetSession = useCallback(async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session?.user) {
+      const userMeta = session.user.user_metadata || {};
+      setAdmin({ email: session.user.email || '', name: userMeta.name || 'Admin' });
+    } else {
+      setAdmin(null);
     }
     setIsLoading(false);
   }, []);
 
-  const login = useCallback(async (email: string, password: string): Promise<boolean> => {
-    try {
-      const res = await fetch('https://ecommerce-backend-puce.vercel.app/api/admin/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
-      if (res.ok) {
-        const data = await res.json();
-        const user = { email, name: data.name || 'Admin' };
-        localStorage.setItem('darulAttarAdmin', JSON.stringify(user));
-        if (data.token) localStorage.setItem('darulAttarAdminToken', data.token);
-        setAdmin(user);
-        return true;
+  useEffect(() => {
+    checkAndSetSession();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        const userMeta = session.user.user_metadata || {};
+        setAdmin({ email: session.user.email || '', name: userMeta.name || 'Admin' });
+      } else {
+        setAdmin(null);
       }
-    } catch {
-      // Backend not available, fallback to local credentials
-    }
+    });
 
-    if (email === ADMIN_CREDENTIALS.email && password === ADMIN_CREDENTIALS.password) {
-      const user = { email, name: 'Admin' };
-      localStorage.setItem('darulAttarAdmin', JSON.stringify(user));
-      setAdmin(user);
-      return true;
-    }
+    return () => subscription.unsubscribe();
+  }, [checkAndSetSession]);
 
-    return false;
+  const login = useCallback(async (email: string, password: string): Promise<boolean> => {
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error || !data.user) return false;
+    return true;
   }, []);
 
-  const logout = useCallback(() => {
-    localStorage.removeItem('darulAttarAdmin');
-    localStorage.removeItem('darulAttarAdminToken');
+  const logout = useCallback(async () => {
+    await supabase.auth.signOut();
     setAdmin(null);
   }, []);
 
