@@ -39,9 +39,9 @@ const SearchPage: React.FC<SearchPageProps> = ({ navigate, query }) => {
 
     switch (sortOption) {
       case 'price-asc':
-        return filtered.sort((a, b) => a.variants[0].price - b.variants[0].price);
+        return filtered.sort((a, b) => (a.variants?.[0]?.price ?? 0) - (b.variants?.[0]?.price ?? 0));
       case 'price-desc':
-        return filtered.sort((a, b) => b.variants[0].price - a.variants[0].price);
+        return filtered.sort((a, b) => (b.variants?.[0]?.price ?? 0) - (a.variants?.[0]?.price ?? 0));
       case 'name-asc':
         return filtered.sort((a, b) => a.name.localeCompare(b.name));
       case 'name-desc':

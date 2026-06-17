@@ -30,7 +30,7 @@ const ProductSchema: React.FC<ProductSchemaProps> = ({ product, reviews }) => {
         '@type': 'Offer',
         url: window.location.href,
         priceCurrency: 'INR',
-        price: product.variants[0].price,
+        price: product.variants?.[0]?.price ?? 0,
         itemCondition: 'https://schema.org/NewCondition',
         availability: 'https://schema.org/InStock',
         seller: {

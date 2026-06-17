@@ -25,7 +25,7 @@ interface ProductCardProps {
 
 const ProductCard: React.FC<ProductCardProps> = ({ product, navigate }) => {
   const { name, imageUrl, variants } = product;
-  const defaultVariant = variants[0];
+  const defaultVariant = variants?.[0];
   const { addToCart, updateQuantity, cartItems } = useCart();
   const { getReviewsForProduct } = useReviews();
   const { addToast } = useToasts();

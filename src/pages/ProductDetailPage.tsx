@@ -169,7 +169,7 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ productSlug, navi
   
   useEffect(() => {
     if (product) {
-      setSelectedVariant(product.variants[0]);
+      setSelectedVariant(product.variants?.[0] || null);
       setQuantity(1);
       const metaDescription = `Buy ${product.name}, a premium non-alcoholic attar oil by Darul Attar in Chennai. Scent notes: ${product.scentProfile.top}, ${product.scentProfile.heart}. Available at our MMDA Colony store.`;
       setMetadata(

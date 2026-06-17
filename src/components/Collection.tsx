@@ -24,7 +24,7 @@ const Collection = React.forwardRef<HTMLElement, { navigate: (pageState: PageSta
   
   const priceBounds = useMemo(() => {
     if (products.length === 0) return { min: 0, max: 1000 };
-    const prices = products.map(p => p.variants[0].price);
+    const prices = products.map(p => p.variants?.[0]?.price ?? 0);
     
     let minPrice = Math.min(...prices);
     let maxPrice = Math.max(...prices);
@@ -55,7 +55,8 @@ const Collection = React.forwardRef<HTMLElement, { navigate: (pageState: PageSta
   const filteredProducts = useMemo(() => {
     return products.filter(product => {
       const categoryMatch = filters.categories.length === 0 || product.categories.some(cat => filters.categories.includes(cat));
-      const priceMatch = product.variants[0].price >= filters.priceRange.min && product.variants[0].price <= filters.priceRange.max;
+      const prodPrice = product.variants?.[0]?.price ?? 0;
+      const priceMatch = prodPrice >= filters.priceRange.min && prodPrice <= filters.priceRange.max;
       const notesMatch = filters.notes.length === 0 || filters.notes.every(note =>
         `${product.scentProfile.top}, ${product.scentProfile.heart}, ${product.scentProfile.base}`.toLowerCase().includes(note.toLowerCase())
       );
@@ -66,8 +67,8 @@ const Collection = React.forwardRef<HTMLElement, { navigate: (pageState: PageSta
   const sortedProducts = useMemo(() => {
     const sortableProducts = [...filteredProducts];
     switch (sortOption) {
-      case 'price-asc': return sortableProducts.sort((a, b) => a.variants[0].price - b.variants[0].price);
-      case 'price-desc': return sortableProducts.sort((a, b) => b.variants[0].price - a.variants[0].price);
+      case 'price-asc': return sortableProducts.sort((a, b) => (a.variants?.[0]?.price ?? 0) - (b.variants?.[0]?.price ?? 0));
+      case 'price-desc': return sortableProducts.sort((a, b) => (b.variants?.[0]?.price ?? 0) - (a.variants?.[0]?.price ?? 0));
       case 'name-asc': return sortableProducts.sort((a, b) => a.name.localeCompare(b.name));
       case 'name-desc': return sortableProducts.sort((a, b) => b.name.localeCompare(a.name));
       default: return sortableProducts;

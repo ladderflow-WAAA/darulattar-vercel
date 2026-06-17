@@ -42,7 +42,7 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ navigate, category }) => {
 
   const priceBounds = useMemo(() => {
     if (categoryProducts.length === 0) return { min: 0, max: 1000 };
-    const prices = categoryProducts.map(p => p.variants[0].price);
+    const prices = categoryProducts.map(p => p.variants?.[0]?.price ?? 0);
     
     let minPrice = Math.min(...prices);
     let maxPrice = Math.max(...prices);
@@ -71,7 +71,8 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ navigate, category }) => {
 
   const filteredProducts = useMemo(() => {
     return categoryProducts.filter(product => {
-      const priceMatch = product.variants[0].price >= filters.priceRange.min && product.variants[0].price <= filters.priceRange.max;
+      const prodPrice = product.variants?.[0]?.price ?? 0;
+      const priceMatch = prodPrice >= filters.priceRange.min && prodPrice <= filters.priceRange.max;
       const notesMatch = filters.notes.length === 0 || filters.notes.every(note =>
         `${product.scentProfile.top}, ${product.scentProfile.heart}, ${product.scentProfile.base}`.toLowerCase().includes(note.toLowerCase())
       );
@@ -82,8 +83,8 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ navigate, category }) => {
   const sortedProducts = useMemo(() => {
     const sortableProducts = [...filteredProducts];
     switch (sortOption) {
-      case 'price-asc': return sortableProducts.sort((a, b) => a.variants[0].price - b.variants[0].price);
-      case 'price-desc': return sortableProducts.sort((a, b) => b.variants[0].price - a.variants[0].price);
+      case 'price-asc': return sortableProducts.sort((a, b) => (a.variants?.[0]?.price ?? 0) - (b.variants?.[0]?.price ?? 0));
+      case 'price-desc': return sortableProducts.sort((a, b) => (b.variants?.[0]?.price ?? 0) - (a.variants?.[0]?.price ?? 0));
       case 'name-asc': return sortableProducts.sort((a, b) => a.name.localeCompare(b.name));
       case 'name-desc': return sortableProducts.sort((a, b) => b.name.localeCompare(a.name));
       default: return sortableProducts;
