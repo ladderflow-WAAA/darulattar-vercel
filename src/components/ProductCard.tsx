@@ -30,7 +30,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, navigate }) => {
   const { getReviewsForProduct } = useReviews();
   const { addToast } = useToasts();
   
-  const cartItemId = `${product.id}-${defaultVariant.size}`;
+  const variantSize = defaultVariant?.size || 'default';
+  const cartItemId = `${product.id}-${variantSize}`;
   const cartItem = cartItems.find(item => item.cartItemId === cartItemId);
   const quantityInCart = cartItem ? cartItem.quantity : 0;
 
@@ -74,6 +75,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, navigate }) => {
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.stopPropagation();
+    if (!defaultVariant) return;
     addToCart(product, defaultVariant, 1);
     addToast(`${product.name} added to cart`, 'success');
   };
@@ -126,7 +128,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, navigate }) => {
             <div className="h-6"></div> 
         )}
         
-        <p className="mt-1 text-md font-medium text-brand-gold">₹{defaultVariant.price.toFixed(2)}</p>
+        <p className="mt-1 text-md font-medium text-brand-gold">₹{(defaultVariant?.price ?? 0).toFixed(2)}</p>
         
         <div className="mt-4 h-10 flex items-center justify-center">
           <AnimatePresence mode="wait">
