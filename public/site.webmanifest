@@ -1,0 +1,16 @@
+{
+  "name": "Darul Attar | Authentic Oud & Attar Shop Chennai",
+  "short_name": "Darul Attar",
+  "description": "Authentic Oud & Premium Alcohol-Free Attar Shop in Thousand Lights, Chennai.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#050505",
+  "theme_color": "#C0A080",
+  "icons": [
+    {
+      "src": "https://res.cloudinary.com/dy3jvbisa/image/upload/v1762524075/Generated_Image_October_07_2025_-_4_20PM_tvrnif.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml"
+    }
+  ]
+}

@@ -20,7 +20,7 @@ const HomePage: React.FC<HomePageProps> = ({ navigate, section }) => {
   useEffect(() => {
     setMetadata(
       'Darul Attar | Authentic Oud & Premium Attar Shop in Chennai',
-      'Visit Darul Attar in MMDA Colony, Chennai for authentic, alcohol-free oud and attar oils. Handcrafted long-lasting musk and rose scents.'
+      'Discover authentic, 100% alcohol-free Oud and Attar oils at Darul Attar in Thousand Lights, Greams Road, Chennai. Handcrafted long-lasting Arabian musk, rose, and amber fragrances.'
     );
   }, []);
 
