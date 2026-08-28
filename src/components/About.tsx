@@ -36,7 +36,7 @@ const About = React.forwardRef<HTMLElement, AboutProps>(({ navigate }, ref) => {
                   Darul Attar began with a simple passion: to bring high-quality, authentic fragrances to our community in Chennai. We believe that a scent is more than just a perfume; it is a memory, a comfort, and a personal signature.
                 </p>
                 <p>
-                  We source our ingredients with care, focusing on alcohol-free formulations that respect both modern needs and ancient perfumery traditions. From the depth of Oud to the freshness of floral notes, our collection in Arumbakkam is curated to offer you a genuine olfactory experience.
+                  We source our ingredients with care, focusing on alcohol-free formulations that respect both modern needs and ancient perfumery traditions. From the depth of Oud to the freshness of floral notes, our collection in Thousand Lights is curated to offer you a genuine olfactory experience.
                 </p>
             </motion.div>
             

@@ -14,7 +14,7 @@ interface FaqsPageProps {
 const faqs = [
   {
     question: "Where in Chennai is Darul Attar located?",
-    answer: "We are located at 8/26, Water Tank Road, MMDA Colony, Arumbakkam, Chennai - 600106. You are welcome to visit our store to experience our fragrances in person."
+    answer: "We are located at #144 Aziz Mulk, 1st Street, Greams Road, Thousand Lights, Chennai - 600006. You are welcome to visit our store to experience our fragrances in person."
   },
   {
     question: "Are your perfumes really alcohol-free?",
@@ -34,7 +34,7 @@ const faqs = [
   },
   {
     question: "Can I return a product if I don't like the smell?",
-    answer: "Due to the personal nature of fragrance products, we generally do not accept returns once the seal is broken. We recommend visiting our Arumbakkam store to try testers before purchasing large quantities."
+    answer: "Due to the personal nature of fragrance products, we generally do not accept returns once the seal is broken. We recommend visiting our Thousand Lights store to try testers before purchasing large quantities."
   }
 ];
 
@@ -79,7 +79,7 @@ const FaqsPage: React.FC<FaqsPageProps> = ({ navigate }) => {
   useEffect(() => {
     setMetadata(
       'FAQs | Darul Attar Chennai',
-      'Common questions about our location in Arumbakkam, our alcohol-free attars, and shipping policies.'
+      'Common questions about our location in Thousand Lights, our alcohol-free attars, and shipping policies.'
     );
   }, []);
 

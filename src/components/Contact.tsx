@@ -49,7 +49,7 @@ const Contact = React.forwardRef<HTMLElement, {}>((props, ref) => {
         >
           <span className="text-brand-gold text-xs font-bold tracking-widest uppercase">Location</span>
           <h2 className="text-4xl md:text-5xl font-thin text-white font-serif mt-3 mb-4">
-            Visit DarulAttar in <span className="italic text-gray-500">Arumbakkam</span>
+            Visit DarulAttar in <span className="italic text-gray-500">Thousand Lights</span>
           </h2>
         </motion.div>
 
@@ -67,9 +67,9 @@ const Contact = React.forwardRef<HTMLElement, {}>((props, ref) => {
                 <h3 className="text-xl font-serif text-white mb-6 border-l-2 border-brand-gold pl-4">Store Address</h3>
                 <address className="text-gray-400 not-italic space-y-2 text-lg font-light leading-relaxed pl-4">
                     <p className="text-white font-medium">Darul Attar</p>
-                    <p>8/26, Water Tank Road,</p>
-                    <p>MMDA Colony, Arumbakkam,</p>
-                    <p>Chennai - 600106, Tamil Nadu.</p>
+                    <p>#144 Aziz Mulk, 1st Street,</p>
+                    <p>Greams Road, Thousand Lights,</p>
+                    <p>Chennai - 600006, Tamil Nadu.</p>
                 </address>
             </motion.div>
 

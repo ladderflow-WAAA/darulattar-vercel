@@ -37,7 +37,7 @@ const NewArrivalsPage: React.FC<NewArrivalsPageProps> = ({ navigate }) => {
             Curating <span className="italic text-gray-500">Excellence</span>
           </h1>
           <p className="text-xl text-gray-400 max-w-lg mx-auto font-light leading-relaxed">
-            Our master perfumers are currently selecting the finest seasonal ingredients for our next batch. New authentic Ouds arriving soon at our Arumbakkam store.
+            Our master perfumers are currently selecting the finest seasonal ingredients for our next batch. New authentic Ouds arriving soon at our Thousand Lights store.
           </p>
           
           <motion.button

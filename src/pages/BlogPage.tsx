@@ -37,7 +37,7 @@ const blogPosts: BlogPost[] = [
         <li><strong>Shamama:</strong> A complex herbal blend that stands up powerfully against sweat and pollution.</li>
       </ul>
       
-      <p>Visit our store in Arumbakkam to test these oils on your skin and see the difference a day in the Chennai sun makes.</p>
+      <p>Visit our store in Thousand Lights to test these oils on your skin and see the difference a day in the Chennai sun makes.</p>
     `
   },
   {
@@ -55,7 +55,7 @@ const blogPosts: BlogPost[] = [
       <p class="mb-4">Alcohol perfumes are designed with "Top Notes" that hit you instantly. Attars are quieter. They don't announce your arrival; they announce your presence. They evolve slowly, often smelling completely different after 1 hour on the skin compared to the first minute.</p>
 
       <h3 class="text-2xl font-serif text-white mt-8 mb-4">3. Purity</h3>
-      <p class="mb-4">For many of our customers in Arumbakkam, purity is spiritual. Our Attars are completely free of alcohol and animal-derived fixatives, making them suitable for prayers and religious occasions.</p>
+      <p class="mb-4">For many of our customers in Thousand Lights, purity is spiritual. Our Attars are completely free of alcohol and animal-derived fixatives, making them suitable for prayers and religious occasions.</p>
     `
   },
   {
@@ -150,7 +150,7 @@ const BlogPage: React.FC<BlogPageProps> = ({ navigate }) => {
                             Notes on <span className="italic text-gray-500">Nose & Nature</span>
                         </h1>
                         <p className="mt-4 text-lg text-gray-400">
-                            Insights into the world of traditional perfumery from our desk in Arumbakkam.
+                            Insights into the world of traditional perfumery from our desk in Thousand Lights.
                         </p>
                     </div>
                     

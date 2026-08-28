@@ -3,10 +3,10 @@ export const policyData = {
     title: "Terms of Service",
     content: `
       <h2 class="text-2xl font-serif text-white mb-4">1. Agreement</h2>
-      <p class="mb-6 text-gray-400">Welcome to Darul Attar. By using our website or visiting our store in Arumbakkam, Chennai, you agree to these terms.</p>
+      <p class="mb-6 text-gray-400">Welcome to Darul Attar. By using our website or visiting our store in Thousand Lights, Chennai, you agree to these terms.</p>
       
       <h2 class="text-2xl font-serif text-white mb-4">2. The Business</h2>
-      <p class="mb-6 text-gray-400">Darul Attar is a registered proprietorship operating from 8/26, Water Tank Road, MMDA Colony, Arumbakkam, Chennai - 600106.</p>
+      <p class="mb-6 text-gray-400">Darul Attar is a registered proprietorship operating from #144 Aziz Mulk, 1st Street, Greams Road, Thousand Lights, Chennai - 600006.</p>
 
       <h2 class="text-2xl font-serif text-white mb-4">3. Ordering & Availability</h2>
       <p class="mb-6 text-gray-400">Our online catalog represents what is generally available in our Chennai store. However, due to the artisanal nature of Oud and Attar, stock levels fluctuate. All orders initiated online are confirmed manually via WhatsApp to ensure availability.</p>
@@ -40,7 +40,7 @@ export const policyData = {
       <p class="mb-6 text-gray-400">For our customers in Chennai:</p>
       <ul class="list-disc list-inside mb-6 text-gray-400">
         <li><strong>Same Day Delivery:</strong> Available via Porter/Dunzo/Uber Connect for confirmed orders within city limits (delivery charges at actuals).</li>
-        <li><strong>Store Pickup:</strong> You can pick up your order from our Arumbakkam store between 10 AM - 9 PM.</li>
+        <li><strong>Store Pickup:</strong> You can pick up your order from our Thousand Lights store between 10 AM - 9 PM.</li>
       </ul>
 
       <h2 class="text-2xl font-serif text-white mb-4">Pan-India Shipping</h2>
@@ -58,7 +58,7 @@ export const policyData = {
     title: "Our Tradition",
     content: `
       <h2 class="text-2xl font-serif text-white mb-4">The Essence of Darul Attar</h2>
-      <p class="mb-6 text-gray-400">Located in the heart of Arumbakkam, Chennai, Darul Attar was founded with a singular mission: to preserve the fading art of traditional perfumery.</p>
+      <p class="mb-6 text-gray-400">Located in Thousand Lights, Greams Road, Chennai, Darul Attar was founded with a singular mission: to preserve the fading art of traditional perfumery.</p>
 
       <h2 class="text-2xl font-serif text-white mb-4">Why We Exist</h2>
       <p class="mb-6 text-gray-400">In a market flooded with synthetic, alcohol-based sprays, we stand firm on the tradition of <strong>Itra (Attar)</strong>. We believe in the power of pure, concentrated oils that interact with your skin's chemistry to create a scent that is uniquely yours.</p>
@@ -71,7 +71,7 @@ export const policyData = {
 export const faqs = [
   {
     question: "Where in Chennai is Darul Attar located?",
-    answer: "We are located at 8/26, Water Tank Road, MMDA Colony, Arumbakkam, Chennai - 600106."
+    answer: "We are located at #144 Aziz Mulk, 1st Street, Greams Road, Thousand Lights, Chennai - 600006."
   },
   {
     question: "Do you sell alcohol-free perfumes?",
@@ -79,6 +79,6 @@ export const faqs = [
   },
   {
     question: "Can I try the perfumes before buying?",
-    answer: "Yes! We encourage you to visit our store in Arumbakkam to experience the scents on your skin."
+    answer: "Yes! We encourage you to visit our store in Thousand Lights to experience the scents on your skin."
   }
 ];

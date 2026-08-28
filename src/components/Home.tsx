@@ -55,7 +55,7 @@ const Home: React.FC<HomeProps> = React.forwardRef<HTMLElement, HomeProps>(({ na
             variants={itemVariants}
             className="text-brand-gold font-sans tracking-[0.2em] text-sm uppercase mb-4 font-semibold"
         >
-            EST. 2024 • Arumbakkam, Chennai
+            EST. 2024 • Thousand Lights, Chennai
         </motion.span>
 
         <motion.h1 

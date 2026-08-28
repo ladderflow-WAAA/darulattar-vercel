@@ -84,8 +84,8 @@ const Footer: React.FC<FooterProps> = ({ navigate }) => {
             <h4 className="font-serif text-white text-lg mb-6">Visit Us</h4>
             <address className="not-italic text-sm text-gray-400 space-y-3">
                 <p className="font-semibold text-gray-200">Darul Attar</p>
-                <p>8/26, Water Tank Road,<br/> MMDA Colony, Arumbakkam</p>
-                <p>Chennai - 600106</p>
+                <p>#144 Aziz Mulk, 1st Street,<br/> Greams Road, Thousand Lights</p>
+                <p>Chennai - 600006</p>
                 <p className="pt-2"><a href="tel:+919578994377" className="hover:text-brand-gold transition">+91 95789 94377</a></p>
                 <p><a href="mailto:contact@darulattar.com" className="hover:text-brand-gold transition">contact@darulattar.com</a></p>
             </address>

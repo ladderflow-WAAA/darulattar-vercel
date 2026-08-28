@@ -20,7 +20,7 @@ const SearchPage: React.FC<SearchPageProps> = ({ navigate, query }) => {
     if (query) {
       setMetadata(
         `Search: ${query} | Darul Attar Chennai`,
-        `Results for "${query}" - Authentic Attar and Oud oils available at our Arumbakkam store.`
+        `Results for "${query}" - Authentic Attar and Oud oils available at our Thousand Lights store.`
       );
     }
   }, [query]);

@@ -38,10 +38,10 @@ const ProductSchema: React.FC<ProductSchemaProps> = ({ product, reviews }) => {
             name: 'Darul Attar',
             address: {
                 '@type': 'PostalAddress',
-                streetAddress: '8/26, Water Tank Road, MMDA Colony',
-                addressLocality: 'Arumbakkam',
+                streetAddress: '#144 Aziz Mulk, 1st Street, Greams Road',
+                addressLocality: 'Thousand Lights',
                 addressRegion: 'Chennai',
-                postalCode: '600106',
+                postalCode: '600006',
                 addressCountry: 'IN'
             }
         },
@@ -51,13 +51,13 @@ const ProductSchema: React.FC<ProductSchemaProps> = ({ product, reviews }) => {
         },
         availableAtOrFrom: {
             '@type': 'Store',
-            name: 'Darul Attar Arumbakkam',
+            name: 'Darul Attar Thousand Lights',
             address: {
                 '@type': 'PostalAddress',
-                streetAddress: '8/26, Water Tank Road, MMDA Colony',
-                addressLocality: 'Arumbakkam',
+                streetAddress: '#144 Aziz Mulk, 1st Street, Greams Road',
+                addressLocality: 'Thousand Lights',
                 addressRegion: 'Chennai',
-                postalCode: '600106',
+                postalCode: '600006',
                 addressCountry: 'IN'
             }
         }

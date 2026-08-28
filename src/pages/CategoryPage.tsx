@@ -35,7 +35,7 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ navigate, category }) => {
     if (category) {
       setMetadata(
         `${category} Collection - Attar & Oud Chennai | Darul Attar`,
-        `Shop our ${category.toLowerCase()} range. Authentic, alcohol-free perfumes available at our Arumbakkam store in Chennai.`
+        `Shop our ${category.toLowerCase()} range. Authentic, alcohol-free perfumes available at our Thousand Lights store in Chennai.`
       );
     }
   }, [category]);

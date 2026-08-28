@@ -17,7 +17,7 @@ const PolicyPage: React.FC<PolicyPageProps> = ({ navigate, pageType }) => {
     if (pageContent) {
       setMetadata(
         `${pageContent.title} | Darul Attar Chennai`,
-        `Read our ${pageContent.title}. Darul Attar is a registered proprietorship in Arumbakkam, Chennai.`
+        `Read our ${pageContent.title}. Darul Attar is a registered proprietorship in Thousand Lights, Chennai.`
       );
     }
   }, [pageContent]);
