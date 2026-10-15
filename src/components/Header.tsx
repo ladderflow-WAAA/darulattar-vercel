@@ -3,7 +3,7 @@ import { Logo } from './Logo';
 import { CartIcon } from './icons/CartIcon';
 import { useCart } from '../contexts/CartContext';
 import { PageState } from '../App';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 import { SearchIcon } from './icons/SearchIcon';
 import { XIcon } from './icons/XIcon';
 import { useAuth } from '../contexts/AuthContext';
@@ -188,11 +188,9 @@ const Header: React.FC<HeaderProps> = ({ navigate, onLoginClick }) => {
                         whileTap={{ scale: 0.95 }}
                         title="Dashboard"
                       >
-                        {user.picture ? (
-                            <img src={user.picture} alt={user.name} className="w-8 h-8 rounded-full border border-gray-600" />
-                        ) : (
-                            <div className="w-8 h-8 rounded-full bg-brand-gold text-brand-dark flex items-center justify-center font-bold">{user.name.charAt(0)}</div>
-                        )}
+                        <div className="w-8 h-8 rounded-full bg-[#FF5A00] text-white flex items-center justify-center font-bold text-xs select-none">
+                          {user.name.charAt(0).toUpperCase()}
+                        </div>
                     </motion.button>
                     <button 
                         onClick={logout}
@@ -283,11 +281,9 @@ const Header: React.FC<HeaderProps> = ({ navigate, onLoginClick }) => {
                   {isAuthenticated && user ? (
                     <div className="space-y-3">
                       <div className="flex items-center space-x-3">
-                        {user.picture ? (
-                          <img src={user.picture} alt={user.name} className="w-10 h-10 rounded-full border border-gray-600" />
-                        ) : (
-                          <div className="w-10 h-10 rounded-full bg-brand-gold text-brand-dark flex items-center justify-center font-bold">{user.name.charAt(0)}</div>
-                        )}
+                        <div className="w-10 h-10 rounded-full bg-[#FF5A00] text-white flex items-center justify-center font-bold text-sm select-none">
+                          {user.name.charAt(0).toUpperCase()}
+                        </div>
                         <div>
                           <p className="text-white text-sm font-medium">{user.name}</p>
                           <p className="text-gray-400 text-xs">{user.email}</p>

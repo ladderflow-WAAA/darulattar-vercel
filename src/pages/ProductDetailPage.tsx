@@ -16,6 +16,7 @@ import RelatedProducts from '../components/RelatedProducts';
 import { useAuth } from '../contexts/AuthContext';
 import { setMetadata } from '../utils/metadata';
 import ProductSchema from '../components/ProductSchema';
+import DelhiveryShippingCalculator from '../components/DelhiveryShippingCalculator';
 
 const StarRating: React.FC<{ rating: number; className?: string }> = ({ rating, className = 'h-5 w-5' }) => {
   return (
@@ -107,11 +108,9 @@ const ReviewsSection: React.FC<{ productId: string, infoItemVariants: Variants, 
             <div key={review.id} className="border-b border-gray-800 pb-6 group last:border-0">
               <div className="flex items-start justify-between">
                 <div className="flex items-start space-x-4">
-                    {review.authorPicture ? (
-                        <img src={review.authorPicture} alt={review.authorName} className="w-10 h-10 rounded-full grayscale opacity-80" />
-                    ) : (
-                        <div className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center text-gray-400 font-bold">{review.authorName.charAt(0)}</div>
-                    )}
+                    <div className="w-10 h-10 rounded-full bg-gray-900 border border-gray-700 flex items-center justify-center text-gray-300 font-bold text-sm select-none">
+                      {review.authorName.charAt(0).toUpperCase()}
+                    </div>
                     <div>
                         <div className="flex items-center space-x-3">
                             <p className="font-semibold text-gray-200">{review.authorName}</p>
@@ -317,10 +316,15 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ productSlug, navi
                   </motion.button>
               </motion.div>
               
-              {/* Local Store Trust Signal - Updated Icon Color */}
-              <motion.div variants={infoItemVariants} className="mt-6 flex items-center text-sm text-brand-gold/80">
+              {/* Local Store Trust Signal */}
+              <motion.div variants={infoItemVariants} className="mt-6 flex items-center text-sm text-[#FF5A00]">
                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                 <span>Available to try at our Thousand Lights, Chennai store.</span>
+                 <span>Available to experience at our Thousand Lights, Chennai boutique.</span>
+              </motion.div>
+
+              {/* Delhivery Shipping Calculator Integration */}
+              <motion.div variants={infoItemVariants} className="mt-6">
+                <DelhiveryShippingCalculator cartSubtotal={selectedVariant.price * quantity} compact={true} />
               </motion.div>
 
               <ReviewsSection productId={product.id} infoItemVariants={infoItemVariants} onLoginRequest={onLoginRequest} />

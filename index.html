@@ -52,7 +52,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="preconnect" href="https://res.cloudinary.com" />
-    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600;700&family=Lato:wght@300;400;700&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
     <!-- Structured Data (JSON-LD) for Local Business / Google Ranking -->
     <script type="application/ld+json">
@@ -169,11 +169,14 @@
         theme: {
           extend: {
             fontFamily: {
-              serif: ['"Playfair Display"', 'serif'],
-              sans: ['Lato', 'sans-serif'],
+              serif: ['"Instrument Serif"', '"Playfair Display"', 'serif'],
+              sans: ['"Plus Jakarta Sans"', 'Lato', 'sans-serif'],
+              mono: ['"JetBrains Mono"', 'monospace'],
             },
             colors: {
               'brand-gold': '#C0A080',
+              'brand-orange': '#FF5A00',
+              'brand-orange-hover': '#EA580C',
               'brand-dark': '#050505', /* Deepest Black */
               'brand-charcoal': '#1a1a1a',
               'brand-light': '#F5F5F5',

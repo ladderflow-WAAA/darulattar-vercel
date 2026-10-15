@@ -19,7 +19,7 @@ interface BlogPost {
 const blogPosts: BlogPost[] = [
   {
     id: "oud-chennai-weather",
-    title: "Why Oud is Perfect for Chennai's Humid Weather",
+    title: "Why Oud is Well-Suited for Chennai's Humid Weather",
     date: "Oct 12, 2024",
     excerpt: "Discover why oil-based perfumes last longer than alcohol sprays in tropical climates like Chennai.",
     content: `
@@ -73,7 +73,7 @@ const blogPosts: BlogPost[] = [
         </div>
         <div>
             <h4 class="text-xl text-brand-gold font-serif">2. White Musk (Tahara)</h4>
-            <p class="text-sm mt-1">"The Clean Shirt." Famous for its soapy, fresh-out-of-the-shower vibe. Perfect for Chennai summers and office wear.</p>
+            <p class="text-sm mt-1">"The Clean Shirt." Famous for its soapy, fresh-out-of-the-shower vibe. Well-suited for Chennai summers and office wear.</p>
         </div>
         <div>
             <h4 class="text-xl text-brand-gold font-serif">3. Black Musk (Kasturi profile)</h4>

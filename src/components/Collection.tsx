@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { motion, AnimatePresence, Variants } from 'framer-motion';
+import { motion, AnimatePresence, type Variants } from 'motion/react';
 import ProductCard from './ProductCard';
 import { useProducts } from '../contexts/ProductContext';
 import { PageState } from '../App';
@@ -109,12 +109,54 @@ const Collection = React.forwardRef<HTMLElement, { navigate: (pageState: PageSta
             transition={{ duration: 0.8 }}
         >
           <h2 className="text-4xl md:text-5xl font-thin text-white font-serif mb-4">
-            Alcohol-Free <span className="italic text-brand-gold">French Perfume Oils</span>
+            Alcohol-Free <span className="italic text-[#FF5A00]">French Perfume Oils</span>
           </h2>
           <p className="text-lg text-gray-400 max-w-3xl mx-auto font-light">
-            Discover our curated range of <strong className="text-gray-300 font-normal">long-lasting musk & rose scents</strong>. 
-            Perfect for daily wear in Chennai's climate, these oils evolve beautifully on your skin.
+            Discover our curated range of <strong className="text-gray-300 font-normal">long-lasting musk &amp; rose scents</strong>. 
+            Well-suited for daily wear in Chennai&apos;s climate, these oils evolve steadily on your skin.
           </p>
+
+          {/* Sliding Orange Pill Indicator across Category Filter Bar */}
+          <div className="mt-8 flex items-center justify-center">
+            <div className="inline-flex flex-wrap items-center justify-center gap-1.5 p-1.5 bg-[#0f0f0f] border border-gray-800 rounded-full">
+              {[
+                { label: 'All Fragrances', value: '' },
+                { label: 'Best Sellers', value: 'Best Sellers' },
+                { label: 'Floral & Fresh', value: 'Floral & Fresh' },
+                { label: 'Woody & Musk', value: 'Woody & Musk' },
+                { label: 'Gourmand & Spicy', value: 'Gourmand & Spicy' }
+              ].map((tab) => {
+                const isActive = tab.value === ''
+                  ? filters.categories.length === 0
+                  : filters.categories.includes(tab.value);
+
+                return (
+                  <button
+                    key={tab.label}
+                    onClick={() => {
+                      if (tab.value === '') {
+                        setFilters((prev: any) => ({ ...prev, categories: [] }));
+                      } else {
+                        setFilters((prev: any) => ({ ...prev, categories: [tab.value] }));
+                      }
+                    }}
+                    className={`relative px-4 py-2 text-xs font-semibold uppercase tracking-wider rounded-full transition-colors z-10 ${
+                      isActive ? 'text-white' : 'text-gray-400 hover:text-white'
+                    }`}
+                  >
+                    {isActive && (
+                      <motion.div
+                        layoutId="activeCategoryPill"
+                        className="absolute inset-0 bg-[#FF5A00] rounded-full -z-10 shadow-md"
+                        transition={{ type: 'spring', stiffness: 350, damping: 30 }}
+                      />
+                    )}
+                    <span>{tab.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
         </motion.header>
         
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">

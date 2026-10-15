@@ -38,13 +38,9 @@ const DashboardPage: React.FC<DashboardPageProps> = ({ navigate }) => {
             transition={{ duration: 0.6, ease: 'easeOut' }}
         >
             <div className="flex items-center space-x-6 mb-12">
-                {user.picture ? (
-                    <img src={user.picture} alt={user.name} className="w-24 h-24 rounded-full border-2 border-brand-gold" />
-                ) : (
-                    <div className="w-24 h-24 rounded-full bg-gray-800 flex items-center justify-center text-3xl font-serif text-brand-gold border-2 border-brand-gold">
-                        {user.name.charAt(0)}
-                    </div>
-                )}
+                <div className="w-24 h-24 rounded-full bg-gray-900 flex items-center justify-center text-4xl font-serif text-[#FF5A00] border-2 border-[#FF5A00] select-none">
+                    {user.name.charAt(0).toUpperCase()}
+                </div>
                 <div>
                     <h1 className="text-3xl md:text-4xl font-thin text-white font-serif">
                         Hello, <span className="text-brand-gold italic">{user.name}</span>

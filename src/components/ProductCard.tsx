@@ -1,5 +1,5 @@
 import React, { useRef, useMemo } from 'react';
-import { motion, useMotionValue, useSpring, useTransform, AnimatePresence } from 'framer-motion';
+import { motion, useMotionValue, useSpring, useTransform, AnimatePresence } from 'motion/react';
 import { useCart } from '../contexts/CartContext';
 import { Product, slugify } from '../contexts/ProductContext';
 import { PageState } from '../App';
@@ -99,12 +99,14 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, navigate }) => {
       onMouseLeave={handleMouseLeave}
       // UPDATE: Pass slug instead of ID to the navigation props
       onClick={() => navigate({ name: 'product', props: { slug: slugify(product.name), name: product.name } })}
+      whileHover={{ y: -4 }}
+      transition={{ duration: 0.2 }}
       style={{
         rotateX,
         rotateY,
         transformStyle: "preserve-3d"
       }}
-      className="group font-sans bg-brand-dark border border-gray-800 transition-all duration-300 hover:border-brand-gold/40 hover:shadow-xl hover:shadow-black/60 cursor-pointer flex flex-col h-full relative"
+      className="group font-sans bg-brand-dark border border-gray-800 transition-all duration-300 hover:border-[#FF5A00]/50 hover:shadow-xl hover:shadow-black/60 cursor-pointer flex flex-col h-full relative"
     >
       <div style={{ transform: "translateZ(20px)" }} className="relative w-full aspect-[4/5] bg-gray-900 overflow-hidden">
         <img

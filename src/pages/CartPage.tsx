@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import { PageState } from '../App';
 import { useCart } from '../contexts/CartContext';
 import { ArrowLeftIcon } from '../components/icons/ArrowLeftIcon';
@@ -6,7 +7,9 @@ import { MinusIcon } from '../components/icons/MinusIcon';
 import { PlusIcon } from '../components/icons/PlusIcon';
 import { TrashIcon } from '../components/icons/TrashIcon';
 import { WhatsappIcon } from '../components/icons/WhatsappIcon';
-import { motion, AnimatePresence } from 'framer-motion';
+import { DelhiveryShippingCalculator } from '../components/DelhiveryShippingCalculator';
+import { STORE_CONFIG } from '../config/storeConfig';
+import { calculateShipping } from '../utils/delhiveryCalculator';
 import { setMetadata } from '../utils/metadata';
 
 interface CartPageProps {
@@ -19,61 +22,69 @@ const CartPage: React.FC<CartPageProps> = ({ navigate }) => {
   const [errors, setErrors] = useState({ name: false, address: false, phone: false });
 
   useEffect(() => {
-    setMetadata('Shopping Bag | Darul Attar Chennai', 'Review your selection of authentic oud and attar oils before finalizing your order via WhatsApp.');
+    setMetadata(
+      'Shopping Bag | Darul Attar and Oud',
+      'Review your selected authentic oud and attar perfume oils with integrated Delhivery shipping estimator.'
+    );
   }, []);
+
+  const shipping = calculateShipping(cartTotal);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
     if (value) {
-        setErrors(prev => ({...prev, [name]: false}));
+      setErrors(prev => ({ ...prev, [name]: false }));
     }
   };
 
   const validateForm = () => {
-      const newErrors = {
-          name: !formData.name.trim(),
-          address: !formData.address.trim(),
-          phone: !formData.phone.trim(),
-      };
-      setErrors(newErrors);
-      return !newErrors.name && !newErrors.address && !newErrors.phone;
+    const newErrors = {
+      name: !formData.name.trim(),
+      address: !formData.address.trim(),
+      phone: !formData.phone.trim(),
+    };
+    setErrors(newErrors);
+    return !newErrors.name && !newErrors.address && !newErrors.phone;
   };
 
   const handleConfirmOnWhatsApp = () => {
-      if (!validateForm()) {
-          return;
-      }
+    if (!validateForm()) {
+      return;
+    }
 
-      const itemsSummary = cartItems.map(item => 
-          `• ${item.quantity} x ${item.name} (${item.size}) - ₹${(item.price * item.quantity).toFixed(2)}`
-      ).join('\n');
+    const itemsSummary = cartItems.map(item =>
+      `• ${item.quantity}x ${item.name} (${item.size}) - ₹${(item.price * item.quantity).toFixed(2)}`
+    ).join('\n');
 
-      const messageParts = [
-        '👋 *New Order Request - Darul Attar*',
-        '-----------------------------',
-        '*Customer Details:*',
-        `📝 Name: ${formData.name}`,
-        `📍 Address: ${formData.address}`,
-        `📞 Phone: ${formData.phone}`,
-        '-----------------------------',
-        '*Order Summary:*',
-        itemsSummary,
-        '-----------------------------',
-        `*Total Payable: ₹${cartTotal.toFixed(2)}*`,
-        '-----------------------------',
-        'Please confirm availability and payment details.'
-      ];
-      
-      const message = messageParts.join('\n');
-      const encodedMessage = encodeURIComponent(message);
-      const whatsappUrl = `https://wa.me/919578994377?text=${encodedMessage}`;
-      
-      window.open(whatsappUrl, '_blank');
-      clearCart();
-      navigate({ name: 'home' }); 
+    const messageParts = [
+      `*ORDER REQUEST - DARUL ATTAR AND OUD*`,
+      `---------------------------------`,
+      `*Customer Details:*`,
+      `Name: ${formData.name}`,
+      `Address: ${formData.address}`,
+      `Phone: ${formData.phone}`,
+      `---------------------------------`,
+      `*Logistics: Delhivery Courier*`,
+      `---------------------------------`,
+      `*Order Summary:*`,
+      itemsSummary,
+      `---------------------------------`,
+      `Subtotal: ₹${cartTotal.toFixed(2)}`,
+      `Shipping: ${shipping.isFreeShippingEligible ? 'FREE' : `₹${shipping.standardFee.toFixed(2)}`}`,
+      `*Total Payable: ₹${(cartTotal + shipping.standardFee).toFixed(2)}*`,
+      `Merchant UPI VPA: ${STORE_CONFIG.merchantUpi.vpa}`,
+      `---------------------------------`,
+      `Please confirm availability and dispatch.`
+    ];
+
+    const message = messageParts.join('\n');
+    const whatsappUrl = `https://wa.me/${STORE_CONFIG.storeWhatsappNumber}?text=${encodeURIComponent(message)}`;
+
+    window.open(whatsappUrl, '_blank');
+    clearCart();
+    navigate({ name: 'home' });
   };
-
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -87,160 +98,225 @@ const CartPage: React.FC<CartPageProps> = ({ navigate }) => {
   };
 
   return (
-    <div className="bg-brand-dark min-h-screen">
-      <div className="max-w-screen-2xl mx-auto px-8 sm:px-12 lg:px-16 pt-32 pb-24 font-sans">
-        <motion.div 
-          className="flex flex-col sm:flex-row justify-between sm:items-center mb-12 border-b border-gray-800 pb-6"
+    <div className="bg-brand-dark min-h-screen text-gray-200">
+      <div className="max-w-screen-2xl mx-auto px-4 sm:px-8 lg:px-16 pt-32 pb-24 font-sans">
+        <motion.div
+          className="flex flex-col sm:flex-row justify-between sm:items-center mb-10 border-b border-gray-800 pb-6"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-            <h1 className="text-3xl md:text-4xl font-thin text-white font-serif">Shopping Bag <span className="text-lg text-gray-500 font-sans ml-2">({cartCount} Items)</span></h1>
-            <button onClick={() => navigate({ name: 'home', props: {section: 'collection'} })} className="mt-4 sm:mt-0 flex items-center space-x-2 text-sm text-brand-gold hover:text-white group transition-colors">
-              <ArrowLeftIcon />
-              <span className="group-hover:underline">Continue Browsing</span>
-            </button>
+          <div>
+            <h1 className="text-3xl md:text-4xl font-thin text-white font-serif">
+              Shopping Bag <span className="text-sm text-gray-500 font-sans font-normal ml-2">({cartCount} Items)</span>
+            </h1>
+            <p className="text-xs text-gray-400 mt-1">
+              Dispatched with official Delhivery courier tracking.
+            </p>
+          </div>
+
+          <button
+            onClick={() => navigate({ name: 'home', props: { section: 'collection' } })}
+            className="mt-4 sm:mt-0 flex items-center space-x-2 text-xs uppercase tracking-wider text-gray-400 hover:text-white transition-colors"
+          >
+            <ArrowLeftIcon />
+            <span>Continue Shopping</span>
+          </button>
         </motion.div>
 
         {cartCount === 0 ? (
-          <motion.div 
-            className="text-center py-32 bg-gray-900/10 rounded-sm border border-gray-800"
+          <motion.div
+            className="text-center py-28 bg-[#0a0a0a] rounded-sm border border-gray-800 max-w-xl mx-auto p-8"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
           >
-            <p className="text-xl text-gray-400 mb-6">Your bag is currently empty.</p>
-            <button 
-                onClick={() => navigate({ name: 'home', props: {section: 'collection'} })}
-                className="bg-brand-gold text-brand-dark py-3 px-8 font-bold text-sm tracking-widest uppercase hover:bg-white transition-colors"
+            <p className="text-xl text-gray-300 font-serif mb-2">Your Bag is Empty</p>
+            <p className="text-sm text-gray-500 mb-6">
+              Select your authentic oud, attar oils, and French perfume blends.
+            </p>
+            <button
+              onClick={() => navigate({ name: 'home', props: { section: 'collection' } })}
+              className="bg-[#FF5A00] hover:bg-[#EA580C] text-white py-3 px-8 font-bold text-xs tracking-widest uppercase transition-colors rounded-sm"
             >
-                Start Shopping
+              Explore Collection
             </button>
           </motion.div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 lg:gap-16">
-            {/* Cart Items */}
-            <motion.div 
-              className="lg:col-span-2 space-y-6"
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
+            {/* Cart Items List */}
+            <motion.div
+              className="lg:col-span-7 space-y-4"
               variants={containerVariants}
               initial="hidden"
               animate="visible"
             >
               <AnimatePresence>
-              {cartItems.map(item => (
-                <motion.div 
-                  key={item.cartItemId} 
-                  className="flex flex-col sm:flex-row items-start sm:items-center gap-6 p-6 bg-[#0a0a0a] border border-gray-800 rounded-sm hover:border-gray-700 transition-colors"
-                  variants={itemVariants}
-                  layout
-                >
+                {cartItems.map((item) => (
+                  <motion.div
+                    key={item.cartItemId}
+                    className="flex flex-col sm:flex-row items-start sm:items-center gap-4 p-5 bg-[#0b0b0b] border border-gray-800 rounded-sm hover:border-gray-700 transition-colors"
+                    variants={itemVariants}
+                    layout
+                  >
                     <div className="w-20 h-24 flex-shrink-0 bg-black overflow-hidden rounded-sm border border-gray-800">
-                    <img src={item.imageUrl} alt={item.name} loading="lazy" className="w-full h-full object-cover" />
-                  </div>
-                  
-                  <div className="flex-grow min-w-0">
-                    <div className="flex justify-between items-start">
+                      <img
+                        src={item.imageUrl}
+                        alt={item.name}
+                        loading="lazy"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+
+                    <div className="flex-grow min-w-0 w-full">
+                      <div className="flex justify-between items-start">
                         <div>
-                            <h3 className="text-lg text-gray-200 font-serif tracking-wide truncate">{item.name}</h3>
-                            <p className="text-sm text-brand-gold mt-1">Size: {item.size}</p>
+                          <h3 className="text-base text-gray-100 font-serif tracking-wide truncate">
+                            {item.name}
+                          </h3>
+                          <p className="text-xs text-[#FF5A00] font-medium mt-0.5">
+                            Size: {item.size}
+                          </p>
                         </div>
-                        <motion.button 
-                            whileHover={{ scale: 1.1, color: '#ef4444' }} 
-                            onClick={() => removeFromCart(item.cartItemId)} 
-                            className="text-gray-600 transition p-1"
-                            aria-label={`Remove ${item.name}`}
+                        <motion.button
+                          whileHover={{ scale: 1.1, color: '#ef4444' }}
+                          onClick={() => removeFromCart(item.cartItemId)}
+                          className="text-gray-500 transition p-1"
+                          aria-label={`Remove ${item.name}`}
                         >
-                            <TrashIcon />
+                          <TrashIcon />
                         </motion.button>
-                    </div>
-                    
-                    <div className="flex justify-between items-end mt-4">
+                      </div>
+
+                      <div className="flex justify-between items-end mt-4">
                         <div className="flex items-center border border-gray-700 rounded-sm bg-black">
-                            <button onClick={() => updateQuantity(item.cartItemId, item.quantity - 1)} className="p-2 text-gray-400 hover:text-white transition"><MinusIcon /></button>
-                            <span className="px-3 text-sm font-medium text-white w-8 text-center">{item.quantity}</span>
-                            <button onClick={() => updateQuantity(item.cartItemId, item.quantity + 1)} className="p-2 text-gray-400 hover:text-white transition"><PlusIcon/></button>
+                          <button
+                            onClick={() => updateQuantity(item.cartItemId, item.quantity - 1)}
+                            className="p-1.5 text-gray-400 hover:text-white transition"
+                          >
+                            <MinusIcon />
+                          </button>
+                          <span className="px-3 text-xs font-mono font-medium text-white w-8 text-center">
+                            {item.quantity}
+                          </span>
+                          <button
+                            onClick={() => updateQuantity(item.cartItemId, item.quantity + 1)}
+                            className="p-1.5 text-gray-400 hover:text-white transition"
+                          >
+                            <PlusIcon />
+                          </button>
                         </div>
-                        <p className="text-lg font-medium text-white">₹{(item.price * item.quantity).toFixed(2)}</p>
+                        <p className="text-base font-mono font-bold text-white">
+                          ₹{(item.price * item.quantity).toFixed(2)}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                </motion.div>
-              ))}
+                  </motion.div>
+                ))}
               </AnimatePresence>
+
+              {/* Delhivery Estimator in Bag */}
+              <div className="pt-2">
+                <DelhiveryShippingCalculator cartSubtotal={cartTotal} />
+              </div>
             </motion.div>
 
-            {/* Order Summary & Form */}
-            <motion.div 
-              className="lg:col-span-1"
+            {/* Order Summary & Actions */}
+            <motion.div
+              className="lg:col-span-5"
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
             >
-                <div className="bg-[#0a0a0a] border border-gray-800 p-8 rounded-sm sticky top-32">
-                    <h2 className="text-xl font-serif text-white border-b border-gray-800 pb-4 mb-6">Order Summary</h2>
-                    
-                    <div className="space-y-3 text-sm">
-                        <div className="flex justify-between text-gray-400">
-                            <span>Subtotal</span>
-                            <span>₹{cartTotal.toFixed(2)}</span>
-                        </div>
-                         <div className="flex justify-between text-gray-400">
-                            <span>Shipping</span>
-                            <span className="text-brand-gold font-medium">FREE</span>
-                        </div>
-                        <div className="flex justify-between text-lg font-semibold text-white border-t border-gray-800 pt-4 mt-2">
-                            <span>Total</span>
-                            <span className="text-brand-gold">₹{cartTotal.toFixed(2)}</span>
-                        </div>
-                    </div>
+              <div className="bg-[#0b0b0b] border border-gray-800 p-6 sm:p-8 rounded-sm sticky top-32 space-y-6">
+                <h2 className="text-sm font-semibold uppercase tracking-wider text-white border-b border-gray-800 pb-3">
+                  Order Summary
+                </h2>
 
-                    <div className="mt-8">
-                        <h3 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4">Delivery Details</h3>
-                        <div className="space-y-4">
-                            <div>
-                                <input type="text" name="name" value={formData.name} onChange={handleInputChange} placeholder="Full Name" className={`w-full bg-black border ${errors.name ? 'border-red-500' : 'border-gray-700'} rounded-sm px-4 py-3 text-sm text-white focus:border-brand-gold focus:ring-1 focus:ring-brand-gold outline-none transition`} />
-                            </div>
-                            <div>
-                                <input type="text" name="address" value={formData.address} onChange={handleInputChange} placeholder="Delivery Address (Chennai?)" className={`w-full bg-black border ${errors.address ? 'border-red-500' : 'border-gray-700'} rounded-sm px-4 py-3 text-sm text-white focus:border-brand-gold focus:ring-1 focus:ring-brand-gold outline-none transition`} />
-                            </div>
-                            <div>
-                                <input type="tel" name="phone" value={formData.phone} onChange={handleInputChange} placeholder="Phone Number" className={`w-full bg-black border ${errors.phone ? 'border-red-500' : 'border-gray-700'} rounded-sm px-4 py-3 text-sm text-white focus:border-brand-gold focus:ring-1 focus:ring-brand-gold outline-none transition`} />
-                            </div>
-                        </div>
-                    </div>
+                <div className="space-y-3 text-xs">
+                  <div className="flex justify-between text-gray-400">
+                    <span>Subtotal</span>
+                    <span className="font-mono text-white">₹{cartTotal.toFixed(2)}</span>
+                  </div>
 
-                    <motion.button 
-                      onClick={handleConfirmOnWhatsApp}
-                      className="mt-8 w-full bg-[#25D366] text-white py-4 px-6 tracking-widest text-xs font-bold uppercase rounded-sm flex items-center justify-center space-x-2 shadow-lg hover:bg-[#20bd4d] transition-all"
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                    >
-                        <WhatsappIcon />
-                        <span>Confirm Order on WhatsApp</span>
-                    </motion.button>
-                    
-                    <div className="mt-4 text-center">
-                        <p className="text-xs text-gray-600">Secure checkout. Pay via UPI/Cash after confirmation.</p>
-                    </div>
-                    <div className="mt-6 pt-6 border-t border-gray-800">
-                        <div className="grid grid-cols-2 gap-3 text-[10px] text-gray-500">
-                            <div className="flex items-center space-x-1.5">
-                                <svg className="w-3.5 h-3.5 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
-                                <span>100% Authentic</span>
-                            </div>
-                            <div className="flex items-center space-x-1.5">
-                                <svg className="w-3.5 h-3.5 text-brand-gold flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>
-                                <span>Alcohol-Free</span>
-                            </div>
-                            <div className="flex items-center space-x-1.5">
-                                <svg className="w-3.5 h-3.5 text-blue-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>
-                                <span>UPI / Cash Pay</span>
-                            </div>
-                            <div className="flex items-center space-x-1.5">
-                                <svg className="w-3.5 h-3.5 text-yellow-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" /></svg>
-                                <span>Store Pickup</span>
-                            </div>
-                        </div>
-                    </div>
+                  <div className="flex justify-between text-gray-400">
+                    <span>Delhivery Standard Shipping</span>
+                    <span className="font-mono">
+                      {shipping.isFreeShippingEligible ? (
+                        <span className="text-emerald-400 font-bold">FREE</span>
+                      ) : (
+                        `₹${shipping.standardFee.toFixed(2)}`
+                      )}
+                    </span>
+                  </div>
+
+                  <div className="flex justify-between text-base font-bold text-white border-t border-gray-800 pt-3">
+                    <span>Estimated Total</span>
+                    <span className="font-mono text-[#FF5A00]">
+                      ₹{(cartTotal + shipping.standardFee).toFixed(2)}
+                    </span>
+                  </div>
                 </div>
+
+                {/* Primary CTA: Full Checkout */}
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => navigate({ name: 'checkout' })}
+                  className="w-full bg-[#FF5A00] hover:bg-[#EA580C] text-white py-4 px-6 tracking-widest text-xs font-bold uppercase rounded-sm shadow-xl transition-all text-center flex items-center justify-center space-x-2"
+                >
+                  <span>Proceed to UPI Checkout</span>
+                  <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                  </svg>
+                </motion.button>
+
+                {/* Quick WhatsApp Form Accordion */}
+                <div className="pt-4 border-t border-gray-800">
+                  <span className="text-[11px] font-semibold uppercase tracking-wider text-gray-400 block mb-3">
+                    Or Quick Order via WhatsApp
+                  </span>
+                  <div className="space-y-3">
+                    <input
+                      type="text"
+                      name="name"
+                      value={formData.name}
+                      onChange={handleInputChange}
+                      placeholder="Your Full Name"
+                      className={`w-full bg-black border ${errors.name ? 'border-red-500' : 'border-gray-700'} rounded-sm px-3 py-2 text-xs text-white focus:border-[#FF5A00] outline-none`}
+                    />
+                    <input
+                      type="text"
+                      name="address"
+                      value={formData.address}
+                      onChange={handleInputChange}
+                      placeholder="Delivery Address & PIN"
+                      className={`w-full bg-black border ${errors.address ? 'border-red-500' : 'border-gray-700'} rounded-sm px-3 py-2 text-xs text-white focus:border-[#FF5A00] outline-none`}
+                    />
+                    <input
+                      type="tel"
+                      name="phone"
+                      value={formData.phone}
+                      onChange={handleInputChange}
+                      placeholder="Phone Number"
+                      className={`w-full bg-black border ${errors.phone ? 'border-red-500' : 'border-gray-700'} rounded-sm px-3 py-2 text-xs text-white focus:border-[#FF5A00] outline-none`}
+                    />
+
+                    <motion.button
+                      onClick={handleConfirmOnWhatsApp}
+                      whileHover={{ scale: 1.01 }}
+                      whileTap={{ scale: 0.99 }}
+                      className="w-full bg-[#25D366] hover:bg-[#20bd4d] text-white py-3 px-4 tracking-wider text-xs font-bold uppercase rounded-sm flex items-center justify-center space-x-2 shadow-lg transition-all"
+                    >
+                      <WhatsappIcon />
+                      <span>Confirm via WhatsApp</span>
+                    </motion.button>
+                  </div>
+                </div>
+
+                <div className="pt-2 text-center text-[11px] text-gray-500">
+                  <span>Merchant VPA: {STORE_CONFIG.merchantUpi.vpa} • Official Darul Attar Store</span>
+                </div>
+              </div>
             </motion.div>
           </div>
         )}
