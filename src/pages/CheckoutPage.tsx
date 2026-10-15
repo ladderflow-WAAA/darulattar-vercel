@@ -535,18 +535,27 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
                     isSubmitting={isSubmitting}
                   />
 
-                  {/* Fallback WhatsApp Button */}
+                  {/* Fallback WhatsApp and Call Support */}
                   <div className="bg-[#0b0b0b] border border-gray-800 p-4 rounded-sm flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
                     <span className="text-gray-400">
-                      Prefer direct confirmation or paying via cash on store pickup?
+                      Need direct confirmation or paying cash on store pickup?
                     </span>
-                    <button
-                      onClick={handleConfirmOnWhatsApp}
-                      className="text-[#25D366] font-semibold flex items-center space-x-1.5 hover:underline whitespace-nowrap"
-                    >
-                      <WhatsappIcon />
-                      <span>Confirm via WhatsApp Support</span>
-                    </button>
+                    <div className="flex items-center gap-3 whitespace-nowrap">
+                      <a
+                        href={`tel:${STORE_CONFIG.storePhone}`}
+                        className="text-white hover:text-[#FF5A00] font-mono font-bold underline"
+                      >
+                        Call: {STORE_CONFIG.storePhone}
+                      </a>
+                      <span className="text-gray-600">•</span>
+                      <button
+                        onClick={handleConfirmOnWhatsApp}
+                        className="text-[#25D366] font-semibold flex items-center space-x-1.5 hover:underline"
+                      >
+                        <WhatsappIcon />
+                        <span>WhatsApp Text</span>
+                      </button>
+                    </div>
                   </div>
                 </motion.div>
               )}

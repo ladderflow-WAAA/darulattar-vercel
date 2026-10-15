@@ -303,6 +303,37 @@ export const DirectMerchantUpi: React.FC<DirectMerchantUpiProps> = ({
                 {isSubmitting ? 'Verifying Transaction...' : 'Verify & Confirm Order'}
               </motion.button>
             </form>
+
+            {/* Night Verification Window Advisory & Support Notice */}
+            <div className="mt-4 p-3.5 bg-black/70 border border-gray-800 rounded-sm text-xs text-gray-300 space-y-1.5">
+              <div className="flex items-center space-x-2 text-amber-400 font-semibold text-[11px] uppercase tracking-wider">
+                <svg className="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>Night Verification Window (10:00 PM – 6:00 AM)</span>
+              </div>
+              <p className="text-[11px] text-gray-400 leading-relaxed">
+                Payments submitted between <strong>10:00 PM and 6:00 AM</strong> are verified sequentially after <strong>6:00 AM</strong> next morning, after which your order confirmation will be sent.
+              </p>
+              <div className="pt-1 text-[11px] text-gray-400 border-t border-gray-800 flex flex-wrap items-center gap-2">
+                <span>If any query or urgent issue, you can text or call:</span>
+                <a
+                  href={`tel:${STORE_CONFIG.storePhone}`}
+                  className="text-white hover:text-[#FF5A00] font-mono font-bold underline"
+                >
+                  Call: {STORE_CONFIG.storePhone}
+                </a>
+                <span>•</span>
+                <a
+                  href={`https://wa.me/${STORE_CONFIG.storeWhatsappNumber}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[#25D366] hover:underline font-bold"
+                >
+                  WhatsApp Text
+                </a>
+              </div>
+            </div>
           </div>
         </div>
       )}

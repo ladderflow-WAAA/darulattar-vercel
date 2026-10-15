@@ -41,6 +41,12 @@ export interface StoreConfig {
   merchantUpi: MerchantUpiConfig;
   officialGatewayApi: OfficialGatewayConfig;
   delhiveryLogistics: DelhiveryLogisticsConfig;
+  verificationSchedule: {
+    nightWindowStart: string;
+    nightWindowEnd: string;
+    noticeText: string;
+    supportActionText: string;
+  };
 }
 
 export const STORE_CONFIG: StoreConfig = {
@@ -82,5 +88,12 @@ export const STORE_CONFIG: StoreConfig = {
     expressDays: "1–2 Business Days",
     localChennaiDays: "1–2 Business Days",
     trackingBaseUrl: "https://www.delhivery.com/track/package/"
+  },
+
+  verificationSchedule: {
+    nightWindowStart: "10:00 PM",
+    nightWindowEnd: "6:00 AM",
+    noticeText: "Payments submitted between 10:00 PM and 6:00 AM are verified sequentially after 6:00 AM next morning, followed by dispatch confirmation.",
+    supportActionText: "For questions or immediate support, you can text on WhatsApp or call: +91 95789 94377."
   }
 };

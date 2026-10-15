@@ -177,6 +177,44 @@ export const OrderConfirmationPage: React.FC<OrderConfirmationPageProps> = ({
             </div>
           </div>
 
+          {/* Overnight Payment Verification & Direct Call/WhatsApp Notice */}
+          <div className="my-6 p-4 bg-amber-950/20 border border-amber-800/40 rounded-sm text-xs">
+            <div className="flex items-start space-x-3">
+              <svg className="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <div className="space-y-1.5 flex-1">
+                <span className="font-semibold text-amber-300 block uppercase tracking-wider text-[11px]">
+                  Verification Schedule (10:00 PM – 6:00 AM)
+                </span>
+                <p className="text-gray-300 leading-relaxed text-[11px]">
+                  Orders and payments submitted between <strong>10:00 PM and 6:00 AM</strong> are verified sequentially starting after <strong>6:00 AM</strong> next morning, after which your dispatch notification will be triggered.
+                </p>
+                <div className="pt-1 text-[11px] text-gray-400 border-t border-amber-900/40 flex flex-wrap items-center gap-2">
+                  <span>Need immediate help or have an urgent query?</span>
+                  <div className="flex items-center gap-3">
+                    <a
+                      href={`tel:${STORE_CONFIG.storePhone}`}
+                      className="text-white hover:text-[#FF5A00] font-mono font-bold underline inline-flex items-center space-x-1"
+                    >
+                      <svg className="w-3 h-3 text-[#FF5A00]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
+                      <span>Call: {STORE_CONFIG.storePhone}</span>
+                    </a>
+                    <span>•</span>
+                    <a
+                      href={`https://wa.me/${STORE_CONFIG.storeWhatsappNumber}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[#25D366] hover:underline font-bold inline-flex items-center space-x-1"
+                    >
+                      <span>WhatsApp Text</span>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
           {/* Item Breakdown (if available) */}
           {fallbackOrder.items.length > 0 && (
             <div className="mt-6 pt-4 border-t border-gray-800">
