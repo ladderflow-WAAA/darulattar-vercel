@@ -5,7 +5,7 @@ import CloudinaryUploader from '../components/CloudinaryUploader';
 import { supabase } from '../lib/supabase';
 
 type CategoryGroup = 'Best Sellers' | 'Floral & Fresh' | 'Woody & Musk' | 'Gourmand & Spicy';
-type Tab = 'dashboard' | 'products' | 'add';
+type Tab = 'dashboard' | 'orders' | 'products' | 'add';
 
 const CATEGORIES: CategoryGroup[] = ['Best Sellers', 'Floral & Fresh', 'Woody & Musk', 'Gourmand & Spicy'];
 const CATEGORY_COLORS: Record<string, string> = {
@@ -42,6 +42,7 @@ const AdminDashboardPage: React.FC = () => {
           <Sidebar tab={tab} setTab={setTab} admin={admin} logout={logout} />
           <main className="flex-1 ml-56 p-8 pt-16 overflow-auto">
             {tab === 'dashboard' && <DashboardTab />}
+            {tab === 'orders' && <OrdersTab />}
             {tab === 'products' && <ProductsTab />}
             {tab === 'add' && <AddProductTab />}
           </main>
@@ -61,6 +62,7 @@ const Sidebar: React.FC<{ tab: Tab; setTab: (t: Tab) => void; admin: any; logout
     <nav className="flex-1 p-3 space-y-1">
       {([
         { id: 'dashboard', label: 'Dashboard', icon: '◉' },
+        { id: 'orders', label: 'Orders & UTR', icon: '▤' },
         { id: 'products', label: 'Products', icon: '◎' },
         { id: 'add', label: 'Add Product', icon: '⊕' },
       ] as { id: Tab; label: string; icon: string }[]).map((item) => (
@@ -494,6 +496,368 @@ const AddProductTab: React.FC = () => {
           {submitting ? 'Uploading...' : 'Upload Product'}
         </button>
       </form>
+    </div>
+  );
+};
+
+/* ─── ORDERS & UTR VERIFICATION TAB ─── */
+interface AdminOrder {
+  orderId: string;
+  items: { name: string; size: string; quantity: number; price: number }[];
+  subtotal: number;
+  shippingFee: number;
+  total: number;
+  shippingSpeed: string;
+  estimatedDeliveryDate?: string;
+  customer: {
+    fullName: string;
+    phone: string;
+    email?: string;
+    address: string;
+    city: string;
+    state: string;
+    pincode: string;
+  };
+  payment: {
+    method: string;
+    utrNumber?: string;
+    vpa?: string;
+    status: 'VERIFICATION_PENDING' | 'VERIFIED_PAID' | 'DISPATCHED' | 'CANCELLED' | string;
+  };
+  delhiveryTrackingAwb?: string;
+  createdAt: string;
+}
+
+const OrdersTab: React.FC = () => {
+  const [orders, setOrders] = useState<AdminOrder[]>([]);
+  const [filter, setFilter] = useState<'ALL' | 'PENDING' | 'VERIFIED' | 'DISPATCHED'>('ALL');
+  const [search, setSearch] = useState('');
+  const [copiedUtr, setCopiedUtr] = useState<string | null>(null);
+
+  const loadOrders = useCallback(() => {
+    try {
+      const stored = JSON.parse(localStorage.getItem('darulattar_orders') || '[]');
+      setOrders(stored);
+    } catch {
+      setOrders([]);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadOrders();
+  }, [loadOrders]);
+
+  const saveOrders = (updated: AdminOrder[]) => {
+    setOrders(updated);
+    try {
+      localStorage.setItem('darulattar_orders', JSON.stringify(updated));
+    } catch {}
+  };
+
+  const updateOrderStatus = (orderId: string, newStatus: string) => {
+    const updated = orders.map(ord => {
+      if (ord.orderId === orderId) {
+        return {
+          ...ord,
+          payment: { ...ord.payment, status: newStatus }
+        };
+      }
+      return ord;
+    });
+    saveOrders(updated);
+  };
+
+  const assignDelhiveryAwb = (orderId: string) => {
+    const awb = window.prompt('Enter Delhivery Waybill / Tracking AWB Number:');
+    if (!awb || !awb.trim()) return;
+
+    const updated = orders.map(ord => {
+      if (ord.orderId === orderId) {
+        return {
+          ...ord,
+          delhiveryTrackingAwb: awb.trim(),
+          payment: { ...ord.payment, status: 'DISPATCHED' }
+        };
+      }
+      return ord;
+    });
+    saveOrders(updated);
+  };
+
+  const handleCopy = (utr: string) => {
+    navigator.clipboard.writeText(utr);
+    setCopiedUtr(utr);
+    setTimeout(() => setCopiedUtr(null), 2000);
+  };
+
+  const handleDelete = (orderId: string) => {
+    if (window.confirm(`Delete order ${orderId}?`)) {
+      const updated = orders.filter(o => o.orderId !== orderId);
+      saveOrders(updated);
+    }
+  };
+
+  const filteredOrders = orders.filter(ord => {
+    const matchesFilter =
+      filter === 'ALL'
+        ? true
+        : filter === 'PENDING'
+        ? ord.payment?.status === 'VERIFICATION_PENDING'
+        : filter === 'VERIFIED'
+        ? ord.payment?.status === 'VERIFIED_PAID'
+        : ord.payment?.status === 'DISPATCHED';
+
+    const q = search.toLowerCase().trim();
+    const matchesSearch =
+      !q ||
+      ord.orderId.toLowerCase().includes(q) ||
+      ord.customer.fullName.toLowerCase().includes(q) ||
+      ord.customer.phone.includes(q) ||
+      (ord.payment?.utrNumber && ord.payment.utrNumber.includes(q));
+
+    return matchesFilter && matchesSearch;
+  });
+
+  const pendingCount = orders.filter(o => o.payment?.status === 'VERIFICATION_PENDING').length;
+  const verifiedCount = orders.filter(o => o.payment?.status === 'VERIFIED_PAID').length;
+  const totalRevenue = orders
+    .filter(o => o.payment?.status !== 'CANCELLED')
+    .reduce((sum, o) => sum + (o.total || 0), 0);
+
+  return (
+    <div className="space-y-6">
+      {/* Header & Verification Guidance */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-gray-800 gap-4">
+        <div>
+          <h2 className="text-xl font-serif text-white">Orders &amp; UTR Reconciliation</h2>
+          <p className="text-xs text-gray-400 mt-0.5">
+            Step 2: Match incoming 12-digit UTR against your Paytm Business statement (paytm.s2gnznb@pty).
+          </p>
+        </div>
+
+        <button
+          onClick={loadOrders}
+          className="text-xs bg-gray-800 hover:bg-gray-700 text-gray-200 px-3 py-1.5 rounded-sm transition self-start"
+        >
+          Refresh Orders
+        </button>
+      </div>
+
+      {/* Metrics Row */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div className="p-4 bg-black/60 border border-gray-800 rounded-sm">
+          <span className="text-[10px] text-gray-400 uppercase tracking-wider block">Total Orders</span>
+          <span className="text-2xl font-mono font-bold text-white mt-1 block">{orders.length}</span>
+        </div>
+        <div className="p-4 bg-black/60 border border-gray-800 rounded-sm">
+          <span className="text-[10px] text-amber-400 uppercase tracking-wider block">Pending UTR Check</span>
+          <span className="text-2xl font-mono font-bold text-amber-400 mt-1 block">{pendingCount}</span>
+        </div>
+        <div className="p-4 bg-black/60 border border-gray-800 rounded-sm">
+          <span className="text-[10px] text-emerald-400 uppercase tracking-wider block">Verified &amp; Paid</span>
+          <span className="text-2xl font-mono font-bold text-emerald-400 mt-1 block">{verifiedCount}</span>
+        </div>
+        <div className="p-4 bg-black/60 border border-gray-800 rounded-sm">
+          <span className="text-[10px] text-gray-400 uppercase tracking-wider block">Total Settled</span>
+          <span className="text-2xl font-mono font-bold text-white mt-1 block">₹{totalRevenue.toFixed(2)}</span>
+        </div>
+      </div>
+
+      {/* Filter and Search Bar */}
+      <div className="flex flex-col sm:flex-row gap-3 justify-between items-center bg-black/40 border border-gray-800 p-3 rounded-sm">
+        <div className="flex gap-2">
+          {(['ALL', 'PENDING', 'VERIFIED', 'DISPATCHED'] as const).map(tabKey => (
+            <button
+              key={tabKey}
+              onClick={() => setFilter(tabKey)}
+              className={`px-3 py-1 text-xs uppercase tracking-wider rounded-sm font-semibold transition ${
+                filter === tabKey
+                  ? 'bg-[#FF5A00] text-white'
+                  : 'bg-black text-gray-400 hover:text-white border border-gray-800'
+              }`}
+            >
+              {tabKey}
+            </button>
+          ))}
+        </div>
+
+        <input
+          type="text"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search by Order ID, Phone, or UTR..."
+          className="w-full sm:w-72 bg-black border border-gray-700 px-3 py-1.5 rounded-sm text-xs text-white focus:border-[#FF5A00] outline-none"
+        />
+      </div>
+
+      {/* Orders List */}
+      {filteredOrders.length === 0 ? (
+        <div className="p-12 text-center bg-black/40 border border-gray-800 rounded-sm">
+          <p className="text-gray-400 text-sm">No orders matching the current filter.</p>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {filteredOrders.map(order => {
+            const isPending = order.payment?.status === 'VERIFICATION_PENDING';
+            const isVerified = order.payment?.status === 'VERIFIED_PAID';
+            const isDispatched = order.payment?.status === 'DISPATCHED';
+
+            return (
+              <div
+                key={order.orderId}
+                className="bg-black/60 border border-gray-800 rounded-sm p-5 space-y-4 hover:border-gray-700 transition"
+              >
+                {/* Order Top Bar */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-gray-800 gap-2">
+                  <div className="flex items-center space-x-3">
+                    <span className="font-mono font-bold text-white text-base">{order.orderId}</span>
+                    <span className="text-xs text-gray-400">
+                      {order.createdAt ? new Date(order.createdAt).toLocaleString('en-IN') : ''}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center space-x-2">
+                    <span
+                      className={`text-[11px] px-2.5 py-0.5 rounded font-semibold uppercase tracking-wider ${
+                        isPending
+                          ? 'bg-amber-950/40 text-amber-400 border border-amber-800'
+                          : isVerified
+                          ? 'bg-emerald-950/40 text-emerald-400 border border-emerald-800'
+                          : isDispatched
+                          ? 'bg-blue-950/40 text-blue-400 border border-blue-800'
+                          : 'bg-gray-800 text-gray-400'
+                      }`}
+                    >
+                      {order.payment?.status || 'PENDING'}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Details Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+                  {/* Customer Information */}
+                  <div className="p-3 bg-black/40 border border-gray-800/80 rounded-sm space-y-1">
+                    <span className="text-[10px] text-gray-400 uppercase tracking-wider block font-semibold">
+                      Customer &amp; Address
+                    </span>
+                    <p className="font-bold text-white">{order.customer?.fullName}</p>
+                    <p className="text-gray-300 font-mono">{order.customer?.phone}</p>
+                    <p className="text-gray-400 text-[11px] leading-relaxed">
+                      {order.customer?.address}, {order.customer?.city} - {order.customer?.pincode}
+                    </p>
+                  </div>
+
+                  {/* Payment & 12-Digit UTR */}
+                  <div className="p-3 bg-black/40 border border-gray-800/80 rounded-sm space-y-2">
+                    <span className="text-[10px] text-gray-400 uppercase tracking-wider block font-semibold">
+                      UPI Payment &amp; UTR Details
+                    </span>
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-400">Total Payable:</span>
+                      <span className="font-mono font-bold text-white text-sm">₹{order.total?.toFixed(2)}</span>
+                    </div>
+
+                    <div className="pt-1">
+                      <span className="text-gray-400 text-[11px] block">12-Digit UTR / Reference:</span>
+                      <div className="flex items-center justify-between mt-0.5 p-1.5 bg-black border border-gray-700 rounded-sm">
+                        <span className="font-mono text-xs text-[#FF5A00] font-bold select-all tracking-wider">
+                          {order.payment?.utrNumber || 'Not entered'}
+                        </span>
+                        {order.payment?.utrNumber && (
+                          <button
+                            type="button"
+                            onClick={() => handleCopy(order.payment.utrNumber!)}
+                            className="text-[10px] bg-gray-800 hover:bg-gray-700 text-white px-2 py-0.5 rounded transition"
+                          >
+                            {copiedUtr === order.payment.utrNumber ? 'Copied' : 'Copy'}
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Delhivery Logistics */}
+                  <div className="p-3 bg-black/40 border border-gray-800/80 rounded-sm space-y-2">
+                    <span className="text-[10px] text-gray-400 uppercase tracking-wider block font-semibold">
+                      Logistics (Delhivery)
+                    </span>
+                    <p className="text-gray-300">{order.shippingSpeed}</p>
+                    {order.delhiveryTrackingAwb ? (
+                      <div>
+                        <span className="text-[10px] text-gray-400">AWB Tracking Number:</span>
+                        <a
+                          href={`https://www.delhivery.com/track/package/${order.delhiveryTrackingAwb}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="font-mono text-[#FF5A00] underline block text-xs"
+                        >
+                          {order.delhiveryTrackingAwb}
+                        </a>
+                      </div>
+                    ) : (
+                      <span className="text-[11px] text-gray-500 italic">No AWB assigned yet</span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Items Summary */}
+                <div className="pt-2 text-xs text-gray-300">
+                  <span className="text-[10px] text-gray-400 uppercase tracking-wider block mb-1">Items:</span>
+                  <div className="flex flex-wrap gap-2">
+                    {order.items?.map((it, idx) => (
+                      <span
+                        key={idx}
+                        className="bg-black/60 border border-gray-800 px-2.5 py-1 rounded-sm text-[11px]"
+                      >
+                        {it.quantity}x {it.name} ({it.size}) — ₹{(it.price * it.quantity).toFixed(2)}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Verification & Dispatch Actions */}
+                <div className="pt-3 border-t border-gray-800 flex flex-wrap gap-2 justify-end items-center">
+                  <a
+                    href={`https://wa.me/91${order.customer?.phone?.replace(/\D/g, '')}?text=${encodeURIComponent(
+                      `Hello ${order.customer?.fullName}, regarding your Darul Attar Order ${order.orderId}:`
+                    )}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-3 py-1.5 text-xs bg-[#25D366] hover:bg-[#20bd4d] text-white font-semibold rounded-sm transition"
+                  >
+                    WhatsApp Customer
+                  </a>
+
+                  {isPending && (
+                    <button
+                      onClick={() => updateOrderStatus(order.orderId, 'VERIFIED_PAID')}
+                      className="px-3 py-1.5 text-xs bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-sm transition"
+                    >
+                      Verify &amp; Mark Paid
+                    </button>
+                  )}
+
+                  {!isDispatched && (
+                    <button
+                      onClick={() => assignDelhiveryAwb(order.orderId)}
+                      className="px-3 py-1.5 text-xs bg-[#FF5A00] hover:bg-[#EA580C] text-white font-semibold rounded-sm transition"
+                    >
+                      Assign Delhivery AWB
+                    </button>
+                  )}
+
+                  <button
+                    onClick={() => handleDelete(order.orderId)}
+                    className="px-2.5 py-1.5 text-xs text-red-500 hover:text-red-400 hover:bg-red-950/20 rounded-sm transition"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 };
