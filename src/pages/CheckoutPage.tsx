@@ -8,6 +8,7 @@ import DirectMerchantUpi from '../components/DirectMerchantUpi';
 import { ArrowLeftIcon } from '../components/icons/ArrowLeftIcon';
 import { WhatsappIcon } from '../components/icons/WhatsappIcon';
 import { setMetadata } from '../utils/metadata';
+import { saveOrder, OrderRecord } from '../utils/orderService';
 
 interface CheckoutPageProps {
   navigate: (pageState: PageState) => void;
@@ -124,12 +125,19 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handlePaymentSubmitted = (data: { utrNumber: string; paymentMode: string; amountPaid: number }) => {
+  const handlePaymentSubmitted = async (data: { utrNumber: string; paymentMode: string; amountPaid: number }) => {
     setIsSubmitting(true);
 
-    const orderDetails = {
+    const orderDetails: OrderRecord = {
       orderId,
-      items: cartItems,
+      items: cartItems.map(item => ({
+        id: item.id,
+        name: item.name,
+        size: item.size,
+        quantity: item.quantity,
+        price: item.price,
+        imageUrl: item.imageUrl
+      })),
       subtotal: cartTotal,
       shippingFee: activeShippingFee,
       total: totalPayable,
@@ -147,29 +155,51 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
       createdAt: new Date().toISOString()
     };
 
-    // Save to local storage for user order history
-    try {
-      const existing = JSON.parse(localStorage.getItem('darulattar_orders') || '[]');
-      existing.unshift(orderDetails);
-      localStorage.setItem('darulattar_orders', JSON.stringify(existing.slice(0, 20)));
-    } catch {}
+    // Save to both Supabase cloud database & LocalStorage
+    await saveOrder(orderDetails);
 
     clearCart();
-
-    setTimeout(() => {
-      setIsSubmitting(false);
-      navigate({
-        name: 'orderConfirmation',
-        props: { orderDetails }
-      });
-    }, 600);
+    setIsSubmitting(false);
+    navigate({
+      name: 'orderConfirmation',
+      props: { orderDetails }
+    });
   };
 
   // WhatsApp Instant Order Fallback
-  const handleConfirmOnWhatsApp = () => {
+  const handleConfirmOnWhatsApp = async () => {
     if (!validateDetails()) {
       return;
     }
+
+    const orderDetails: OrderRecord = {
+      orderId,
+      items: cartItems.map(item => ({
+        id: item.id,
+        name: item.name,
+        size: item.size,
+        quantity: item.quantity,
+        price: item.price,
+        imageUrl: item.imageUrl
+      })),
+      subtotal: cartTotal,
+      shippingFee: activeShippingFee,
+      total: totalPayable,
+      shippingSpeed: shippingMode === 'standard' ? 'Delhivery Standard' : 'Delhivery Express Air',
+      estimatedDeliveryDate: shippingMode === 'standard'
+        ? (delhiveryResult?.estimatedStandardDate || '3–5 Business Days')
+        : (delhiveryResult?.estimatedExpressDate || '1–2 Business Days'),
+      customer: formData,
+      payment: {
+        method: 'WHATSAPP_CHECKOUT',
+        vpa: STORE_CONFIG.merchantUpi.vpa,
+        status: 'WHATSAPP_ENQUIRY'
+      },
+      createdAt: new Date().toISOString()
+    };
+
+    // Save order record so admin sees WhatsApp enquiry
+    await saveOrder(orderDetails);
 
     const itemsSummary = cartItems.map(item =>
       `• ${item.quantity}x ${item.name} (${item.size}) - ₹${(item.price * item.quantity).toFixed(2)}`
@@ -201,6 +231,8 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
 
     const whatsappUrl = `https://wa.me/${STORE_CONFIG.storeWhatsappNumber}?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
+    clearCart();
+    navigate({ name: 'home' });
   };
 
   if (cartCount === 0) {

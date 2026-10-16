@@ -3,6 +3,13 @@ import { useAdmin } from '../contexts/AdminContext';
 import { useNavigate } from 'react-router-dom';
 import CloudinaryUploader from '../components/CloudinaryUploader';
 import { supabase } from '../lib/supabase';
+import {
+  fetchAllOrders,
+  updateOrderStatus as persistOrderStatus,
+  deleteOrderRecord,
+  checkOrdersCloudSyncStatus,
+  OrderRecord
+} from '../utils/orderService';
 
 type CategoryGroup = 'Best Sellers' | 'Floral & Fresh' | 'Woody & Musk' | 'Gourmand & Spicy';
 type Tab = 'dashboard' | 'orders' | 'products' | 'add';
@@ -26,21 +33,79 @@ const AdminDashboardPage: React.FC = () => {
   const { isAdmin, isLoading, logout, admin } = useAdmin();
   const navigate = useNavigate();
   const [tab, setTab] = useState<Tab>('dashboard');
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     if (!isLoading && !isAdmin) navigate('/admin/login', { replace: true });
   }, [isAdmin, isLoading, navigate]);
 
   return (
-    <div className="min-h-screen bg-brand-dark flex">
+    <div className="min-h-screen bg-brand-dark flex flex-col md:flex-row">
       {isLoading ? (
         <div className="flex-1 flex items-center justify-center">
           <p className="text-gray-400">Loading...</p>
         </div>
       ) : (
         <>
+          {/* Mobile Top Header */}
+          <header className="md:hidden fixed top-0 left-0 right-0 h-14 bg-black/95 border-b border-gray-800 z-50 px-4 flex items-center justify-between backdrop-blur-md">
+            <div>
+              <span className="font-serif text-white text-sm font-semibold tracking-wide">Darul Attar Admin</span>
+              <span className="text-[10px] text-[#FF5A00] block uppercase font-mono tracking-wider font-semibold">
+                {tab.toUpperCase()}
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="px-2.5 py-1 text-xs bg-gray-900 border border-gray-700 text-gray-200 rounded-sm font-medium"
+              >
+                {mobileMenuOpen ? '✕ Close' : '☰ Menu'}
+              </button>
+              <button
+                type="button"
+                onClick={logout}
+                className="px-2 py-1 text-xs text-red-400 hover:text-red-300 transition"
+              >
+                Logout
+              </button>
+            </div>
+          </header>
+
+          {/* Mobile Dropdown Drawer */}
+          {mobileMenuOpen && (
+            <div className="md:hidden fixed top-14 left-0 right-0 bg-black/95 border-b border-gray-800 z-40 p-3 space-y-1 backdrop-blur-md shadow-2xl">
+              {([
+                { id: 'dashboard', label: 'Dashboard', icon: '◉' },
+                { id: 'orders', label: 'Orders & UTR', icon: '▤' },
+                { id: 'products', label: 'Products', icon: '◎' },
+                { id: 'add', label: 'Add Product', icon: '⊕' },
+              ] as { id: Tab; label: string; icon: string }[]).map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => {
+                    setTab(item.id);
+                    setMobileMenuOpen(false);
+                  }}
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-sm text-sm transition ${
+                    tab === item.id
+                      ? 'bg-[#FF5A00]/20 text-[#FF5A00] font-bold border-l-2 border-[#FF5A00]'
+                      : 'text-gray-400 hover:text-white hover:bg-white/5'
+                  }`}
+                >
+                  <span className="text-base">{item.icon}</span>
+                  {item.label}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {/* Desktop Sidebar (hidden on mobile) */}
           <Sidebar tab={tab} setTab={setTab} admin={admin} logout={logout} />
-          <main className="flex-1 ml-56 p-8 pt-16 overflow-auto">
+
+          {/* Main Content Area */}
+          <main className="flex-1 ml-0 md:ml-56 p-4 sm:p-8 pt-18 md:pt-16 min-w-0 overflow-x-hidden">
             {tab === 'dashboard' && <DashboardTab />}
             {tab === 'orders' && <OrdersTab />}
             {tab === 'products' && <ProductsTab />}
@@ -54,7 +119,7 @@ const AdminDashboardPage: React.FC = () => {
 
 /* ─── SIDEBAR ─── */
 const Sidebar: React.FC<{ tab: Tab; setTab: (t: Tab) => void; admin: any; logout: () => void }> = ({ tab, setTab, admin, logout }) => (
-  <aside className="fixed left-0 top-0 bottom-0 w-56 bg-black/60 border-r border-gray-800 z-50 flex flex-col">
+  <aside className="hidden md:flex fixed left-0 top-0 bottom-0 w-56 bg-black/60 border-r border-gray-800 z-50 flex-col">
     <div className="p-5 border-b border-gray-800">
       <h1 className="text-lg font-serif text-white">Darul Attar</h1>
       <p className="text-xs text-gray-500 mt-0.5">{admin?.email}</p>
@@ -501,45 +566,45 @@ const AddProductTab: React.FC = () => {
 };
 
 /* ─── ORDERS & UTR VERIFICATION TAB ─── */
-interface AdminOrder {
-  orderId: string;
-  items: { name: string; size: string; quantity: number; price: number }[];
-  subtotal: number;
-  shippingFee: number;
-  total: number;
-  shippingSpeed: string;
-  estimatedDeliveryDate?: string;
-  customer: {
-    fullName: string;
-    phone: string;
-    email?: string;
-    address: string;
-    city: string;
-    state: string;
-    pincode: string;
-  };
-  payment: {
-    method: string;
-    utrNumber?: string;
-    vpa?: string;
-    status: 'VERIFICATION_PENDING' | 'VERIFIED_PAID' | 'DISPATCHED' | 'CANCELLED' | string;
-  };
-  delhiveryTrackingAwb?: string;
-  createdAt: string;
-}
-
 const OrdersTab: React.FC = () => {
-  const [orders, setOrders] = useState<AdminOrder[]>([]);
-  const [filter, setFilter] = useState<'ALL' | 'PENDING' | 'VERIFIED' | 'DISPATCHED'>('ALL');
+  const [orders, setOrders] = useState<OrderRecord[]>([]);
+  const [loadingOrders, setLoadingOrders] = useState(true);
+  const [cloudStatus, setCloudStatus] = useState<{ connected: boolean; message: string }>({ connected: true, message: '' });
+  const [filter, setFilter] = useState<'ALL' | 'PENDING' | 'WHATSAPP' | 'VERIFIED' | 'DISPATCHED'>('ALL');
   const [search, setSearch] = useState('');
   const [copiedUtr, setCopiedUtr] = useState<string | null>(null);
+  const [showManualModal, setShowManualModal] = useState(false);
 
-  const loadOrders = useCallback(() => {
+  // Manual Quick-Log Order State
+  const [manualForm, setManualForm] = useState({
+    fullName: '',
+    phone: '',
+    address: '',
+    city: 'Chennai',
+    state: 'Tamil Nadu',
+    pincode: '',
+    itemName: 'Darul Attar Blend',
+    itemSize: '6ml',
+    quantity: 1,
+    price: 350,
+    shippingFee: 69,
+    utrNumber: '',
+    status: 'VERIFICATION_PENDING' as const
+  });
+
+  const loadOrders = useCallback(async () => {
+    setLoadingOrders(true);
     try {
-      const stored = JSON.parse(localStorage.getItem('darulattar_orders') || '[]');
-      setOrders(stored);
-    } catch {
-      setOrders([]);
+      const [orderList, status] = await Promise.all([
+        fetchAllOrders(),
+        checkOrdersCloudSyncStatus()
+      ]);
+      setOrders(orderList);
+      setCloudStatus(status);
+    } catch (err) {
+      console.warn('Orders load failed:', err);
+    } finally {
+      setLoadingOrders(false);
     }
   }, []);
 
@@ -547,41 +612,27 @@ const OrdersTab: React.FC = () => {
     loadOrders();
   }, [loadOrders]);
 
-  const saveOrders = (updated: AdminOrder[]) => {
-    setOrders(updated);
-    try {
-      localStorage.setItem('darulattar_orders', JSON.stringify(updated));
-    } catch {}
+  const handleUpdateStatus = async (orderId: string, newStatus: string) => {
+    setOrders(prev => prev.map(ord => ord.orderId === orderId ? {
+      ...ord,
+      payment: { ...ord.payment, status: newStatus }
+    } : ord));
+    await persistOrderStatus(orderId, { paymentStatus: newStatus });
   };
 
-  const updateOrderStatus = (orderId: string, newStatus: string) => {
-    const updated = orders.map(ord => {
-      if (ord.orderId === orderId) {
-        return {
-          ...ord,
-          payment: { ...ord.payment, status: newStatus }
-        };
-      }
-      return ord;
-    });
-    saveOrders(updated);
-  };
-
-  const assignDelhiveryAwb = (orderId: string) => {
+  const assignDelhiveryAwb = async (orderId: string) => {
     const awb = window.prompt('Enter Delhivery Waybill / Tracking AWB Number:');
     if (!awb || !awb.trim()) return;
 
-    const updated = orders.map(ord => {
-      if (ord.orderId === orderId) {
-        return {
-          ...ord,
-          delhiveryTrackingAwb: awb.trim(),
-          payment: { ...ord.payment, status: 'DISPATCHED' }
-        };
-      }
-      return ord;
+    setOrders(prev => prev.map(ord => ord.orderId === orderId ? {
+      ...ord,
+      delhiveryTrackingAwb: awb.trim(),
+      payment: { ...ord.payment, status: 'DISPATCHED' }
+    } : ord));
+    await persistOrderStatus(orderId, {
+      paymentStatus: 'DISPATCHED',
+      delhiveryTrackingAwb: awb.trim()
     });
-    saveOrders(updated);
   };
 
   const handleCopy = (utr: string) => {
@@ -590,38 +641,100 @@ const OrdersTab: React.FC = () => {
     setTimeout(() => setCopiedUtr(null), 2000);
   };
 
-  const handleDelete = (orderId: string) => {
+  const handleDelete = async (orderId: string) => {
     if (window.confirm(`Delete order ${orderId}?`)) {
-      const updated = orders.filter(o => o.orderId !== orderId);
-      saveOrders(updated);
+      setOrders(prev => prev.filter(o => o.orderId !== orderId));
+      await deleteOrderRecord(orderId);
     }
   };
 
+  const handleCreateManualOrder = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!manualForm.fullName.trim() || !manualForm.phone.trim()) {
+      alert('Customer Name and Phone are required.');
+      return;
+    }
+
+    const newOrder: OrderRecord = {
+      orderId: `DAO-M-${Date.now().toString().slice(-6)}`,
+      customer: {
+        fullName: manualForm.fullName.trim(),
+        phone: manualForm.phone.trim(),
+        address: manualForm.address.trim(),
+        city: manualForm.city.trim(),
+        state: manualForm.state.trim(),
+        pincode: manualForm.pincode.trim()
+      },
+      items: [
+        {
+          name: manualForm.itemName,
+          size: manualForm.itemSize,
+          quantity: Number(manualForm.quantity) || 1,
+          price: Number(manualForm.price) || 0
+        }
+      ],
+      subtotal: (Number(manualForm.price) || 0) * (Number(manualForm.quantity) || 1),
+      shippingFee: Number(manualForm.shippingFee) || 0,
+      total: ((Number(manualForm.price) || 0) * (Number(manualForm.quantity) || 1)) + (Number(manualForm.shippingFee) || 0),
+      shippingSpeed: 'Delhivery Standard',
+      payment: {
+        method: manualForm.utrNumber ? 'DIRECT_MERCHANT_UPI' : 'WHATSAPP_CHECKOUT',
+        utrNumber: manualForm.utrNumber.trim(),
+        status: manualForm.status
+      },
+      createdAt: new Date().toISOString()
+    };
+
+    const updated = [newOrder, ...orders];
+    setOrders(updated);
+    await persistOrderStatus(newOrder.orderId, { paymentStatus: newOrder.payment.status });
+    setShowManualModal(false);
+    setManualForm({
+      fullName: '',
+      phone: '',
+      address: '',
+      city: 'Chennai',
+      state: 'Tamil Nadu',
+      pincode: '',
+      itemName: 'Darul Attar Blend',
+      itemSize: '6ml',
+      quantity: 1,
+      price: 350,
+      shippingFee: 69,
+      utrNumber: '',
+      status: 'VERIFICATION_PENDING'
+    });
+  };
+
   const filteredOrders = orders.filter(ord => {
+    const status = ord.payment?.status || '';
     const matchesFilter =
       filter === 'ALL'
         ? true
         : filter === 'PENDING'
-        ? ord.payment?.status === 'VERIFICATION_PENDING'
+        ? status === 'VERIFICATION_PENDING'
+        : filter === 'WHATSAPP'
+        ? status === 'WHATSAPP_ENQUIRY'
         : filter === 'VERIFIED'
-        ? ord.payment?.status === 'VERIFIED_PAID'
-        : ord.payment?.status === 'DISPATCHED';
+        ? status === 'VERIFIED_PAID'
+        : status === 'DISPATCHED';
 
     const q = search.toLowerCase().trim();
     const matchesSearch =
       !q ||
       ord.orderId.toLowerCase().includes(q) ||
-      ord.customer.fullName.toLowerCase().includes(q) ||
-      ord.customer.phone.includes(q) ||
+      (ord.customer?.fullName && ord.customer.fullName.toLowerCase().includes(q)) ||
+      (ord.customer?.phone && ord.customer.phone.includes(q)) ||
       (ord.payment?.utrNumber && ord.payment.utrNumber.includes(q));
 
     return matchesFilter && matchesSearch;
   });
 
-  const pendingCount = orders.filter(o => o.payment?.status === 'VERIFICATION_PENDING').length;
+  const pendingUtrCount = orders.filter(o => o.payment?.status === 'VERIFICATION_PENDING').length;
+  const whatsappCount = orders.filter(o => o.payment?.status === 'WHATSAPP_ENQUIRY').length;
   const verifiedCount = orders.filter(o => o.payment?.status === 'VERIFIED_PAID').length;
   const totalRevenue = orders
-    .filter(o => o.payment?.status !== 'CANCELLED')
+    .filter(o => o.payment?.status === 'VERIFIED_PAID' || o.payment?.status === 'DISPATCHED')
     .reduce((sum, o) => sum + (o.total || 0), 0);
 
   return (
@@ -631,52 +744,79 @@ const OrdersTab: React.FC = () => {
         <div>
           <h2 className="text-xl font-serif text-white">Orders &amp; UTR Reconciliation</h2>
           <p className="text-xs text-gray-400 mt-0.5">
-            Step 2: Match incoming 12-digit UTR against your Paytm Business statement (paytm.s2gnznb@pty).
+            Cross-device order management synchronized across mobile and desktop.
           </p>
         </div>
 
-        <button
-          onClick={loadOrders}
-          className="text-xs bg-gray-800 hover:bg-gray-700 text-gray-200 px-3 py-1.5 rounded-sm transition self-start"
-        >
-          Refresh Orders
-        </button>
+        <div className="flex items-center gap-2 flex-wrap">
+          <button
+            type="button"
+            onClick={() => setShowManualModal(true)}
+            className="text-xs bg-[#FF5A00] hover:bg-[#EA580C] text-white px-3 py-1.5 rounded-sm font-semibold transition"
+          >
+            + Log Order Manually
+          </button>
+          <button
+            type="button"
+            onClick={loadOrders}
+            className="text-xs bg-gray-800 hover:bg-gray-700 text-gray-200 px-3 py-1.5 rounded-sm transition"
+          >
+            Refresh
+          </button>
+        </div>
       </div>
 
+      {/* Cloud Database Alert */}
+      {!cloudStatus.connected && (
+        <div className="p-4 bg-amber-950/40 border border-amber-800 rounded-sm text-xs text-amber-200 space-y-1">
+          <div className="font-bold flex items-center gap-2 text-amber-300">
+            <span>⚠️ Multi-Device Cloud Sync Notice</span>
+          </div>
+          <p className="leading-relaxed">
+            The database table <code>orders</code> is not active in Supabase ({cloudStatus.message}).
+            Orders on this device are saved in local browser memory. To access orders across your mobile phone and PC, run <code>CREATE-ORDERS-TABLE.sql</code> in your Supabase SQL Editor.
+          </p>
+        </div>
+      )}
+
       {/* Metrics Row */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <div className="p-4 bg-black/60 border border-gray-800 rounded-sm">
+      <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+        <div className="p-3 bg-black/60 border border-gray-800 rounded-sm">
           <span className="text-[10px] text-gray-400 uppercase tracking-wider block">Total Orders</span>
-          <span className="text-2xl font-mono font-bold text-white mt-1 block">{orders.length}</span>
+          <span className="text-xl font-mono font-bold text-white mt-1 block">{orders.length}</span>
         </div>
-        <div className="p-4 bg-black/60 border border-gray-800 rounded-sm">
+        <div className="p-3 bg-black/60 border border-gray-800 rounded-sm">
           <span className="text-[10px] text-amber-400 uppercase tracking-wider block">Pending UTR Check</span>
-          <span className="text-2xl font-mono font-bold text-amber-400 mt-1 block">{pendingCount}</span>
+          <span className="text-xl font-mono font-bold text-amber-400 mt-1 block">{pendingUtrCount}</span>
         </div>
-        <div className="p-4 bg-black/60 border border-gray-800 rounded-sm">
-          <span className="text-[10px] text-emerald-400 uppercase tracking-wider block">Verified &amp; Paid</span>
-          <span className="text-2xl font-mono font-bold text-emerald-400 mt-1 block">{verifiedCount}</span>
+        <div className="p-3 bg-black/60 border border-gray-800 rounded-sm">
+          <span className="text-[10px] text-emerald-400 uppercase tracking-wider block">WhatsApp Enquiries</span>
+          <span className="text-xl font-mono font-bold text-emerald-400 mt-1 block">{whatsappCount}</span>
         </div>
-        <div className="p-4 bg-black/60 border border-gray-800 rounded-sm">
+        <div className="p-3 bg-black/60 border border-gray-800 rounded-sm">
+          <span className="text-[10px] text-blue-400 uppercase tracking-wider block">Verified &amp; Paid</span>
+          <span className="text-xl font-mono font-bold text-blue-400 mt-1 block">{verifiedCount}</span>
+        </div>
+        <div className="p-3 bg-black/60 border border-gray-800 rounded-sm col-span-2 sm:col-span-1">
           <span className="text-[10px] text-gray-400 uppercase tracking-wider block">Total Settled</span>
-          <span className="text-2xl font-mono font-bold text-white mt-1 block">₹{totalRevenue.toFixed(2)}</span>
+          <span className="text-xl font-mono font-bold text-white mt-1 block">₹{totalRevenue.toFixed(2)}</span>
         </div>
       </div>
 
       {/* Filter and Search Bar */}
       <div className="flex flex-col sm:flex-row gap-3 justify-between items-center bg-black/40 border border-gray-800 p-3 rounded-sm">
-        <div className="flex gap-2">
-          {(['ALL', 'PENDING', 'VERIFIED', 'DISPATCHED'] as const).map(tabKey => (
+        <div className="flex gap-1.5 flex-wrap w-full sm:w-auto">
+          {(['ALL', 'PENDING', 'WHATSAPP', 'VERIFIED', 'DISPATCHED'] as const).map(tabKey => (
             <button
               key={tabKey}
               onClick={() => setFilter(tabKey)}
-              className={`px-3 py-1 text-xs uppercase tracking-wider rounded-sm font-semibold transition ${
+              className={`px-2.5 py-1 text-[11px] uppercase tracking-wider rounded-sm font-semibold transition ${
                 filter === tabKey
                   ? 'bg-[#FF5A00] text-white'
                   : 'bg-black text-gray-400 hover:text-white border border-gray-800'
               }`}
             >
-              {tabKey}
+              {tabKey === 'PENDING' ? 'Pending UTR' : tabKey === 'WHATSAPP' ? 'WhatsApp' : tabKey}
             </button>
           ))}
         </div>
@@ -690,51 +830,69 @@ const OrdersTab: React.FC = () => {
         />
       </div>
 
-      {/* Orders List */}
-      {filteredOrders.length === 0 ? (
+      {/* Loading State */}
+      {loadingOrders ? (
+        <div className="p-12 text-center bg-black/40 border border-gray-800 rounded-sm">
+          <p className="text-gray-400 text-sm">Loading orders from database...</p>
+        </div>
+      ) : filteredOrders.length === 0 ? (
         <div className="p-12 text-center bg-black/40 border border-gray-800 rounded-sm">
           <p className="text-gray-400 text-sm">No orders matching the current filter.</p>
+          <p className="text-gray-500 text-xs mt-1">
+            New orders from website checkout or WhatsApp inquiries will show here automatically.
+          </p>
         </div>
       ) : (
         <div className="space-y-4">
           {filteredOrders.map(order => {
-            const isPending = order.payment?.status === 'VERIFICATION_PENDING';
+            const isPendingUtr = order.payment?.status === 'VERIFICATION_PENDING';
+            const isWhatsapp = order.payment?.status === 'WHATSAPP_ENQUIRY';
             const isVerified = order.payment?.status === 'VERIFIED_PAID';
             const isDispatched = order.payment?.status === 'DISPATCHED';
 
             return (
               <div
                 key={order.orderId}
-                className="bg-black/60 border border-gray-800 rounded-sm p-5 space-y-4 hover:border-gray-700 transition"
+                className="bg-black/60 border border-gray-800 rounded-sm p-4 sm:p-5 space-y-4 hover:border-gray-700 transition"
               >
                 {/* Order Top Bar */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-gray-800 gap-2">
-                  <div className="flex items-center space-x-3">
-                    <span className="font-mono font-bold text-white text-base">{order.orderId}</span>
-                    <span className="text-xs text-gray-400">
+                  <div className="flex items-center space-x-3 flex-wrap">
+                    <span className="font-mono font-bold text-white text-sm sm:text-base">{order.orderId}</span>
+                    <span className="text-[11px] text-gray-400">
                       {order.createdAt ? new Date(order.createdAt).toLocaleString('en-IN') : ''}
                     </span>
                   </div>
 
                   <div className="flex items-center space-x-2">
                     <span
-                      className={`text-[11px] px-2.5 py-0.5 rounded font-semibold uppercase tracking-wider ${
-                        isPending
+                      className={`text-[10px] sm:text-[11px] px-2.5 py-0.5 rounded font-semibold uppercase tracking-wider ${
+                        isPendingUtr
                           ? 'bg-amber-950/40 text-amber-400 border border-amber-800'
-                          : isVerified
+                          : isWhatsapp
                           ? 'bg-emerald-950/40 text-emerald-400 border border-emerald-800'
+                          : isVerified
+                          ? 'bg-blue-950/40 text-blue-300 border border-blue-800'
                           : isDispatched
-                          ? 'bg-blue-950/40 text-blue-400 border border-blue-800'
+                          ? 'bg-indigo-950/40 text-indigo-300 border border-indigo-800'
                           : 'bg-gray-800 text-gray-400'
                       }`}
                     >
-                      {order.payment?.status || 'PENDING'}
+                      {isPendingUtr
+                        ? 'Pending UTR Verification'
+                        : isWhatsapp
+                        ? 'WhatsApp Enquiry'
+                        : isVerified
+                        ? 'Verified & Paid'
+                        : isDispatched
+                        ? 'Dispatched'
+                        : order.payment?.status || 'PENDING'}
                     </span>
                   </div>
                 </div>
 
                 {/* Details Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
                   {/* Customer Information */}
                   <div className="p-3 bg-black/40 border border-gray-800/80 rounded-sm space-y-1">
                     <span className="text-[10px] text-gray-400 uppercase tracking-wider block font-semibold">
@@ -743,14 +901,16 @@ const OrdersTab: React.FC = () => {
                     <p className="font-bold text-white">{order.customer?.fullName}</p>
                     <p className="text-gray-300 font-mono">{order.customer?.phone}</p>
                     <p className="text-gray-400 text-[11px] leading-relaxed">
-                      {order.customer?.address}, {order.customer?.city} - {order.customer?.pincode}
+                      {order.customer?.address}
+                      {order.customer?.city ? `, ${order.customer.city}` : ''}
+                      {order.customer?.pincode ? ` - ${order.customer.pincode}` : ''}
                     </p>
                   </div>
 
                   {/* Payment & 12-Digit UTR */}
                   <div className="p-3 bg-black/40 border border-gray-800/80 rounded-sm space-y-2">
                     <span className="text-[10px] text-gray-400 uppercase tracking-wider block font-semibold">
-                      UPI Payment &amp; UTR Details
+                      Payment Details
                     </span>
                     <div className="flex justify-between items-center">
                       <span className="text-gray-400">Total Payable:</span>
@@ -758,16 +918,18 @@ const OrdersTab: React.FC = () => {
                     </div>
 
                     <div className="pt-1">
-                      <span className="text-gray-400 text-[11px] block">12-Digit UTR / Reference:</span>
+                      <span className="text-gray-400 text-[11px] block">
+                        {isWhatsapp ? 'Method:' : '12-Digit UTR / Reference:'}
+                      </span>
                       <div className="flex items-center justify-between mt-0.5 p-1.5 bg-black border border-gray-700 rounded-sm">
-                        <span className="font-mono text-xs text-[#FF5A00] font-bold select-all tracking-wider">
-                          {order.payment?.utrNumber || 'Not entered'}
+                        <span className="font-mono text-xs text-[#FF5A00] font-bold select-all tracking-wider truncate mr-1">
+                          {isWhatsapp ? 'WhatsApp Enquiry' : order.payment?.utrNumber || 'Not entered'}
                         </span>
                         {order.payment?.utrNumber && (
                           <button
                             type="button"
                             onClick={() => handleCopy(order.payment.utrNumber!)}
-                            className="text-[10px] bg-gray-800 hover:bg-gray-700 text-white px-2 py-0.5 rounded transition"
+                            className="text-[10px] bg-gray-800 hover:bg-gray-700 text-white px-2 py-0.5 rounded transition shrink-0"
                           >
                             {copiedUtr === order.payment.utrNumber ? 'Copied' : 'Copy'}
                           </button>
@@ -781,7 +943,7 @@ const OrdersTab: React.FC = () => {
                     <span className="text-[10px] text-gray-400 uppercase tracking-wider block font-semibold">
                       Logistics (Delhivery)
                     </span>
-                    <p className="text-gray-300">{order.shippingSpeed}</p>
+                    <p className="text-gray-300">{order.shippingSpeed || 'Delhivery Standard'}</p>
                     {order.delhiveryTrackingAwb ? (
                       <div>
                         <span className="text-[10px] text-gray-400">AWB Tracking Number:</span>
@@ -801,7 +963,7 @@ const OrdersTab: React.FC = () => {
                 </div>
 
                 {/* Items Summary */}
-                <div className="pt-2 text-xs text-gray-300">
+                <div className="pt-1 text-xs text-gray-300">
                   <span className="text-[10px] text-gray-400 uppercase tracking-wider block mb-1">Items:</span>
                   <div className="flex flex-wrap gap-2">
                     {order.items?.map((it, idx) => (
@@ -828,9 +990,10 @@ const OrdersTab: React.FC = () => {
                     WhatsApp Customer
                   </a>
 
-                  {isPending && (
+                  {(isPendingUtr || isWhatsapp) && (
                     <button
-                      onClick={() => updateOrderStatus(order.orderId, 'VERIFIED_PAID')}
+                      type="button"
+                      onClick={() => handleUpdateStatus(order.orderId, 'VERIFIED_PAID')}
                       className="px-3 py-1.5 text-xs bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-sm transition"
                     >
                       Verify &amp; Mark Paid
@@ -839,6 +1002,7 @@ const OrdersTab: React.FC = () => {
 
                   {!isDispatched && (
                     <button
+                      type="button"
                       onClick={() => assignDelhiveryAwb(order.orderId)}
                       className="px-3 py-1.5 text-xs bg-[#FF5A00] hover:bg-[#EA580C] text-white font-semibold rounded-sm transition"
                     >
@@ -847,6 +1011,7 @@ const OrdersTab: React.FC = () => {
                   )}
 
                   <button
+                    type="button"
                     onClick={() => handleDelete(order.orderId)}
                     className="px-2.5 py-1.5 text-xs text-red-500 hover:text-red-400 hover:bg-red-950/20 rounded-sm transition"
                   >
@@ -856,6 +1021,167 @@ const OrdersTab: React.FC = () => {
               </div>
             );
           })}
+        </div>
+      )}
+
+      {/* Manual Order Modal */}
+      {showManualModal && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
+          <div className="bg-[#111] border border-gray-800 rounded-sm p-6 w-full max-w-lg space-y-4 max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center border-b border-gray-800 pb-3">
+              <h3 className="font-serif text-white text-lg">Log Order Manually</h3>
+              <button
+                type="button"
+                onClick={() => setShowManualModal(false)}
+                className="text-gray-400 hover:text-white"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateManualOrder} className="space-y-3 text-xs">
+              <div>
+                <label className="text-gray-400 block mb-1">Customer Full Name *</label>
+                <input
+                  type="text"
+                  required
+                  value={manualForm.fullName}
+                  onChange={e => setManualForm(prev => ({ ...prev, fullName: e.target.value }))}
+                  className="w-full bg-black border border-gray-700 p-2 rounded-sm text-white focus:border-[#FF5A00] outline-none"
+                  placeholder="e.g. Sameeulla.M"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="text-gray-400 block mb-1">Mobile Number *</label>
+                  <input
+                    type="text"
+                    required
+                    value={manualForm.phone}
+                    onChange={e => setManualForm(prev => ({ ...prev, phone: e.target.value }))}
+                    className="w-full bg-black border border-gray-700 p-2 rounded-sm text-white focus:border-[#FF5A00] outline-none"
+                    placeholder="e.g. 8608133694"
+                  />
+                </div>
+                <div>
+                  <label className="text-gray-400 block mb-1">PIN Code</label>
+                  <input
+                    type="text"
+                    value={manualForm.pincode}
+                    onChange={e => setManualForm(prev => ({ ...prev, pincode: e.target.value }))}
+                    className="w-full bg-black border border-gray-700 p-2 rounded-sm text-white focus:border-[#FF5A00] outline-none"
+                    placeholder="e.g. 600106"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="text-gray-400 block mb-1">Street Address</label>
+                <textarea
+                  rows={2}
+                  value={manualForm.address}
+                  onChange={e => setManualForm(prev => ({ ...prev, address: e.target.value }))}
+                  className="w-full bg-black border border-gray-700 p-2 rounded-sm text-white focus:border-[#FF5A00] outline-none"
+                  placeholder="e.g. 5/36 1st Street Periyar Nagar Padappai"
+                />
+              </div>
+
+              <div className="grid grid-cols-3 gap-2">
+                <div className="col-span-2">
+                  <label className="text-gray-400 block mb-1">Item Name</label>
+                  <input
+                    type="text"
+                    value={manualForm.itemName}
+                    onChange={e => setManualForm(prev => ({ ...prev, itemName: e.target.value }))}
+                    className="w-full bg-black border border-gray-700 p-2 rounded-sm text-white focus:border-[#FF5A00] outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="text-gray-400 block mb-1">Size</label>
+                  <input
+                    type="text"
+                    value={manualForm.itemSize}
+                    onChange={e => setManualForm(prev => ({ ...prev, itemSize: e.target.value }))}
+                    className="w-full bg-black border border-gray-700 p-2 rounded-sm text-white focus:border-[#FF5A00] outline-none"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-3 gap-2">
+                <div>
+                  <label className="text-gray-400 block mb-1">Qty</label>
+                  <input
+                    type="number"
+                    min="1"
+                    value={manualForm.quantity}
+                    onChange={e => setManualForm(prev => ({ ...prev, quantity: Number(e.target.value) || 1 }))}
+                    className="w-full bg-black border border-gray-700 p-2 rounded-sm text-white focus:border-[#FF5A00] outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="text-gray-400 block mb-1">Price (₹)</label>
+                  <input
+                    type="number"
+                    value={manualForm.price}
+                    onChange={e => setManualForm(prev => ({ ...prev, price: Number(e.target.value) || 0 }))}
+                    className="w-full bg-black border border-gray-700 p-2 rounded-sm text-white focus:border-[#FF5A00] outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="text-gray-400 block mb-1">Shipping (₹)</label>
+                  <input
+                    type="number"
+                    value={manualForm.shippingFee}
+                    onChange={e => setManualForm(prev => ({ ...prev, shippingFee: Number(e.target.value) || 0 }))}
+                    className="w-full bg-black border border-gray-700 p-2 rounded-sm text-white focus:border-[#FF5A00] outline-none"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="text-gray-400 block mb-1">12-Digit UTR (Optional)</label>
+                  <input
+                    type="text"
+                    value={manualForm.utrNumber}
+                    onChange={e => setManualForm(prev => ({ ...prev, utrNumber: e.target.value }))}
+                    className="w-full bg-black border border-gray-700 p-2 rounded-sm text-white focus:border-[#FF5A00] outline-none"
+                    placeholder="If paid via UPI"
+                  />
+                </div>
+                <div>
+                  <label className="text-gray-400 block mb-1">Initial Status</label>
+                  <select
+                    value={manualForm.status}
+                    onChange={e => setManualForm(prev => ({ ...prev, status: e.target.value as any }))}
+                    className="w-full bg-black border border-gray-700 p-2 rounded-sm text-white focus:border-[#FF5A00] outline-none"
+                  >
+                    <option value="WHATSAPP_ENQUIRY">WhatsApp Enquiry</option>
+                    <option value="VERIFICATION_PENDING">Pending UTR</option>
+                    <option value="VERIFIED_PAID">Verified &amp; Paid</option>
+                    <option value="DISPATCHED">Dispatched</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="pt-3 border-t border-gray-800 flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowManualModal(false)}
+                  className="px-3 py-1.5 bg-gray-800 text-gray-300 rounded-sm hover:bg-gray-700 transition"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-1.5 bg-[#FF5A00] hover:bg-[#EA580C] text-white rounded-sm font-semibold transition"
+                >
+                  Save Order
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
     </div>

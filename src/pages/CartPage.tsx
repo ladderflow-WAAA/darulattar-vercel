@@ -11,6 +11,7 @@ import { DelhiveryShippingCalculator } from '../components/DelhiveryShippingCalc
 import { STORE_CONFIG } from '../config/storeConfig';
 import { calculateShipping } from '../utils/delhiveryCalculator';
 import { setMetadata } from '../utils/metadata';
+import { saveOrder } from '../utils/orderService';
 
 interface CartPageProps {
   navigate: (pageState: PageState) => void;
@@ -53,12 +54,48 @@ const CartPage: React.FC<CartPageProps> = ({ navigate }) => {
       return;
     }
 
+    const orderRef = `DAO-WA-${Date.now().toString().slice(-6)}`;
+    const shippingFee = shipping.isFreeShippingEligible ? 0 : shipping.standardFee;
+    const finalTotal = cartTotal + shippingFee;
+
+    // Log order to database and local backup
+    saveOrder({
+      orderId: orderRef,
+      customer: {
+        fullName: formData.name,
+        phone: formData.phone,
+        address: formData.address,
+        city: 'Chennai',
+        state: 'Tamil Nadu',
+        pincode: ''
+      },
+      items: cartItems.map(item => ({
+        id: item.id,
+        name: item.name,
+        size: item.size,
+        quantity: item.quantity,
+        price: item.price,
+        imageUrl: item.imageUrl
+      })),
+      subtotal: cartTotal,
+      shippingFee,
+      total: finalTotal,
+      shippingSpeed: 'Delhivery Standard',
+      payment: {
+        method: 'WHATSAPP_CHECKOUT',
+        vpa: STORE_CONFIG.merchantUpi.vpa,
+        status: 'WHATSAPP_ENQUIRY'
+      },
+      createdAt: new Date().toISOString()
+    });
+
     const itemsSummary = cartItems.map(item =>
       `• ${item.quantity}x ${item.name} (${item.size}) - ₹${(item.price * item.quantity).toFixed(2)}`
     ).join('\n');
 
     const messageParts = [
       `*ORDER REQUEST - DARUL ATTAR AND OUD*`,
+      `Order Ref: ${orderRef}`,
       `---------------------------------`,
       `*Customer Details:*`,
       `Name: ${formData.name}`,
@@ -71,8 +108,8 @@ const CartPage: React.FC<CartPageProps> = ({ navigate }) => {
       itemsSummary,
       `---------------------------------`,
       `Subtotal: ₹${cartTotal.toFixed(2)}`,
-      `Shipping: ${shipping.isFreeShippingEligible ? 'FREE' : `₹${shipping.standardFee.toFixed(2)}`}`,
-      `*Total Payable: ₹${(cartTotal + shipping.standardFee).toFixed(2)}*`,
+      `Shipping: ${shipping.isFreeShippingEligible ? 'FREE' : `₹${shippingFee.toFixed(2)}`}`,
+      `*Total Payable: ₹${finalTotal.toFixed(2)}*`,
       `Merchant UPI VPA: ${STORE_CONFIG.merchantUpi.vpa}`,
       `---------------------------------`,
       `Please confirm availability and dispatch.`
