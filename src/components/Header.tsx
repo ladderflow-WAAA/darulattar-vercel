@@ -84,14 +84,14 @@ const Header: React.FC<HeaderProps> = ({ navigate, onLoginClick }) => {
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.5, ease: 'easeOut' }}
-      className={`fixed top-0 left-0 right-0 z-50 py-3 font-sans transition-all duration-300 border-b ${isScrolled || isSearchOpen ? 'bg-black/90 backdrop-blur-md border-brand-gold/20 shadow-2xl' : 'bg-transparent border-transparent'}`}
+      className={`fixed top-0 left-0 right-0 z-50 py-3 font-sans transition-all duration-300 border-b ${isScrolled || isSearchOpen ? 'bg-white/95 backdrop-blur-md border-gray-200 shadow-sm' : 'bg-white/70 backdrop-blur-sm border-transparent'}`}
     >
       <div className="max-w-screen-2xl mx-auto px-4 sm:px-12 lg:px-16 flex justify-between items-center h-16 relative">
         
         {/* Logo Section */}
         <motion.div 
           className="relative w-28 sm:w-40 h-full flex items-center"
-          whileHover={{ scale: 1.05 }}
+          whileHover={{ scale: 1.03 }}
           transition={{ type: 'spring', stiffness: 300 }}
         >
             <button onClick={() => navigate({ name: 'home' })} aria-label="Darul Attar Home" className="opacity-95 hover:opacity-100 transition-opacity relative h-full w-full flex items-center">
@@ -117,9 +117,9 @@ const Header: React.FC<HeaderProps> = ({ navigate, onLoginClick }) => {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search for musk, oud, rose..."
-                  className="w-full bg-[#111] border border-gray-700 text-white placeholder-gray-500 rounded-sm py-2 pl-5 pr-12 focus:outline-none focus:border-brand-gold focus:ring-1 focus:ring-brand-gold transition-all shadow-lg"
+                  className="w-full bg-white border border-gray-300 text-gray-900 placeholder-gray-400 rounded-sm py-2 pl-5 pr-12 focus:outline-none focus:border-brand-gold focus:ring-1 focus:ring-brand-gold transition-all shadow-md"
                 />
-                <button type="submit" className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-brand-gold">
+                <button type="submit" className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-600 hover:text-brand-gold">
                   <SearchIcon />
                 </button>
               </form>
@@ -133,10 +133,10 @@ const Header: React.FC<HeaderProps> = ({ navigate, onLoginClick }) => {
               transition={{ duration: 0.2 }}
               className="hidden lg:flex"
             >
-              <ul className="flex items-center space-x-10 text-xs tracking-[0.15em] font-medium text-gray-300">
+              <ul className="flex items-center space-x-10 text-xs tracking-[0.15em] font-medium text-gray-800">
                 {navLinks.map(link => (
                   <motion.li key={link.name} whileHover={{ y: -2 }} transition={{ type: 'spring', stiffness: 300 }}>
-                    <button onClick={() => navigate(link.page as PageState)} className="relative group hover:text-brand-gold transition-colors">
+                    <button onClick={() => navigate(link.page as PageState)} className="relative group text-gray-800 hover:text-brand-gold transition-colors font-semibold">
                       {link.name}
                       <span className="absolute -bottom-2 left-0 w-full h-px bg-brand-gold transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ease-out"></span>
                     </button>
@@ -152,7 +152,7 @@ const Header: React.FC<HeaderProps> = ({ navigate, onLoginClick }) => {
             <motion.button 
               onClick={() => setIsSearchOpen(o => !o)}
               aria-label="Search products"
-              className="relative text-gray-300 hover:text-brand-gold transition-colors duration-300"
+              className="relative text-gray-800 hover:text-brand-gold transition-colors duration-300"
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
             >
@@ -162,7 +162,7 @@ const Header: React.FC<HeaderProps> = ({ navigate, onLoginClick }) => {
             <motion.button 
               onClick={() => navigate({ name: 'cart' })} 
               aria-label="Shopping Cart" 
-              className="relative text-gray-300 hover:text-brand-gold transition-colors duration-300"
+              className="relative text-gray-800 hover:text-brand-gold transition-colors duration-300"
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
             >
@@ -172,7 +172,7 @@ const Header: React.FC<HeaderProps> = ({ navigate, onLoginClick }) => {
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
                   transition={{ type: 'spring', stiffness: 500, damping: 20 }}
-                  className="absolute -top-2 -right-3 bg-brand-gold text-brand-dark text-[10px] rounded-full h-4 w-4 flex items-center justify-center font-bold"
+                  className="absolute -top-2 -right-3 bg-black text-brand-gold text-[10px] rounded-full h-4 w-4 flex items-center justify-center font-bold shadow-sm"
                 >
                     {cartCount}
                 </motion.span>
@@ -188,13 +188,13 @@ const Header: React.FC<HeaderProps> = ({ navigate, onLoginClick }) => {
                         whileTap={{ scale: 0.95 }}
                         title="Dashboard"
                       >
-                        <div className="w-8 h-8 rounded-full bg-[#FF5A00] text-white flex items-center justify-center font-bold text-xs select-none">
+                        <div className="w-8 h-8 rounded-full bg-black text-brand-gold border border-brand-gold flex items-center justify-center font-bold text-xs select-none">
                           {user.name.charAt(0).toUpperCase()}
                         </div>
                     </motion.button>
                     <button 
                         onClick={logout}
-                        className="hidden sm:block text-xs tracking-wider text-gray-400 hover:text-white transition-colors"
+                        className="hidden sm:block text-xs tracking-wider text-gray-600 hover:text-black transition-colors"
                         >
                         LOGOUT
                     </button>
@@ -202,7 +202,7 @@ const Header: React.FC<HeaderProps> = ({ navigate, onLoginClick }) => {
             ) : (
                 <motion.button 
                     onClick={onLoginClick}
-                    className="hidden sm:block text-xs tracking-wider font-semibold text-brand-gold hover:text-white transition-colors border border-brand-gold/50 px-4 py-1.5 rounded-sm hover:bg-brand-gold hover:text-brand-dark"
+                    className="hidden sm:block text-xs tracking-wider font-semibold text-black hover:bg-black hover:text-white transition-colors border border-black px-4 py-1.5 rounded-sm"
                     whileTap={{ scale: 0.95 }}
                     >
                     LOGIN
@@ -210,7 +210,7 @@ const Header: React.FC<HeaderProps> = ({ navigate, onLoginClick }) => {
             )}
             <button
                 onClick={handleAdminClick}
-                className="hidden sm:block text-xs tracking-wider text-gray-500 hover:text-brand-gold transition"
+                className="hidden sm:block text-xs tracking-wider text-gray-600 hover:text-brand-gold transition font-medium"
                 title="Admin"
             >
                 ADMIN
@@ -219,7 +219,7 @@ const Header: React.FC<HeaderProps> = ({ navigate, onLoginClick }) => {
             {/* Hamburger Button */}
             <button
                 onClick={() => setIsMobileMenuOpen(true)}
-                className="lg:hidden text-gray-300 hover:text-brand-gold transition"
+                className="lg:hidden text-gray-800 hover:text-brand-gold transition"
                 aria-label="Open menu"
             >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -237,7 +237,7 @@ const Header: React.FC<HeaderProps> = ({ navigate, onLoginClick }) => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/60 z-40 lg:hidden"
+              className="fixed inset-0 bg-black/40 z-40 lg:hidden backdrop-blur-sm"
             />
             <motion.div
               ref={mobileMenuRef}
@@ -245,13 +245,13 @@ const Header: React.FC<HeaderProps> = ({ navigate, onLoginClick }) => {
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: 'tween', duration: 0.3 }}
-              className="fixed top-0 right-0 bottom-0 w-72 bg-brand-charcoal border-l border-gray-800 z-50 lg:hidden flex flex-col"
+              className="fixed top-0 right-0 bottom-0 w-72 bg-white border-l border-gray-200 z-50 lg:hidden flex flex-col shadow-2xl"
             >
-              <div className="flex items-center justify-between p-4 border-b border-gray-800">
-                <span className="text-sm text-gray-400 tracking-widest uppercase">Menu</span>
+              <div className="flex items-center justify-between p-4 border-b border-gray-200">
+                <span className="text-sm text-gray-600 tracking-widest uppercase font-semibold">Menu</span>
                 <button
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="text-gray-300 hover:text-brand-gold transition"
+                  className="text-gray-800 hover:text-brand-gold transition"
                   aria-label="Close menu"
                 >
                   <XIcon />
@@ -264,41 +264,41 @@ const Header: React.FC<HeaderProps> = ({ navigate, onLoginClick }) => {
                     <button
                       key={link.name}
                       onClick={() => handleNavClick(link.page as PageState)}
-                      className="block w-full text-left py-3 text-sm tracking-widest text-gray-300 hover:text-brand-gold transition border-b border-gray-800/50"
+                      className="block w-full text-left py-3 text-sm tracking-widest text-gray-900 font-medium hover:text-brand-gold transition border-b border-gray-100"
                     >
                       {link.name}
                     </button>
                   ))}
                   <button
                     onClick={() => { handleAdminClick(); setIsMobileMenuOpen(false); }}
-                    className="block w-full text-left py-3 text-sm tracking-widest text-gray-500 hover:text-brand-gold transition border-b border-gray-800/50"
+                    className="block w-full text-left py-3 text-sm tracking-widest text-gray-600 hover:text-brand-gold transition border-b border-gray-100"
                   >
                     ADMIN
                   </button>
                 </div>
 
-                <div className="pt-4 border-t border-gray-800">
+                <div className="pt-4 border-t border-gray-200">
                   {isAuthenticated && user ? (
                     <div className="space-y-3">
                       <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 rounded-full bg-[#FF5A00] text-white flex items-center justify-center font-bold text-sm select-none">
+                        <div className="w-10 h-10 rounded-full bg-black text-brand-gold border border-brand-gold flex items-center justify-center font-bold text-sm select-none">
                           {user.name.charAt(0).toUpperCase()}
                         </div>
                         <div>
-                          <p className="text-white text-sm font-medium">{user.name}</p>
-                          <p className="text-gray-400 text-xs">{user.email}</p>
+                          <p className="text-gray-900 text-sm font-medium">{user.name}</p>
+                          <p className="text-gray-500 text-xs">{user.email}</p>
                         </div>
                       </div>
                       <div className="flex space-x-3">
                         <button
                           onClick={() => handleNavClick({ name: 'dashboard' })}
-                          className="flex-1 text-center text-xs text-brand-gold border border-brand-gold/50 px-3 py-2 rounded-sm hover:bg-brand-gold hover:text-brand-dark transition"
+                          className="flex-1 text-center text-xs text-black border border-black px-3 py-2 rounded-sm hover:bg-black hover:text-white transition font-medium"
                         >
                           DASHBOARD
                         </button>
                         <button
                           onClick={() => { logout(); setIsMobileMenuOpen(false); }}
-                          className="flex-1 text-center text-xs text-red-400 border border-red-900/50 px-3 py-2 rounded-sm hover:bg-red-900/20 transition"
+                          className="flex-1 text-center text-xs text-red-600 border border-red-300 px-3 py-2 rounded-sm hover:bg-red-50 transition"
                         >
                           LOGOUT
                         </button>
@@ -307,7 +307,7 @@ const Header: React.FC<HeaderProps> = ({ navigate, onLoginClick }) => {
                   ) : (
                     <button
                       onClick={() => { onLoginClick(); setIsMobileMenuOpen(false); }}
-                      className="w-full text-center text-xs tracking-wider font-semibold text-brand-gold border border-brand-gold/50 px-4 py-2.5 rounded-sm hover:bg-brand-gold hover:text-brand-dark transition"
+                      className="w-full text-center text-xs tracking-wider font-semibold text-white bg-black hover:bg-brand-gold hover:text-black border border-black px-4 py-2.5 rounded-sm transition"
                     >
                       LOGIN
                     </button>

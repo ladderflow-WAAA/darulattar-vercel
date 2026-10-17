@@ -116,11 +116,43 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
     return Object.keys(errors).length === 0;
   };
 
-  const handleProceedToPayment = (e: React.FormEvent) => {
+  const handleProceedToPayment = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateDetails()) {
       return;
     }
+
+    // Immediately persist initial order with VERIFICATION_PENDING so admin can see it on mobile
+    const initialOrder: OrderRecord = {
+      orderId,
+      items: cartItems.map(item => ({
+        id: item.id,
+        name: item.name,
+        size: item.size,
+        quantity: item.quantity,
+        price: item.price,
+        imageUrl: item.imageUrl
+      })),
+      subtotal: cartTotal,
+      shippingFee: activeShippingFee,
+      total: totalPayable,
+      shippingSpeed: shippingMode === 'standard' ? 'Delhivery Standard' : 'Delhivery Express Air',
+      estimatedDeliveryDate: shippingMode === 'standard'
+        ? (delhiveryResult?.estimatedStandardDate || '3–5 Business Days')
+        : (delhiveryResult?.estimatedExpressDate || '1–2 Business Days'),
+      customer: formData,
+      payment: {
+        method: STORE_CONFIG.paymentMode,
+        utrNumber: 'AWAITING_PAYMENT_CONFIRMATION',
+        vpa: STORE_CONFIG.merchantUpi.vpa,
+        status: 'VERIFICATION_PENDING'
+      },
+      createdAt: new Date().toISOString()
+    };
+    
+    // Save to Supabase and LocalStorage asynchronously
+    saveOrder(initialOrder).catch(err => console.warn('Order pre-save failed:', err));
+
     setCurrentStep('payment');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -157,7 +189,6 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
 
     // Save to both Supabase cloud database & LocalStorage
     await saveOrder(orderDetails);
-
     clearCart();
     setIsSubmitting(false);
     navigate({
@@ -237,17 +268,17 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
 
   if (cartCount === 0) {
     return (
-      <div className="bg-brand-dark min-h-screen pt-36 pb-24 text-center px-4">
-        <div className="max-w-md mx-auto bg-[#0a0a0a] border border-gray-800 p-8 rounded-sm">
-          <h2 className="text-3xl font-serif text-white mb-3">Your Bag is Empty</h2>
-          <p className="text-gray-400 text-sm mb-6">
+      <div className="bg-white min-h-screen pt-36 pb-24 text-center px-4">
+        <div className="max-w-md mx-auto bg-[#FAF8F5] border border-gray-200 p-8 rounded-sm shadow-sm">
+          <h2 className="text-3xl font-serif text-gray-900 mb-3">Your Bag is Empty</h2>
+          <p className="text-gray-600 text-sm mb-6">
             Explore our handcrafted oud and attar oils before checking out.
           </p>
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={() => navigate({ name: 'home', props: { section: 'collection' } })}
-            className="bg-[#FF5A00] hover:bg-[#EA580C] text-white py-3 px-8 text-xs font-bold uppercase tracking-widest rounded-sm transition-colors"
+            className="bg-black hover:bg-gray-800 text-white py-3 px-8 text-xs font-bold uppercase tracking-widest rounded-sm transition-colors border border-black"
           >
             Explore Collection
           </motion.button>
@@ -257,18 +288,18 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
   }
 
   return (
-    <div className="bg-brand-dark min-h-screen pt-28 pb-24 font-sans text-gray-200">
+    <div className="bg-white min-h-screen pt-28 pb-24 font-sans text-gray-800">
       <div className="max-w-screen-2xl mx-auto px-4 sm:px-8 lg:px-16">
         {/* Navigation Breadcrumb / Header */}
-        <div className="flex flex-col sm:flex-row justify-between sm:items-center pb-6 border-b border-gray-800 mb-8 gap-4">
+        <div className="flex flex-col sm:flex-row justify-between sm:items-center pb-6 border-b border-gray-200 mb-8 gap-4">
           <div>
-            <div className="flex items-center space-x-2 text-xs text-[#FF5A00] font-semibold uppercase tracking-wider mb-1">
+            <div className="flex items-center space-x-2 text-xs text-[#8C6D47] font-semibold uppercase tracking-wider mb-1">
               <span>Step {currentStep === 'details' ? '1 of 2' : '2 of 2'}</span>
               <span>•</span>
               <span>{currentStep === 'details' ? 'Delivery & Logistics' : 'Direct Merchant UPI'}</span>
             </div>
-            <h1 className="text-3xl font-serif text-white tracking-wide">
-              Secure <span className="italic text-[#FF5A00]">Checkout</span>
+            <h1 className="text-3xl font-serif text-gray-900 tracking-wide">
+              Secure <span className="italic text-[#8C6D47]">Checkout</span>
             </h1>
           </div>
 
@@ -280,7 +311,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
                 navigate({ name: 'cart' });
               }
             }}
-            className="flex items-center space-x-2 text-xs text-gray-400 hover:text-white transition-colors uppercase tracking-wider"
+            className="flex items-center space-x-2 text-xs text-gray-500 hover:text-black transition-colors uppercase tracking-wider"
           >
             <ArrowLeftIcon />
             <span>{currentStep === 'payment' ? 'Back to Delivery Details' : 'Back to Cart'}</span>
@@ -301,15 +332,15 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
                   className="space-y-6"
                 >
                   {/* Delivery Address Form */}
-                  <div className="bg-[#0b0b0b] border border-gray-800 p-6 rounded-sm">
-                    <h2 className="text-sm font-semibold uppercase tracking-wider text-white pb-3 border-b border-gray-800 mb-4">
-                      1. Customer & Delivery Address
+                  <div className="bg-[#FAF8F5] border border-gray-200 p-6 rounded-sm shadow-sm">
+                    <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-900 pb-3 border-b border-gray-200 mb-4">
+                      1. Customer &amp; Delivery Address
                     </h2>
 
                     <form onSubmit={handleProceedToPayment} className="space-y-4">
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                          <label className="block text-xs uppercase tracking-wider text-gray-400 mb-1">
+                          <label className="block text-xs uppercase tracking-wider text-gray-700 font-medium mb-1">
                             Full Name *
                           </label>
                           <input
@@ -318,15 +349,15 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
                             value={formData.fullName}
                             onChange={handleInputChange}
                             placeholder="e.g. Tariq Ahmed"
-                            className={`w-full bg-black border ${formErrors.fullName ? 'border-red-500' : 'border-gray-700'} px-3 py-2.5 rounded-sm text-sm text-white focus:border-[#FF5A00] focus:ring-1 focus:ring-[#FF5A00] outline-none`}
+                            className={`w-full bg-white border ${formErrors.fullName ? 'border-red-500' : 'border-gray-300'} px-3 py-2.5 rounded-sm text-sm text-gray-900 focus:border-[#C0A080] focus:ring-1 focus:ring-[#C0A080] outline-none`}
                           />
                           {formErrors.fullName && (
-                            <p className="text-red-400 text-xs mt-1">{formErrors.fullName}</p>
+                            <p className="text-red-500 text-xs mt-1">{formErrors.fullName}</p>
                           )}
                         </div>
 
                         <div>
-                          <label className="block text-xs uppercase tracking-wider text-gray-400 mb-1">
+                          <label className="block text-xs uppercase tracking-wider text-gray-700 font-medium mb-1">
                             Mobile Phone *
                           </label>
                           <input
@@ -336,16 +367,16 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
                             value={formData.phone}
                             onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value.replace(/\D/g, '') }))}
                             placeholder="10-digit mobile number"
-                            className={`w-full bg-black border ${formErrors.phone ? 'border-red-500' : 'border-gray-700'} px-3 py-2.5 rounded-sm text-sm text-white font-mono focus:border-[#FF5A00] focus:ring-1 focus:ring-[#FF5A00] outline-none`}
+                            className={`w-full bg-white border ${formErrors.phone ? 'border-red-500' : 'border-gray-300'} px-3 py-2.5 rounded-sm text-sm text-gray-900 font-mono focus:border-[#C0A080] focus:ring-1 focus:ring-[#C0A080] outline-none`}
                           />
                           {formErrors.phone && (
-                            <p className="text-red-400 text-xs mt-1">{formErrors.phone}</p>
+                            <p className="text-red-500 text-xs mt-1">{formErrors.phone}</p>
                           )}
                         </div>
                       </div>
 
                       <div>
-                        <label className="block text-xs uppercase tracking-wider text-gray-400 mb-1">
+                        <label className="block text-xs uppercase tracking-wider text-gray-700 font-medium mb-1">
                           Email Address (Optional)
                         </label>
                         <input
@@ -354,12 +385,12 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
                           value={formData.email}
                           onChange={handleInputChange}
                           placeholder="For dispatch tracking updates"
-                          className="w-full bg-black border border-gray-700 px-3 py-2.5 rounded-sm text-sm text-white focus:border-[#FF5A00] focus:ring-1 focus:ring-[#FF5A00] outline-none"
+                          className="w-full bg-white border border-gray-300 px-3 py-2.5 rounded-sm text-sm text-gray-900 focus:border-[#C0A080] focus:ring-1 focus:ring-[#C0A080] outline-none"
                         />
                       </div>
 
                       <div>
-                        <label className="block text-xs uppercase tracking-wider text-gray-400 mb-1">
+                        <label className="block text-xs uppercase tracking-wider text-gray-700 font-medium mb-1">
                           Complete Street Address *
                         </label>
                         <textarea
@@ -368,16 +399,16 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
                           value={formData.address}
                           onChange={handleInputChange}
                           placeholder="House/Flat No., Building, Street Name, Landmark"
-                          className={`w-full bg-black border ${formErrors.address ? 'border-red-500' : 'border-gray-700'} px-3 py-2.5 rounded-sm text-sm text-white focus:border-[#FF5A00] focus:ring-1 focus:ring-[#FF5A00] outline-none`}
+                          className={`w-full bg-white border ${formErrors.address ? 'border-red-500' : 'border-gray-300'} px-3 py-2.5 rounded-sm text-sm text-gray-900 focus:border-[#C0A080] focus:ring-1 focus:ring-[#C0A080] outline-none`}
                         />
                         {formErrors.address && (
-                          <p className="text-red-400 text-xs mt-1">{formErrors.address}</p>
+                          <p className="text-red-500 text-xs mt-1">{formErrors.address}</p>
                         )}
                       </div>
 
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <div>
-                          <label className="block text-xs uppercase tracking-wider text-gray-400 mb-1">
+                          <label className="block text-xs uppercase tracking-wider text-gray-700 font-medium mb-1">
                             PIN Code *
                           </label>
                           <input
@@ -387,15 +418,15 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
                             value={formData.pincode}
                             onChange={(e) => handlePincodeChange(e.target.value)}
                             placeholder="6-digit PIN"
-                            className={`w-full bg-black border ${formErrors.pincode ? 'border-red-500' : 'border-gray-700'} px-3 py-2.5 rounded-sm text-sm text-white font-mono focus:border-[#FF5A00] focus:ring-1 focus:ring-[#FF5A00] outline-none`}
+                            className={`w-full bg-white border ${formErrors.pincode ? 'border-red-500' : 'border-gray-300'} px-3 py-2.5 rounded-sm text-sm text-gray-900 font-mono focus:border-[#C0A080] focus:ring-1 focus:ring-[#C0A080] outline-none`}
                           />
                           {formErrors.pincode && (
-                            <p className="text-red-400 text-xs mt-1">{formErrors.pincode}</p>
+                            <p className="text-red-500 text-xs mt-1">{formErrors.pincode}</p>
                           )}
                         </div>
 
                         <div>
-                          <label className="block text-xs uppercase tracking-wider text-gray-400 mb-1">
+                          <label className="block text-xs uppercase tracking-wider text-gray-700 font-medium mb-1">
                             City / District *
                           </label>
                           <input
@@ -404,15 +435,15 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
                             value={formData.city}
                             onChange={handleInputChange}
                             placeholder="City"
-                            className={`w-full bg-black border ${formErrors.city ? 'border-red-500' : 'border-gray-700'} px-3 py-2.5 rounded-sm text-sm text-white focus:border-[#FF5A00] focus:ring-1 focus:ring-[#FF5A00] outline-none`}
+                            className={`w-full bg-white border ${formErrors.city ? 'border-red-500' : 'border-gray-300'} px-3 py-2.5 rounded-sm text-sm text-gray-900 focus:border-[#C0A080] focus:ring-1 focus:ring-[#C0A080] outline-none`}
                           />
                           {formErrors.city && (
-                            <p className="text-red-400 text-xs mt-1">{formErrors.city}</p>
+                            <p className="text-red-500 text-xs mt-1">{formErrors.city}</p>
                           )}
                         </div>
 
                         <div>
-                          <label className="block text-xs uppercase tracking-wider text-gray-400 mb-1">
+                          <label className="block text-xs uppercase tracking-wider text-gray-700 font-medium mb-1">
                             State *
                           </label>
                           <input
@@ -421,7 +452,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
                             value={formData.state}
                             onChange={handleInputChange}
                             placeholder="State"
-                            className="w-full bg-black border border-gray-700 px-3 py-2.5 rounded-sm text-sm text-white focus:border-[#FF5A00] focus:ring-1 focus:ring-[#FF5A00] outline-none"
+                            className="w-full bg-white border border-gray-300 px-3 py-2.5 rounded-sm text-sm text-gray-900 focus:border-[#C0A080] focus:ring-1 focus:ring-[#C0A080] outline-none"
                           />
                         </div>
                       </div>
@@ -431,15 +462,15 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
                         <motion.div
                           initial={{ opacity: 0, y: -4 }}
                           animate={{ opacity: 1, y: 0 }}
-                          className="p-3 bg-emerald-950/20 border border-emerald-800/40 rounded-sm text-xs text-emerald-300 flex items-center justify-between"
+                          className="p-3 bg-emerald-50 border border-emerald-200 rounded-sm text-xs text-emerald-800 flex items-center justify-between"
                         >
                           <div className="flex items-center space-x-2">
-                            <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
+                            <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
                             <span>
                               Delhivery Serviceable: {delhiveryResult.region} ({delhiveryResult.courierMode})
                             </span>
                           </div>
-                          <span className="font-semibold text-white">
+                          <span className="font-semibold text-emerald-900">
                             Standard ETA: {delhiveryResult.estimatedStandardDate}
                           </span>
                         </motion.div>
@@ -448,12 +479,12 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
                   </div>
 
                   {/* Delhivery Shipping Selector */}
-                  <div className="bg-[#0b0b0b] border border-gray-800 p-6 rounded-sm">
-                    <div className="flex items-center justify-between pb-3 border-b border-gray-800 mb-4">
-                      <h2 className="text-sm font-semibold uppercase tracking-wider text-white">
+                  <div className="bg-[#FAF8F5] border border-gray-200 p-6 rounded-sm shadow-sm">
+                    <div className="flex items-center justify-between pb-3 border-b border-gray-200 mb-4">
+                      <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-900">
                         2. Choose Delhivery Shipping Speed
                       </h2>
-                      <span className="text-xs text-gray-400">Official Logistics</span>
+                      <span className="text-xs text-gray-500 font-medium">Official Logistics</span>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -462,31 +493,31 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
                         onClick={() => setShippingMode('standard')}
                         className={`p-4 border rounded-sm cursor-pointer transition-all ${
                           shippingMode === 'standard'
-                            ? 'border-[#FF5A00] bg-black/80'
-                            : 'border-gray-800 bg-black/40 hover:border-gray-700'
+                            ? 'border-black bg-white shadow-sm ring-1 ring-black'
+                            : 'border-gray-200 bg-white/70 hover:border-gray-300'
                         }`}
                       >
                         <div className="flex items-start justify-between">
                           <div>
                             <div className="flex items-center space-x-2">
                               <span className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center ${
-                                shippingMode === 'standard' ? 'border-[#FF5A00]' : 'border-gray-600'
+                                shippingMode === 'standard' ? 'border-black' : 'border-gray-400'
                               }`}>
                                 {shippingMode === 'standard' && (
-                                  <span className="w-2 h-2 rounded-full bg-[#FF5A00]"></span>
+                                  <span className="w-2 h-2 rounded-full bg-black"></span>
                                 )}
                               </span>
-                              <span className="font-semibold text-white text-sm">Delhivery Standard</span>
+                              <span className="font-semibold text-gray-900 text-sm">Delhivery Standard</span>
                             </div>
-                            <p className="text-xs text-gray-400 mt-2">
+                            <p className="text-xs text-gray-600 mt-2">
                               {delhiveryResult
                                 ? `Estimated Delivery: ${delhiveryResult.estimatedStandardDate} (${delhiveryResult.standardDays})`
                                 : `Transit: ${STORE_CONFIG.delhiveryLogistics.standardDays}`}
                             </p>
                           </div>
-                          <div className="font-mono text-sm font-bold">
+                          <div className="font-mono text-sm font-bold text-gray-900">
                             {shippingCalculation.isFreeShippingEligible ? (
-                              <span className="text-emerald-400 font-bold">FREE</span>
+                              <span className="text-emerald-600 font-bold">FREE</span>
                             ) : (
                               `₹${STORE_CONFIG.delhiveryLogistics.standardShippingFee}`
                             )}
@@ -499,29 +530,29 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
                         onClick={() => setShippingMode('express')}
                         className={`p-4 border rounded-sm cursor-pointer transition-all ${
                           shippingMode === 'express'
-                            ? 'border-[#FF5A00] bg-black/80'
-                            : 'border-gray-800 bg-black/40 hover:border-gray-700'
+                            ? 'border-black bg-white shadow-sm ring-1 ring-black'
+                            : 'border-gray-200 bg-white/70 hover:border-gray-300'
                         }`}
                       >
                         <div className="flex items-start justify-between">
                           <div>
                             <div className="flex items-center space-x-2">
                               <span className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center ${
-                                shippingMode === 'express' ? 'border-[#FF5A00]' : 'border-gray-600'
+                                shippingMode === 'express' ? 'border-black' : 'border-gray-400'
                               }`}>
                                 {shippingMode === 'express' && (
-                                  <span className="w-2 h-2 rounded-full bg-[#FF5A00]"></span>
+                                  <span className="w-2 h-2 rounded-full bg-black"></span>
                                 )}
                               </span>
-                              <span className="font-semibold text-white text-sm">Delhivery Express Air</span>
+                              <span className="font-semibold text-gray-900 text-sm">Delhivery Express Air</span>
                             </div>
-                            <p className="text-xs text-gray-400 mt-2">
+                            <p className="text-xs text-gray-600 mt-2">
                               {delhiveryResult
                                 ? `Estimated Delivery: ${delhiveryResult.estimatedExpressDate} (${delhiveryResult.expressDays})`
                                 : `Priority Transit: ${STORE_CONFIG.delhiveryLogistics.expressDays}`}
                             </p>
                           </div>
-                          <div className="font-mono text-sm font-bold text-white">
+                          <div className="font-mono text-sm font-bold text-gray-900">
                             ₹{STORE_CONFIG.delhiveryLogistics.expressShippingFee}
                           </div>
                         </div>
@@ -533,7 +564,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
                         whileHover={{ scale: 1.01 }}
                         whileTap={{ scale: 0.99 }}
                         onClick={handleProceedToPayment}
-                        className="flex-1 bg-[#FF5A00] hover:bg-[#EA580C] text-white py-3.5 px-6 font-bold uppercase text-xs tracking-widest rounded-sm transition-colors"
+                        className="flex-1 bg-black hover:bg-gray-800 text-white py-3.5 px-6 font-bold uppercase text-xs tracking-widest rounded-sm transition-colors shadow-sm"
                       >
                         Proceed to Payment — ₹{totalPayable.toFixed(2)}
                       </motion.button>
@@ -543,7 +574,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
                         whileHover={{ scale: 1.01 }}
                         whileTap={{ scale: 0.99 }}
                         onClick={handleConfirmOnWhatsApp}
-                        className="bg-[#25D366] hover:bg-[#20bd4d] text-white py-3.5 px-6 font-bold uppercase text-xs tracking-wider rounded-sm flex items-center justify-center space-x-2 transition-colors"
+                        className="bg-[#25D366] hover:bg-[#20bd4d] text-white py-3.5 px-6 font-bold uppercase text-xs tracking-wider rounded-sm flex items-center justify-center space-x-2 transition-colors shadow-sm"
                       >
                         <WhatsappIcon />
                         <span>Order via WhatsApp</span>
@@ -568,18 +599,18 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
                   />
 
                   {/* Fallback WhatsApp and Call Support */}
-                  <div className="bg-[#0b0b0b] border border-gray-800 p-4 rounded-sm flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
-                    <span className="text-gray-400">
+                  <div className="bg-[#FAF8F5] border border-gray-200 p-4 rounded-sm flex flex-col sm:flex-row items-center justify-between gap-3 text-xs shadow-sm">
+                    <span className="text-gray-600">
                       Need direct confirmation or paying cash on store pickup?
                     </span>
                     <div className="flex items-center gap-3 whitespace-nowrap">
                       <a
                         href={`tel:${STORE_CONFIG.storePhone}`}
-                        className="text-white hover:text-[#FF5A00] font-mono font-bold underline"
+                        className="text-black hover:text-[#8C6D47] font-mono font-bold underline"
                       >
                         Call: {STORE_CONFIG.storePhone}
                       </a>
-                      <span className="text-gray-600">•</span>
+                      <span className="text-gray-400">•</span>
                       <button
                         onClick={handleConfirmOnWhatsApp}
                         className="text-[#25D366] font-semibold flex items-center space-x-1.5 hover:underline"
@@ -596,12 +627,12 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
 
           {/* Order Summary: Right Column */}
           <div className="lg:col-span-5">
-            <div className="bg-[#0b0b0b] border border-gray-800 p-6 rounded-sm sticky top-28 space-y-6">
-              <div className="flex items-center justify-between pb-3 border-b border-gray-800">
-                <h3 className="text-sm font-semibold uppercase tracking-wider text-white">
+            <div className="bg-[#FAF8F5] border border-gray-200 p-6 rounded-sm sticky top-28 space-y-6 shadow-sm">
+              <div className="flex items-center justify-between pb-3 border-b border-gray-200">
+                <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-900">
                   Order Summary
                 </h3>
-                <span className="text-xs text-gray-400 font-mono">({cartCount} items)</span>
+                <span className="text-xs text-gray-500 font-mono">({cartCount} items)</span>
               </div>
 
               {/* Items List */}
@@ -609,10 +640,10 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
                 {cartItems.map((item) => (
                   <div
                     key={item.cartItemId}
-                    className="flex items-center justify-between py-2 border-b border-gray-900 text-xs"
+                    className="flex items-center justify-between py-2 border-b border-gray-200 text-xs"
                   >
                     <div className="flex items-center space-x-3 min-w-0">
-                      <div className="w-12 h-14 bg-black border border-gray-800 rounded-sm overflow-hidden flex-shrink-0">
+                      <div className="w-12 h-14 bg-white border border-gray-200 rounded-sm overflow-hidden flex-shrink-0">
                         <img
                           src={item.imageUrl}
                           alt={item.name}
@@ -621,11 +652,11 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
                         />
                       </div>
                       <div className="min-w-0">
-                        <p className="font-serif text-white truncate text-sm">{item.name}</p>
-                        <p className="text-gray-400 text-[11px]">Size: {item.size} • Qty: {item.quantity}</p>
+                        <p className="font-serif text-gray-900 truncate text-sm font-semibold">{item.name}</p>
+                        <p className="text-gray-500 text-[11px]">Size: {item.size} • Qty: {item.quantity}</p>
                       </div>
                     </div>
-                    <div className="font-mono text-sm text-gray-200 pl-3">
+                    <div className="font-mono text-sm text-gray-900 font-semibold pl-3">
                       ₹{(item.price * item.quantity).toFixed(2)}
                     </div>
                   </div>
@@ -634,16 +665,16 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
 
               {/* Price Breakdown */}
               <div className="space-y-2 pt-2 text-xs">
-                <div className="flex justify-between text-gray-400">
+                <div className="flex justify-between text-gray-600">
                   <span>Items Subtotal</span>
-                  <span className="font-mono text-white">₹{cartTotal.toFixed(2)}</span>
+                  <span className="font-mono text-gray-900 font-medium">₹{cartTotal.toFixed(2)}</span>
                 </div>
 
-                <div className="flex justify-between text-gray-400">
+                <div className="flex justify-between text-gray-600">
                   <span>Delhivery Courier Shipping</span>
-                  <span className="font-mono">
+                  <span className="font-mono text-gray-900 font-medium">
                     {activeShippingFee === 0 ? (
-                      <span className="text-emerald-400 font-bold">FREE</span>
+                      <span className="text-emerald-600 font-bold">FREE</span>
                     ) : (
                       `₹${activeShippingFee.toFixed(2)}`
                     )}
@@ -651,33 +682,33 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
                 </div>
 
                 {activeShippingFee === 0 && (
-                  <div className="text-[11px] text-emerald-400 bg-emerald-950/20 px-2 py-1 rounded border border-emerald-900/40">
+                  <div className="text-[11px] text-emerald-800 bg-emerald-50 px-2 py-1 rounded border border-emerald-200 font-medium">
                     Free shipping unlocked on orders over ₹{STORE_CONFIG.delhiveryLogistics.freeShippingThreshold}
                   </div>
                 )}
 
-                <div className="flex justify-between text-base font-bold text-white border-t border-gray-800 pt-3">
+                <div className="flex justify-between text-base font-bold text-gray-900 border-t border-gray-200 pt-3">
                   <span>Total Payable</span>
-                  <span className="font-mono text-[#FF5A00]">₹{totalPayable.toFixed(2)}</span>
+                  <span className="font-mono text-black font-bold text-lg">₹{totalPayable.toFixed(2)}</span>
                 </div>
               </div>
 
               {/* Delivery Guarantee Badges */}
-              <div className="pt-4 border-t border-gray-800 space-y-2 text-[11px] text-gray-400">
+              <div className="pt-4 border-t border-gray-200 space-y-2 text-[11px] text-gray-600">
                 <div className="flex items-center space-x-2">
-                  <svg className="w-3.5 h-3.5 text-[#FF5A00] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-3.5 h-3.5 text-[#8C6D47] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
                   </svg>
                   <span>100% Pure Alcohol-Free Concentrated Oil</span>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <svg className="w-3.5 h-3.5 text-[#FF5A00] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-3.5 h-3.5 text-[#8C6D47] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0" />
                   </svg>
                   <span>Dispatched via Delhivery with tracking updates</span>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <svg className="w-3.5 h-3.5 text-[#FF5A00] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-3.5 h-3.5 text-[#8C6D47] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                   </svg>
                   <span>Direct Merchant Settlement • Official VPA</span>

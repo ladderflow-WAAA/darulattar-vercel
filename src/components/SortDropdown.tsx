@@ -21,16 +21,16 @@ const SortDropdown: React.FC<SortDropdownProps> = ({ selected, onSelect }) => {
       <select
         value={selected}
         onChange={(e) => onSelect(e.target.value as SortOption)}
-        className="appearance-none bg-black/80 border border-gray-800 text-gray-300 py-2.5 pl-4 pr-10 text-sm focus:outline-none focus:border-brand-gold transition-colors cursor-pointer rounded-sm hover:border-gray-600 w-full sm:w-auto"
+        className="appearance-none bg-white border border-gray-300 text-gray-900 py-2.5 pl-4 pr-10 text-xs font-semibold focus:outline-none focus:border-[#C0A080] transition-colors cursor-pointer rounded-sm hover:border-gray-500 w-full sm:w-auto shadow-2xs"
         aria-label="Sort products"
       >
         {sortOptions.map(option => (
-          <option key={option.value} value={option.value} className="bg-black text-gray-300">
+          <option key={option.value} value={option.value} className="bg-white text-gray-900">
             {option.label}
           </option>
         ))}
       </select>
-      <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500 group-hover:text-brand-gold transition-colors">
+      <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500 group-hover:text-black transition-colors">
         <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
           <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/>
         </svg>

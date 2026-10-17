@@ -32,17 +32,16 @@ const Home: React.FC<HomeProps> = React.forwardRef<HTMLElement, HomeProps>(({ na
   };
 
   return (
-    <header ref={ref} className="relative h-screen bg-black overflow-hidden flex items-center justify-start text-left text-white">
+    <header ref={ref} className="relative h-screen bg-white overflow-hidden flex items-center justify-start text-left text-gray-900">
       {/* Background Image & Overlay */}
       <div className="absolute inset-0 z-0">
         <img
-            // Updated object-position to object-[center_35%] to move the image focus slightly down
-            className="absolute inset-0 w-full h-full object-cover object-[center_0%] opacity-60"
+            className="absolute inset-0 w-full h-full object-cover object-[center_0%] opacity-30"
             src="https://res.cloudinary.com/dy3jvbisa/image/upload/v1762525463/hero_kes4cm.png"
             alt="Luxury perfume oils background"
         />
-        {/* Deep Black Gradient */}
-        <div className="absolute inset-0 bg-gradient-to-r from-black via-black/70 to-transparent"></div>
+        {/* Crisp Light Gradient */}
+        <div className="absolute inset-0 bg-gradient-to-r from-white via-white/90 to-white/40"></div>
       </div>
 
       <motion.div 
@@ -53,21 +52,21 @@ const Home: React.FC<HomeProps> = React.forwardRef<HTMLElement, HomeProps>(({ na
       >
         <motion.span 
             variants={itemVariants}
-            className="text-brand-gold font-sans tracking-[0.2em] text-sm uppercase mb-4 font-semibold"
+            className="text-brand-gold font-sans tracking-[0.2em] text-sm uppercase mb-4 font-bold"
         >
             EST. 2024 • Thousand Lights, Chennai
         </motion.span>
 
         <motion.h1 
-          className="font-serif text-4xl md:text-6xl lg:text-7xl font-bold leading-tight"
+          className="font-serif text-4xl md:text-6xl lg:text-7xl font-bold leading-tight text-gray-950"
           variants={itemVariants}
         >
-          Authentic Oud & Premium <br/>
+          Authentic Oud &amp; Premium <br/>
           <span className="italic text-brand-gold">Attar Shop in Chennai</span>
         </motion.h1>
         
         <motion.p 
-          className="mt-6 text-lg md:text-xl max-w-2xl text-gray-300 font-light leading-relaxed"
+          className="mt-6 text-lg md:text-xl max-w-2xl text-gray-700 font-normal leading-relaxed"
           variants={itemVariants}
         >
           Experience the tradition of pure, alcohol-free fragrances. We bring you handcrafted long-lasting musk and rose scents, right here in MMDA Colony.
@@ -76,7 +75,7 @@ const Home: React.FC<HomeProps> = React.forwardRef<HTMLElement, HomeProps>(({ na
         <motion.div variants={itemVariants} className="mt-10 flex flex-col sm:flex-row gap-4">
           <motion.button 
             onClick={onDiscoverClick}
-            className="bg-brand-gold text-brand-dark py-4 px-10 tracking-widest text-sm font-bold uppercase shadow-lg shadow-brand-gold/10 hover:bg-white transition-colors duration-300"
+            className="bg-black text-white hover:bg-brand-gold hover:text-black py-4 px-10 tracking-widest text-sm font-bold uppercase shadow-lg transition-colors duration-300"
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
           >
@@ -85,7 +84,7 @@ const Home: React.FC<HomeProps> = React.forwardRef<HTMLElement, HomeProps>(({ na
           
           <motion.button 
             onClick={() => navigate({ name: 'home', props: { section: 'contact' } })}
-            className="border border-gray-600 text-white py-4 px-10 tracking-widest text-sm font-bold uppercase hover:border-white transition-colors duration-300 backdrop-blur-sm"
+            className="border-2 border-black text-black py-4 px-10 tracking-widest text-sm font-bold uppercase hover:bg-black hover:text-white transition-colors duration-300 backdrop-blur-sm"
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
           >
@@ -96,7 +95,7 @@ const Home: React.FC<HomeProps> = React.forwardRef<HTMLElement, HomeProps>(({ na
 
       {/* Scroll indicator */}
       <motion.div 
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 text-brand-gold/50"
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 text-brand-gold"
         animate={{ y: [0, 10, 0] }}
         transition={{ duration: 2, repeat: Infinity }}
       >

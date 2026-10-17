@@ -29,15 +29,15 @@ const Toast: React.FC<{ toast: { id: number; message: string; type: string }, on
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, y: 20, scale: 0.95 }}
       transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-      className={`relative flex items-center w-full max-w-sm p-4 bg-[#111] backdrop-blur-md border-l-2 ${borderColor} shadow-2xl rounded-sm`}
+      className={`relative flex items-center w-full max-w-sm p-4 bg-white/95 backdrop-blur-md border-l-4 ${borderColor} border border-gray-200 shadow-xl rounded-sm`}
     >
-      <div className={`flex-shrink-0 mr-4 ${toast.type === 'success' ? 'text-brand-gold' : toast.type === 'error' ? 'text-red-700' : 'text-gray-400'}`}>
+      <div className={`flex-shrink-0 mr-4 ${toast.type === 'success' ? 'text-brand-gold' : toast.type === 'error' ? 'text-red-700' : 'text-brand-charcoal'}`}>
         {icon}
       </div>
-      <div className="flex-grow text-gray-200 text-sm font-medium tracking-wide">
+      <div className="flex-grow text-brand-charcoal text-sm font-medium tracking-wide">
         {toast.message}
       </div>
-      <button onClick={() => onRemove(toast.id)} className="ml-4 flex-shrink-0 text-gray-600 hover:text-white transition">
+      <button onClick={() => onRemove(toast.id)} className="ml-4 flex-shrink-0 text-gray-400 hover:text-black transition">
         <XIcon />
       </button>
     </motion.div>

@@ -5,8 +5,8 @@
 @tailwind utilities;
 
 :root {
-  background-color: #0a0a0a; /* brand-dark */
-  color: #d1d5db; /* gray-300 */
+  background-color: #ffffff;
+  color: #111827;
 }
 
 /* Custom Scrollbar */
@@ -15,12 +15,12 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: #0a0a0a; 
+  background: #fdfbf7; 
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #333; 
-  border-radius: 0px;
+  background: #d1d5db; 
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
@@ -62,7 +62,7 @@
   -webkit-appearance: none;
   appearance: none;
   background-color: #C0A080; /* brand-gold */
-  border: 2px solid #0a0a0a; 
+  border: 2px solid #ffffff; 
   border-radius: 50%;
   cursor: pointer;
   height: 18px;
@@ -71,16 +71,17 @@
   pointer-events: all;
   position: relative;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 }
 
 .thumb:active::-webkit-slider-thumb {
   transform: scale(1.2);
-  box-shadow: 0 0 0 4px rgba(192, 160, 128, 0.2);
+  box-shadow: 0 0 0 4px rgba(192, 160, 128, 0.25);
 }
 
 .thumb::-moz-range-thumb {
   background-color: #C0A080; 
-  border: 2px solid #0a0a0a;
+  border: 2px solid #ffffff;
   border-radius: 50%;
   cursor: pointer;
   height: 18px;
@@ -88,6 +89,7 @@
   pointer-events: all;
   position: relative;
   transition: transform 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 }
 
 /* Hide number input arrows */
@@ -103,5 +105,5 @@ input[type=number] {
 /* Selection Color */
 ::selection {
   background-color: #C0A080;
-  color: #0a0a0a;
+  color: #000000;
 }

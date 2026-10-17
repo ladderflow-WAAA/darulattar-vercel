@@ -20,14 +20,14 @@ const ImageZoom: React.FC<ImageZoomProps> = ({ imageUrl, altText }) => {
 
   return (
     <div 
-      className="relative w-full h-full cursor-zoom-in overflow-hidden bg-gray-900 group"
+      className="relative w-full h-full cursor-zoom-in overflow-hidden bg-gray-100 group"
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
       onMouseMove={handleMouseMove}
     >
       {/* Loading Skeleton */}
       {isLoading && (
-        <div className="absolute inset-0 bg-gray-800 animate-pulse z-0"></div>
+        <div className="absolute inset-0 bg-gray-200 animate-pulse z-0"></div>
       )}
 
       <AnimatePresence>

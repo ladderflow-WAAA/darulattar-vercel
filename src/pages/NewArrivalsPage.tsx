@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import { PageState } from '../App';
 import { SparkleIcon } from '../components/icons/SparkleIcon';
 import { setMetadata } from '../utils/metadata';
@@ -17,32 +17,26 @@ const NewArrivalsPage: React.FC<NewArrivalsPageProps> = ({ navigate }) => {
   }, []);
 
   return (
-    <div className="bg-brand-dark min-h-screen flex flex-col justify-center relative overflow-hidden">
-      {/* Background Decor */}
-      <div className="absolute top-0 left-0 w-full h-full opacity-5 pointer-events-none">
-         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-gray-800 blur-[150px] rounded-full"></div>
-         <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-brand-gold blur-[120px] rounded-full"></div>
-      </div>
-
+    <div className="bg-white min-h-screen flex flex-col justify-center relative overflow-hidden font-sans text-gray-900">
       <div className="max-w-4xl mx-auto px-8 sm:px-12 lg:px-16 text-center z-10 pt-20">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: 'easeOut' }}
         >
-          <div className="text-brand-gold mx-auto w-12 h-12 mb-8 animate-pulse">
+          <div className="text-[#8C6D47] mx-auto w-12 h-12 mb-8">
             <SparkleIcon />
           </div>
-          <h1 className="text-5xl md:text-7xl font-thin text-white font-serif mb-6">
-            Curating <span className="italic text-gray-500">Excellence</span>
+          <h1 className="text-5xl md:text-7xl font-thin text-gray-900 font-serif mb-6">
+            Curating <span className="italic text-[#8C6D47]">Excellence</span>
           </h1>
-          <p className="text-xl text-gray-400 max-w-lg mx-auto font-light leading-relaxed">
-            Our master perfumers are currently selecting the finest seasonal ingredients for our next batch. New authentic Ouds arriving soon at our Thousand Lights store.
+          <p className="text-xl text-gray-600 max-w-lg mx-auto font-normal leading-relaxed">
+            Our perfumers are selecting seasonal ingredients for our next batch. New authentic Ouds arriving soon at our Thousand Lights store.
           </p>
           
           <motion.button
             onClick={() => navigate({ name: 'home', props: { section: 'collection' } })}
-            className="mt-12 bg-transparent border border-brand-gold text-brand-gold py-4 px-10 tracking-widest text-sm font-bold uppercase hover:bg-brand-gold hover:text-brand-dark transition-all duration-300"
+            className="mt-12 bg-black hover:bg-gray-800 text-white py-4 px-10 tracking-widest text-xs font-bold uppercase transition-all duration-300 rounded-sm shadow-xs"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >

@@ -83,7 +83,7 @@ const AnimatedPage = ({ children }: { children: React.ReactNode }) => (
         }}
         className="min-h-screen"
     >
-        <Suspense fallback={<div className="min-h-screen bg-brand-dark" />}>
+        <Suspense fallback={<div className="min-h-screen bg-white" />}>
           {children}
         </Suspense>
     </motion.div>
@@ -91,7 +91,7 @@ const AnimatedPage = ({ children }: { children: React.ReactNode }) => (
 
 // --- Main Content ---
 
-const AppContent: React.FC<{ navigate: (page: PageState) => void, isAuthModalOpen: boolean, setIsAuthModalOpen: (isOpen: boolean) => void }> = ({ navigate, isAuthModalOpen, setIsAuthModalOpen }) => {
+const AppContent: React.FC<{ navigate: (pageState: PageState) => void, isAuthModalOpen: boolean, setIsAuthModalOpen: (isOpen: boolean) => void }> = ({ navigate, isAuthModalOpen, setIsAuthModalOpen }) => {
     const { isLoading, error } = useProducts();
     const location = useLocation();
 
@@ -101,9 +101,9 @@ const AppContent: React.FC<{ navigate: (page: PageState) => void, isAuthModalOpe
 
     if (error) {
         return (
-            <div className="flex flex-col items-center justify-center min-h-screen text-center bg-brand-dark">
+            <div className="flex flex-col items-center justify-center min-h-screen text-center bg-white text-gray-900">
                 <h2 className="text-2xl text-red-500 font-serif">Unable to Load Collection</h2>
-                <p className="text-lg text-gray-400 mt-2">{error}</p>
+                <p className="text-lg text-gray-600 mt-2">{error}</p>
                 <button onClick={() => window.location.reload()} className="mt-4 text-brand-gold hover:underline">
                     Refresh Page
                 </button>
@@ -112,7 +112,7 @@ const AppContent: React.FC<{ navigate: (page: PageState) => void, isAuthModalOpe
     }
 
     return (
-        <div className="bg-brand-dark text-gray-300 min-h-screen flex flex-col font-sans selection:bg-brand-gold selection:text-brand-dark">
+        <div className="bg-white text-gray-900 min-h-screen flex flex-col font-sans selection:bg-brand-gold selection:text-black">
             <Header navigate={navigate} onLoginClick={() => setIsAuthModalOpen(true)} />
             <main className="flex-grow flex flex-col">
                 <AnimatePresence mode="wait">
@@ -221,7 +221,7 @@ const App: React.FC = () => {
     return (
       <AuthProvider>
         <AdminProvider>
-          <Suspense fallback={<div className="min-h-screen bg-brand-dark" />}>
+          <Suspense fallback={<div className="min-h-screen bg-white" />}>
             <Routes>
               <Route path="/admin/login" element={<AdminLoginPage />} />
               <Route path="/admin" element={<AdminDashboardPage />} />

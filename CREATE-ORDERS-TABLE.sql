@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS orders (
   customer_address TEXT NOT NULL,
   city TEXT DEFAULT 'Chennai',
   state TEXT DEFAULT 'Tamil Nadu',
-  pincode TEXT NOT NULL,
+  pincode TEXT DEFAULT '',
   items JSONB NOT NULL DEFAULT '[]',
   subtotal NUMERIC(10,2) NOT NULL DEFAULT 0,
   shipping_fee NUMERIC(10,2) NOT NULL DEFAULT 0,
@@ -25,6 +25,10 @@ CREATE TABLE IF NOT EXISTS orders (
   delhivery_tracking_awb TEXT DEFAULT '',
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+
+-- Ensure pincode can be default if table already exists
+ALTER TABLE orders ALTER COLUMN pincode DROP NOT NULL;
+ALTER TABLE orders ALTER COLUMN pincode SET DEFAULT '';
 
 -- Enable Row Level Security
 ALTER TABLE orders ENABLE ROW LEVEL SECURITY;

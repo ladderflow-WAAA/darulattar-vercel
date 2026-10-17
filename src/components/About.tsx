@@ -18,7 +18,7 @@ const About = React.forwardRef<HTMLElement, AboutProps>(({ navigate }, ref) => {
   };
 
   return (
-    <section ref={ref} className="relative bg-brand-dark font-sans py-24 sm:py-32 overflow-hidden border-t border-gray-900">
+    <section ref={ref} className="relative bg-white font-sans py-24 sm:py-32 overflow-hidden border-t border-gray-200">
       <div className="max-w-screen-2xl mx-auto px-8 sm:px-12 lg:px-16 z-10">
         <div className="grid lg:grid-cols-2 gap-16 items-center">
           <motion.div
@@ -27,11 +27,11 @@ const About = React.forwardRef<HTMLElement, AboutProps>(({ navigate }, ref) => {
             whileInView="visible"
             viewport={{ once: true, amount: 0.3 }}
           >
-            <motion.span variants={textItemVariants} className="text-brand-gold text-sm tracking-widest uppercase font-semibold">Our Story</motion.span>
-            <motion.h2 variants={textItemVariants} className="text-4xl md:text-5xl font-thin text-white font-serif mt-4 mb-8">
+            <motion.span variants={textItemVariants} className="text-brand-gold text-sm tracking-widest uppercase font-bold">Our Story</motion.span>
+            <motion.h2 variants={textItemVariants} className="text-4xl md:text-5xl font-serif text-gray-950 mt-4 mb-8">
               Rooted in <span className="italic text-brand-gold">Tradition</span>
             </motion.h2>
-            <motion.div variants={textItemVariants} className="space-y-6 text-lg text-gray-400 font-light leading-relaxed">
+            <motion.div variants={textItemVariants} className="space-y-6 text-lg text-gray-700 font-normal leading-relaxed">
                 <p>
                   Darul Attar began with a simple passion: to bring high-quality, authentic fragrances to our community in Chennai. We believe that a scent is more than just a perfume; it is a memory, a comfort, and a personal signature.
                 </p>
@@ -43,7 +43,7 @@ const About = React.forwardRef<HTMLElement, AboutProps>(({ navigate }, ref) => {
             <motion.div variants={textItemVariants}>
               <motion.button
                 onClick={() => navigate({ name: 'ourStory' })}
-                className="mt-10 inline-block text-brand-gold font-sans tracking-widest text-sm font-bold border-b-2 border-brand-gold pb-1 hover:text-white hover:border-white transition-all"
+                className="mt-10 inline-block text-black font-sans tracking-widest text-sm font-bold border-b-2 border-brand-gold pb-1 hover:text-brand-gold transition-all"
               >
                 READ MORE
               </motion.button>
@@ -51,7 +51,7 @@ const About = React.forwardRef<HTMLElement, AboutProps>(({ navigate }, ref) => {
           </motion.div>
           
           <motion.div
-            className="relative w-full aspect-square lg:aspect-[4/5] bg-gray-900 overflow-hidden rounded-sm"
+            className="relative w-full aspect-square lg:aspect-[4/5] bg-gray-100 border border-gray-200 overflow-hidden rounded-sm shadow-md"
             initial={{ opacity: 0, scale: 0.95 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true, amount: 0.5 }}
@@ -61,9 +61,9 @@ const About = React.forwardRef<HTMLElement, AboutProps>(({ navigate }, ref) => {
                src="https://res.cloudinary.com/dy3jvbisa/image/upload/v1762523772/b67a73b3-c5cf-4046-93d3-f1777206b110_balhkq.jpg"
                alt="Traditional perfume bottles and ingredients"
                loading="lazy"
-               className="w-full h-full object-cover opacity-80 hover:opacity-100 transition-opacity duration-700 grayscale-[20%]"
+               className="w-full h-full object-cover opacity-90 hover:opacity-100 transition-opacity duration-700"
              />
-             <div className="absolute inset-0 bg-gradient-to-t from-brand-dark/80 via-transparent to-transparent"></div>
+             <div className="absolute inset-0 bg-gradient-to-t from-white/30 via-transparent to-transparent"></div>
           </motion.div>
         </div>
       </div>

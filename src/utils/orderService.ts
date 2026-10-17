@@ -56,34 +56,45 @@ export async function saveOrder(order: OrderRecord): Promise<void> {
     console.warn('LocalStorage save error:', err);
   }
 
-  // 2. Save to Supabase Cloud Database
+  // 2. Save to Supabase Cloud Database with robust fallbacks
   try {
     const payload = {
       order_id: order.orderId,
-      customer_name: order.customer.fullName,
-      customer_phone: order.customer.phone,
+      customer_name: order.customer.fullName || 'Valued Customer',
+      customer_phone: order.customer.phone || '',
       customer_email: order.customer.email || '',
-      customer_address: order.customer.address,
+      customer_address: order.customer.address || '',
       city: order.customer.city || 'Chennai',
       state: order.customer.state || 'Tamil Nadu',
-      pincode: order.customer.pincode || '',
-      items: order.items,
-      subtotal: order.subtotal,
-      shipping_fee: order.shippingFee,
-      total: order.total,
-      shipping_speed: order.shippingSpeed,
+      pincode: order.customer.pincode || '600006',
+      items: order.items || [],
+      subtotal: Number(order.subtotal) || 0,
+      shipping_fee: Number(order.shippingFee) || 0,
+      total: Number(order.total) || 0,
+      shipping_speed: order.shippingSpeed || 'Delhivery Standard',
       estimated_delivery_date: order.estimatedDeliveryDate || '',
-      payment_method: order.payment.method,
-      utr_number: order.payment.utrNumber || '',
-      payment_vpa: order.payment.vpa || '',
-      payment_status: order.payment.status,
+      payment_method: order.payment?.method || 'DIRECT_MERCHANT_UPI',
+      utr_number: order.payment?.utrNumber || '',
+      payment_vpa: order.payment?.vpa || '',
+      payment_status: order.payment?.status || 'VERIFICATION_PENDING',
       delhivery_tracking_awb: order.delhiveryTrackingAwb || '',
-      created_at: order.createdAt
+      created_at: order.createdAt || new Date().toISOString()
     };
 
-    const { error } = await supabase.from('orders').upsert(payload, { onConflict: 'order_id' });
-    if (error) {
-      console.warn('Supabase order insert warning (run CREATE-ORDERS-TABLE.sql if table does not exist):', error.message);
+    // Attempt 1: upsert by order_id
+    const { error: upsertErr } = await supabase.from('orders').upsert(payload, { onConflict: 'order_id' });
+    if (upsertErr) {
+      console.warn('Supabase upsert warning, attempting direct insert:', upsertErr.message);
+      // Attempt 2: direct insert
+      const { error: insertErr } = await supabase.from('orders').insert([payload]);
+      if (insertErr) {
+        console.warn('Supabase insert warning, attempting update:', insertErr.message);
+        // Attempt 3: direct update if conflict was the issue
+        const { error: updateErr } = await supabase.from('orders').update(payload).eq('order_id', order.orderId);
+        if (updateErr) {
+          console.error('All Supabase order save attempts failed:', { upsertErr, insertErr, updateErr });
+        }
+      }
     }
   } catch (err) {
     console.warn('Supabase connection error:', err);
@@ -103,33 +114,35 @@ export async function fetchAllOrders(): Promise<OrderRecord[]> {
       .select('*')
       .order('created_at', { ascending: false });
 
-    if (!error && data && data.length > 0) {
+    if (!error && Array.isArray(data)) {
       cloudOrders = data.map((row: any) => ({
         orderId: row.order_id,
         customer: {
-          fullName: row.customer_name,
-          phone: row.customer_phone,
-          email: row.customer_email,
-          address: row.customer_address,
-          city: row.city,
-          state: row.state,
-          pincode: row.pincode
+          fullName: row.customer_name || 'Customer',
+          phone: row.customer_phone || '',
+          email: row.customer_email || '',
+          address: row.customer_address || '',
+          city: row.city || 'Chennai',
+          state: row.state || 'Tamil Nadu',
+          pincode: row.pincode || ''
         },
         items: Array.isArray(row.items) ? row.items : [],
         subtotal: Number(row.subtotal) || 0,
         shippingFee: Number(row.shipping_fee) || 0,
         total: Number(row.total) || 0,
-        shippingSpeed: row.shipping_speed,
-        estimatedDeliveryDate: row.estimated_delivery_date,
+        shippingSpeed: row.shipping_speed || 'Delhivery Standard',
+        estimatedDeliveryDate: row.estimated_delivery_date || '',
         payment: {
-          method: row.payment_method,
-          utrNumber: row.utr_number,
-          vpa: row.payment_vpa,
-          status: row.payment_status
+          method: row.payment_method || 'DIRECT_MERCHANT_UPI',
+          utrNumber: row.utr_number || '',
+          vpa: row.payment_vpa || '',
+          status: row.payment_status || 'VERIFICATION_PENDING'
         },
-        delhiveryTrackingAwb: row.delhivery_tracking_awb,
-        createdAt: row.created_at
+        delhiveryTrackingAwb: row.delhivery_tracking_awb || '',
+        createdAt: row.created_at || new Date().toISOString()
       }));
+    } else if (error) {
+      console.warn('Supabase fetch error:', error.message);
     }
   } catch (err) {
     console.warn('Supabase fetch failed, relying on local backup:', err);

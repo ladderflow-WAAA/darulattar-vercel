@@ -12,7 +12,7 @@ const CategoryCard: React.FC<CategoryCardProps> = ({ title, imageUrl, navigate }
   return (
     <motion.button 
       onClick={() => navigate({ name: 'category', props: { category: title } })}
-      className="group relative block w-full aspect-[3/4] overflow-hidden shadow-2xl border border-gray-800 rounded-sm"
+      className="group relative block w-full aspect-[3/4] overflow-hidden shadow-lg border border-gray-200 hover:border-black rounded-sm transition-all"
       whileHover={{ y: -5 }}
       transition={{ type: "spring", stiffness: 300, damping: 20 }}
     >

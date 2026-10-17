@@ -106,23 +106,23 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, navigate }) => {
         rotateY,
         transformStyle: "preserve-3d"
       }}
-      className="group font-sans bg-brand-dark border border-gray-800 transition-all duration-300 hover:border-[#FF5A00]/50 hover:shadow-xl hover:shadow-black/60 cursor-pointer flex flex-col h-full relative"
+      className="group font-sans bg-white border border-gray-200 transition-all duration-300 hover:border-black hover:shadow-xl cursor-pointer flex flex-col h-full relative rounded-sm shadow-sm"
     >
-      <div style={{ transform: "translateZ(20px)" }} className="relative w-full aspect-[4/5] bg-gray-900 overflow-hidden">
+      <div style={{ transform: "translateZ(20px)" }} className="relative w-full aspect-[4/5] bg-gray-50 overflow-hidden">
         <img
           src={imageUrl}
           alt={`${name} - ${product.categories.length > 0 ? product.categories[0] : 'premium attar'} - Chennai`}
-          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
           loading="lazy"
         />
-        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300"></div>
+        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-300"></div>
       </div>
       
-      <div style={{ transform: "translateZ(10px)" }} className="p-5 text-center flex flex-col flex-grow bg-black/40 backdrop-blur-sm">
-        <h3 className="text-lg text-gray-200 tracking-wide font-serif flex-grow group-hover:text-brand-gold transition-colors">{name}</h3>
+      <div style={{ transform: "translateZ(10px)" }} className="p-5 text-center flex flex-col flex-grow bg-white">
+        <h3 className="text-lg text-gray-950 tracking-wide font-serif flex-grow group-hover:text-brand-gold transition-colors font-medium">{name}</h3>
         
         {productReviews.length > 0 ? (
-          <div className="mt-2 mb-1 flex items-center justify-center space-x-1.5 opacity-70 group-hover:opacity-100 transition-opacity">
+          <div className="mt-2 mb-1 flex items-center justify-center space-x-1.5 opacity-90 transition-opacity">
             <StarRatingMicro rating={averageRating} />
             <span className="text-[10px] text-gray-500">({productReviews.length})</span>
           </div>
@@ -130,7 +130,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, navigate }) => {
             <div className="h-6"></div> 
         )}
         
-        <p className="mt-1 text-md font-medium text-brand-gold">₹{(defaultVariant?.price ?? 0).toFixed(2)}</p>
+        <p className="mt-1 text-md font-semibold text-gray-950">₹{(defaultVariant?.price ?? 0).toFixed(2)}</p>
         
         <div className="mt-4 h-10 flex items-center justify-center">
           <AnimatePresence mode="wait">
@@ -139,7 +139,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, navigate }) => {
                     key="add"
                     onClick={handleAddToCart}
                     aria-label={`Add ${name} to cart`}
-                    className="w-full text-brand-gold border border-brand-gold/30 hover:border-brand-gold hover:bg-brand-gold hover:text-brand-dark py-2 px-4 tracking-wider text-xs font-bold uppercase transition-all duration-300"
+                    className="w-full text-black border border-black hover:bg-black hover:text-white py-2 px-4 tracking-wider text-xs font-bold uppercase transition-all duration-300 bg-white"
                     initial={{ opacity: 0, y: 5 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -5 }}
@@ -149,17 +149,17 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, navigate }) => {
             ) : (
                 <motion.div 
                   key="quantity"
-                  className="flex items-center justify-center border border-brand-gold/50 bg-brand-dark"
+                  className="flex items-center justify-center border border-black bg-white rounded-sm"
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.9 }}
                   transition={{ duration: 0.2 }}
                 >
-                    <motion.button onClick={handleDecreaseQuantity} className="p-2 text-gray-400 hover:text-white hover:bg-gray-800 transition" aria-label={`Decrease quantity of ${name}`} whileTap={{ scale: 0.9 }}>
+                    <motion.button onClick={handleDecreaseQuantity} className="p-2 text-gray-600 hover:text-black hover:bg-gray-100 transition" aria-label={`Decrease quantity of ${name}`} whileTap={{ scale: 0.9 }}>
                         <MinusIcon />
                     </motion.button>
-                    <span className="px-4 text-sm font-medium text-white select-none">{quantityInCart}</span>
-                    <motion.button onClick={handleIncreaseQuantity} className="p-2 text-gray-400 hover:text-white hover:bg-gray-800 transition" aria-label={`Increase quantity of ${name}`} whileTap={{ scale: 0.9 }}>
+                    <span className="px-4 text-sm font-bold text-gray-950 select-none">{quantityInCart}</span>
+                    <motion.button onClick={handleIncreaseQuantity} className="p-2 text-gray-600 hover:text-black hover:bg-gray-100 transition" aria-label={`Increase quantity of ${name}`} whileTap={{ scale: 0.9 }}>
                         <PlusIcon />
                     </motion.button>
                 </motion.div>

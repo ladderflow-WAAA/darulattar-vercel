@@ -28,7 +28,7 @@ interface CategoriesProps {
 
 const Categories: React.FC<CategoriesProps> = ({ navigate }) => {
   return (
-    <section className="py-24 bg-brand-dark border-t border-gray-900">
+    <section className="py-24 bg-[#FAF9F6] border-t border-gray-200">
       <div className="max-w-screen-2xl mx-auto px-8 sm:px-12 lg:px-16">
         <motion.div 
             className="text-center mb-16"
@@ -37,11 +37,11 @@ const Categories: React.FC<CategoriesProps> = ({ navigate }) => {
             viewport={{ once: true, amount: 0.5 }}
             transition={{ duration: 0.8 }}
         >
-          <span className="text-brand-gold text-sm tracking-widest uppercase font-semibold">Discover Your Signature</span>
-          <h2 className="mt-3 text-4xl md:text-5xl font-thin text-white font-serif">
-            Curated Scent <span className="italic text-gray-400">Profiles</span>
+          <span className="text-brand-gold text-sm tracking-widest uppercase font-bold">Discover Your Signature</span>
+          <h2 className="mt-3 text-4xl md:text-5xl font-serif text-gray-950">
+            Curated Scent <span className="italic text-brand-gold">Profiles</span>
           </h2>
-          <p className="mt-4 text-lg text-gray-400 max-w-2xl mx-auto font-light">
+          <p className="mt-4 text-lg text-gray-600 max-w-2xl mx-auto font-light">
             Whether you prefer the deep resonance of Oudh or the light breeze of French florals, our collection in Chennai offers something for every nose.
           </p>
         </motion.div>

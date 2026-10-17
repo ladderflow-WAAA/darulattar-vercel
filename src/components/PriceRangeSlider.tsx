@@ -72,20 +72,20 @@ const PriceRangeSlider: React.FC<PriceRangeSliderProps> = ({ min, max, values, o
             type="number"
             value={minVal}
             onChange={handleMinInputChange}
-            className="w-24 bg-black border border-gray-700 rounded-sm py-1.5 pl-7 pr-2 text-gray-300 focus:ring-1 focus:ring-brand-gold focus:border-brand-gold outline-none text-xs"
+            className="w-24 bg-white border border-gray-300 rounded-sm py-1.5 pl-7 pr-2 text-gray-900 focus:ring-1 focus:ring-[#C0A080] focus:border-[#C0A080] outline-none text-xs"
             min={min}
             max={max}
             aria-label="Minimum price"
           />
         </div>
-        <div className="text-gray-600 font-light">-</div>
+        <div className="text-gray-400 font-light">-</div>
         <div className="relative">
           <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none font-serif">₹</span>
           <input
             type="number"
             value={maxVal}
             onChange={handleMaxInputChange}
-            className="w-24 bg-black border border-gray-700 rounded-sm py-1.5 pl-7 pr-2 text-gray-300 focus:ring-1 focus:ring-brand-gold focus:border-brand-gold outline-none text-xs"
+            className="w-24 bg-white border border-gray-300 rounded-sm py-1.5 pl-7 pr-2 text-gray-900 focus:ring-1 focus:ring-[#C0A080] focus:border-[#C0A080] outline-none text-xs"
             min={min}
             max={max}
             aria-label="Maximum price"
@@ -114,20 +114,20 @@ const PriceRangeSlider: React.FC<PriceRangeSliderProps> = ({ min, max, values, o
         />
 
         <div className="relative w-full">
-          <div className="absolute w-full h-1 rounded-full bg-gray-800 z-10"></div>
+          <div className="absolute w-full h-1 rounded-full bg-gray-200 z-10"></div>
           <div
             ref={range}
-            className="absolute h-1 rounded-full bg-brand-gold z-10"
+            className="absolute h-1 rounded-full bg-[#C0A080] z-10"
             style={{ left: `${minPercent}%`, width: `${maxPercent - minPercent}%` }}
           ></div>
           
-          {/* Custom Thumbs (Visual Only - interaction handled by invisible inputs above) */}
+          {/* Custom Thumbs */}
           <div 
-            className="absolute w-4 h-4 bg-brand-dark border-2 border-brand-gold rounded-full z-20 -mt-1.5 shadow-md pointer-events-none transition-transform"
+            className="absolute w-4 h-4 bg-white border-2 border-black rounded-full z-20 -mt-1.5 shadow-xs pointer-events-none transition-transform"
             style={{ left: `calc(${minPercent}% - 8px)` }}
           ></div>
           <div 
-            className="absolute w-4 h-4 bg-brand-dark border-2 border-brand-gold rounded-full z-20 -mt-1.5 shadow-md pointer-events-none transition-transform"
+            className="absolute w-4 h-4 bg-white border-2 border-black rounded-full z-20 -mt-1.5 shadow-xs pointer-events-none transition-transform"
             style={{ left: `calc(${maxPercent}% - 8px)` }}
           ></div>
         </div>

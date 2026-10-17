@@ -3,7 +3,7 @@ import { PageState } from '../App';
 import { useProducts } from '../contexts/ProductContext';
 import ProductCard from '../components/ProductCard';
 import { ArrowLeftIcon } from '../components/icons/ArrowLeftIcon';
-import { motion, Variants } from 'framer-motion';
+import { motion, Variants } from 'motion/react';
 import SortDropdown, { SortOption } from '../components/SortDropdown';
 import { setMetadata } from '../utils/metadata';
 
@@ -54,9 +54,9 @@ const SearchPage: React.FC<SearchPageProps> = ({ navigate, query }) => {
 
   if (!query) {
     return (
-      <div className="text-center py-40 bg-brand-dark min-h-screen">
+      <div className="text-center py-40 bg-white min-h-screen text-gray-900">
         <p className="text-xl text-gray-500 font-serif">Please enter a search term.</p>
-        <button onClick={() => navigate({ name: 'home' })} className="mt-4 text-brand-gold hover:text-white transition-colors underline underline-offset-4">
+        <button onClick={() => navigate({ name: 'home' })} className="mt-4 text-[#8C6D47] hover:underline font-semibold">
           Return to Collection
         </button>
       </div>
@@ -80,12 +80,12 @@ const SearchPage: React.FC<SearchPageProps> = ({ navigate, query }) => {
   };
 
   return (
-    <div className="bg-brand-dark min-h-screen">
+    <div className="bg-white min-h-screen text-gray-900 font-sans">
       <section className="pt-32 pb-24">
         <div className="max-w-screen-2xl mx-auto px-8 sm:px-12 lg:px-16">
           <motion.button 
             onClick={() => navigate({ name: 'home' })} 
-            className="flex items-center space-x-2 text-sm text-gray-500 hover:text-brand-gold mb-8 group transition-colors"
+            className="flex items-center space-x-2 text-sm text-gray-600 hover:text-black mb-8 group transition-colors font-medium"
             initial={{ opacity: 0, x: -10 }}
             animate={{ opacity: 1, x: 0 }}
           >
@@ -101,11 +101,11 @@ const SearchPage: React.FC<SearchPageProps> = ({ navigate, query }) => {
           >
             <div className="flex flex-col md:flex-row justify-between md:items-end gap-6">
               <div>
-                <span className="text-brand-gold text-sm tracking-widest uppercase font-semibold">Search Results</span>
-                <h2 className="text-3xl md:text-5xl font-thin text-white font-serif mt-2">
+                <span className="text-[#8C6D47] text-xs tracking-widest uppercase font-semibold">Search Results</span>
+                <h2 className="text-3xl md:text-5xl font-thin text-gray-900 font-serif mt-2">
                   "{query}"
                 </h2>
-                <p className="mt-2 text-gray-400 font-light">
+                <p className="mt-2 text-gray-600 font-normal text-sm">
                   We found {searchResults.length} {searchResults.length === 1 ? 'scent' : 'scents'} matching your search.
                 </p>
               </div>
@@ -131,16 +131,16 @@ const SearchPage: React.FC<SearchPageProps> = ({ navigate, query }) => {
             </motion.div>
           ) : (
             <motion.div 
-              className="text-center py-24 border border-gray-800 bg-gray-900/10 rounded-sm"
+              className="text-center py-24 border border-gray-200 bg-[#FAF8F5] rounded-sm"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.2 }}
             >
-              <p className="text-xl text-gray-400 font-serif">No matches found.</p>
+              <p className="text-xl text-gray-800 font-serif font-bold">No matches found.</p>
               <p className="text-sm text-gray-500 mt-2 mb-6">Try searching for "Oud", "Musk", "Rose", or "Sandal".</p>
               <button 
                 onClick={() => navigate({ name: 'home', props: { section: 'collection' } })}
-                className="bg-brand-gold text-brand-dark py-3 px-8 text-sm font-bold uppercase tracking-widest hover:bg-white transition-colors"
+                className="bg-black hover:bg-gray-800 text-white py-3 px-8 text-xs font-bold uppercase tracking-widest rounded-sm transition-colors shadow-xs"
               >
                 Browse All Scents
               </button>

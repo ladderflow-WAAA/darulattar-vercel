@@ -15,7 +15,7 @@ const RelatedProducts: React.FC<RelatedProductsProps> = ({ products, navigate })
   }
 
   return (
-    <section className="py-24 bg-black border-t border-gray-900">
+    <section className="py-24 bg-white border-t border-brand-gold/20">
       <div className="max-w-screen-2xl mx-auto px-8 sm:px-12 lg:px-16">
         <motion.div 
             className="text-center mb-12"
@@ -24,7 +24,7 @@ const RelatedProducts: React.FC<RelatedProductsProps> = ({ products, navigate })
             viewport={{ once: true, amount: 0.5 }}
             transition={{ duration: 0.8 }}
         >
-          <h2 className="text-3xl md:text-4xl font-thin text-white font-serif">
+          <h2 className="text-3xl md:text-4xl font-light text-brand-charcoal font-serif">
             You Might Also <span className="italic text-brand-gold">Like</span>
           </h2>
         </motion.div>

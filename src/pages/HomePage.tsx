@@ -45,7 +45,7 @@ const HomePage: React.FC<HomePageProps> = ({ navigate, section }) => {
   };
 
   return (
-    <div className="overflow-x-hidden bg-brand-dark">
+    <div className="overflow-x-hidden bg-white text-brand-charcoal">
       <Home navigate={navigate} onDiscoverClick={handleDiscoverClick} />
       <Collection navigate={navigate} ref={collectionRef} />
       <Categories navigate={navigate} />

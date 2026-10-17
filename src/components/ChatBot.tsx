@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 import { supabase } from '../lib/supabase';
 
 interface Message {
@@ -29,11 +29,11 @@ const ChatBot: React.FC = () => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
       return saved ? JSON.parse(saved) : [
-        { role: 'bot', text: "Welcome to Darul Attar! I'm Attar AI. Ask me about our products, fragrances, or get recommendations." },
+        { role: 'bot', text: "Welcome to Darul Attar! I am Attar AI. Ask me about our fragrances, sizes, or get personalized recommendations." },
       ];
     } catch {
       return [
-        { role: 'bot', text: "Welcome to Darul Attar! I'm Attar AI. Ask me about our products, fragrances, or get recommendations." },
+        { role: 'bot', text: "Welcome to Darul Attar! I am Attar AI. Ask me about our fragrances, sizes, or get personalized recommendations." },
       ];
     }
   });
@@ -78,96 +78,78 @@ const ChatBot: React.FC = () => {
     }).join('\n');
   };
 
-  const SYSTEM_PROMPT = `You are Attar AI, the helpful fragrance advisor at Darul Attar (Chennai, India). You ONLY recommend products from the catalog below. Never recommend anything not listed.
+  const SYSTEM_PROMPT = `You are Attar AI, the fragrance advisor at Darul Attar (Thousand Lights, Chennai). You ONLY recommend products from the catalog below.
 
-## CATALOG (your complete product list — recommend only from here):
+## CATALOG:
 ${buildProductCatalogText() || 'Loading catalog...'}
 
-## LANGUAGE
-- Default: English. If user writes Tamil/Tanglish, reply in Tanglish naturally.
-- Tanglish example: "Ivanaga 6ml variant ₹120 ku available iruku."
-
-## YOUR PERSONALITY — HONEST SALES ASSISTANT
-- Be warm, kind, and helpful, like a trusted shopkeeper who genuinely cares.
-- NEVER overpromise or exaggerate. If a product is mild, say so. If it doesn't last long, mention it.
-- Underpromise and deliver: "This one is subtle and soft, well-suited if you prefer light scents."
-- Be honest: "Ivaanga fragrance lam soft ah irukum, heavy expect panna koodathu."
-- If a user seems unsure, guide them gently with questions: "Entha type notes pidikkum? Floral ah, woody ah, fresh ah?"
-
-## UPSELLING (do this naturally, not pushy)
-When someone clearly wants to buy or asks about a specific product:
-1. Recommend the product they asked about
-2. Add: "Nenga [size] variant select pannitenga? Vera size um available iruku."
-3. If they choose a small size, mention: "Inga 12ml um iruku, long term use ku value for money."
-4. Always end with: "I want to buy" nu soltenga na WhatsApp la order pannalam — link below.
-- WhatsApp order link for any product: https://wa.me/${WHATSAPP_NUMBER}?text=I%27m%20interested%20in%20[PRODUCT_NAME]%20([SIZE])%20-%20%E2%82%B9[PRICE]
-- When user shows purchase intent, output the WhatsApp link with the product pre-filled.
-
-## PRODUCT LINKS
-- Product page URL format: ${SITE_URL}/product/<slug>
-- When user asks for "link" or "product link", give the clickable URL.
-- WhatsApp order link: https://wa.me/${WHATSAPP_NUMBER}?text=I'm%20interested%20in%20[product%20name]%20[product%20size]
-
-## RESPONSE RULES
-- Max 4 sentences. No markdown. No asterisks or bullet points.
-- Be warm, conversational. Use Tanglish naturally when user messages in Tamil.
-- If asked non-fragrance: politely decline.
-- Never mention competitor brands.
-- Important: URLs must be plain text (no markdown formatting) so they render as clickable links.`;
+## RULES:
+- English or Tanglish as appropriate.
+- Direct, honest assistance.
+- No emojis of humans or creatures.
+- Simple, factual recommendations.`;
 
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim() || loading) return;
 
-    const userMsg = input.trim();
+    const userMessage = input.trim();
     setInput('');
-    setMessages((prev) => [...prev, { role: 'user', text: userMsg }]);
+    const updatedMessages: Message[] = [...messages, { role: 'user', text: userMessage }];
+    setMessages(updatedMessages);
     setLoading(true);
 
     try {
-      const apiKey = import.meta.env.VITE_OPENROUTER_API_KEY || (typeof process !== 'undefined' && process.env.OPENROUTER_API_KEY) || '';
+      const formattedHistory = updatedMessages.map((m) => ({
+        role: m.role === 'user' ? 'user' : 'model',
+        parts: [{ text: m.text }],
+      }));
+
+      const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
       if (!apiKey) {
-        setMessages((prev) => [...prev, { role: 'bot', text: 'AI service is not configured.' }]);
+        setMessages((prev) => [
+          ...prev,
+          { role: 'bot', text: 'You can explore our collection above or message us on WhatsApp: 919578994377.' },
+        ]);
         setLoading(false);
         return;
       }
 
-      const chatHistory = messages.map((m) => ({
-        role: m.role === 'user' ? 'user' : 'assistant',
-        content: m.text,
-      }));
-
-      const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`,
-          'HTTP-Referer': SITE_URL,
-          'X-Title': 'Darul Attar',
-        },
-        body: JSON.stringify({
-          model: 'openai/gpt-4o-mini',
-          messages: [
-            { role: 'system', content: SYSTEM_PROMPT },
-            ...chatHistory,
-            { role: 'user', content: userMsg },
-          ],
-          temperature: 0.7,
-          max_tokens: 400,
-        }),
-      });
-
-      if (!res.ok) throw new Error('API request failed');
+      const res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: formattedHistory,
+            systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
+            generationConfig: { maxOutputTokens: 200, temperature: 0.5 },
+          }),
+        }
+      );
 
       const data = await res.json();
-      const botText = data?.choices?.[0]?.message?.content || 'Unable to respond.';
+      const botReply =
+        data?.candidates?.[0]?.content?.parts?.[0]?.text ||
+        'You can view our complete collection or contact us on WhatsApp at 919578994377.';
 
-      setMessages((prev) => [...prev, { role: 'bot', text: botText }]);
+      setMessages((prev) => [...prev, { role: 'bot', text: botReply }]);
     } catch {
-      setMessages((prev) => [...prev, { role: 'bot', text: 'Service unavailable. Please try again later.' }]);
+      setMessages((prev) => [
+        ...prev,
+        { role: 'bot', text: 'Please browse our collection or contact us directly on WhatsApp at 919578994377.' },
+      ]);
     } finally {
       setLoading(false);
     }
+  };
+
+  const clearChat = () => {
+    const initial: Message[] = [
+      { role: 'bot', text: "Welcome to Darul Attar. Ask me about our pure oils, fragrance notes, or orders." },
+    ];
+    setMessages(initial);
+    try { localStorage.removeItem(STORAGE_KEY); } catch {}
   };
 
   const renderMessage = (text: string) => {
@@ -175,31 +157,38 @@ When someone clearly wants to buy or asks about a specific product:
     const parts = text.split(urlRegex);
     return parts.map((part, i) => {
       if (part.match(urlRegex)) {
-        return <a key={i} href={part} target="_blank" rel="noopener noreferrer" className="text-brand-gold underline hover:text-white break-all">{part}</a>;
+        const isWhatsApp = part.includes('wa.me');
+        return (
+          <a
+            key={i}
+            href={part}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={`font-semibold underline break-all ${
+              isWhatsApp ? 'text-emerald-700 hover:text-emerald-800' : 'text-blue-700 hover:text-blue-800'
+            }`}
+          >
+            {isWhatsApp ? 'Order via WhatsApp' : part}
+          </a>
+        );
       }
       return part;
     });
-  };
-
-  const clearChat = () => {
-    setMessages([
-      { role: 'bot', text: "Welcome to Darul Attar! I'm Attar AI. Ask me about our products, fragrances, or get recommendations." },
-    ]);
-    localStorage.removeItem(STORAGE_KEY);
   };
 
   return (
     <>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-6 right-6 z-50 w-14 h-14 bg-brand-gold text-brand-dark rounded-full flex items-center justify-center shadow-xl hover:bg-white transition"
+        aria-label="Toggle Attar AI Chat"
+        className="fixed bottom-6 right-6 z-50 w-12 h-12 bg-black hover:bg-gray-800 text-white rounded-full shadow-lg flex items-center justify-center transition border border-gray-300"
       >
         {isOpen ? (
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
           </svg>
         ) : (
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
           </svg>
         )}
@@ -212,31 +201,29 @@ When someone clearly wants to buy or asks about a specific product:
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ duration: 0.2 }}
-            className="fixed bottom-24 right-6 z-50 w-80 sm:w-96 h-[500px] bg-brand-charcoal border border-gray-700 rounded-lg shadow-2xl flex flex-col overflow-hidden"
+            className="fixed bottom-22 right-4 sm:right-6 z-50 w-80 sm:w-96 h-[480px] bg-white border border-gray-200 rounded-lg shadow-2xl flex flex-col overflow-hidden font-sans text-gray-900"
           >
-            <div className="bg-brand-gold/10 border-b border-gray-700 px-4 py-3 flex items-center justify-between">
+            <div className="bg-[#FAF8F5] border-b border-gray-200 px-4 py-3 flex items-center justify-between">
               <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-brand-gold flex items-center justify-center text-brand-dark rounded-sm">
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-                  </svg>
+                <div className="w-8 h-8 bg-black text-[#C0A080] flex items-center justify-center rounded-sm text-xs font-bold font-serif">
+                  DA
                 </div>
                 <div>
-                  <p className="text-white text-sm font-semibold">Attar AI</p>
-                  <p className="text-gray-400 text-xs">Attar & Oud Specialist</p>
+                  <p className="text-gray-900 text-xs font-bold uppercase tracking-wider">Attar AI</p>
+                  <p className="text-gray-500 text-[10px]">Fragrance Specialist</p>
                 </div>
               </div>
-              <button onClick={clearChat} className="text-gray-500 hover:text-white text-xs transition" title="Clear chat">↺</button>
+              <button onClick={clearChat} className="text-gray-400 hover:text-black text-xs transition" title="Clear chat">↺ Reset</button>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-4 space-y-3">
+            <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-white">
               {messages.map((msg, i) => (
                 <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                   <div
-                    className={`max-w-[80%] px-3 py-2 rounded-lg text-sm leading-relaxed ${
+                    className={`max-w-[82%] px-3 py-2 rounded-sm text-xs leading-relaxed ${
                       msg.role === 'user'
-                        ? 'bg-brand-gold text-brand-dark'
-                        : 'bg-gray-800 text-gray-200'
+                        ? 'bg-black text-white font-medium'
+                        : 'bg-[#FAF8F5] text-gray-800 border border-gray-200 shadow-2xs'
                     }`}
                   >
                     {msg.role === 'bot' ? renderMessage(msg.text) : msg.text}
@@ -245,31 +232,27 @@ When someone clearly wants to buy or asks about a specific product:
               ))}
               {loading && (
                 <div className="flex justify-start">
-                  <div className="bg-gray-800 text-gray-200 px-3 py-2 rounded-lg text-sm">
-                    <span className="inline-flex space-x-1">
-                      <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                      <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                      <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
-                    </span>
+                  <div className="bg-[#FAF8F5] text-gray-500 border border-gray-200 px-3 py-1.5 rounded-sm text-xs">
+                    Thinking...
                   </div>
                 </div>
               )}
               <div ref={chatEndRef} />
             </div>
 
-            <form onSubmit={handleSend} className="border-t border-gray-700 p-3 flex space-x-2">
+            <form onSubmit={handleSend} className="border-t border-gray-200 p-2.5 flex space-x-2 bg-[#FAF8F5]">
               <input
                 type="text"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder="Ask about fragrances..."
-                className="flex-1 bg-black border border-gray-600 text-white text-sm rounded-sm px-3 py-2 focus:outline-none focus:border-brand-gold transition"
+                placeholder="Ask about scents or longevity..."
+                className="flex-1 bg-white border border-gray-300 text-gray-900 text-xs rounded-sm px-3 py-2 focus:outline-none focus:border-[#C0A080] transition"
                 disabled={loading}
               />
               <button
                 type="submit"
                 disabled={loading || !input.trim()}
-                className="bg-brand-gold text-brand-dark px-3 py-2 rounded-sm text-sm font-semibold hover:bg-white transition disabled:opacity-50"
+                className="bg-black hover:bg-gray-800 text-white px-3 py-2 rounded-sm text-xs font-bold uppercase tracking-wider transition disabled:opacity-50"
               >
                 Send
               </button>

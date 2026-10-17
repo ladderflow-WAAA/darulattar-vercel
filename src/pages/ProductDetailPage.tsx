@@ -4,8 +4,8 @@ import { PageState } from '../App';
 import { useCart } from '../contexts/CartContext';
 import { PlusIcon } from '../components/icons/PlusIcon';
 import { MinusIcon } from '../components/icons/MinusIcon';
-import { motion, AnimatePresence } from 'framer-motion';
-import type { Variants } from 'framer-motion';
+import { motion } from 'motion/react';
+import type { Variants } from 'motion/react';
 import { Review, useReviews } from '../contexts/ReviewsContext';
 import { StarIcon } from '../components/icons/StarIcon';
 import { TrashIcon } from '../components/icons/TrashIcon';
@@ -24,7 +24,7 @@ const StarRating: React.FC<{ rating: number; className?: string }> = ({ rating, 
       {[...Array(5)].map((_, i) => (
         <StarIcon
           key={i}
-          className={`${className} ${i < Math.round(rating) ? 'text-brand-gold' : 'text-gray-800'}`}
+          className={`${className} ${i < Math.round(rating) ? 'text-[#8C6D47]' : 'text-gray-300'}`}
         />
       ))}
     </div>
@@ -56,17 +56,17 @@ const ReviewsSection: React.FC<{ productId: string, infoItemVariants: Variants, 
   };
 
   return (
-    <motion.div className="mt-16 pt-10 border-t border-gray-800" variants={infoItemVariants}>
-      <h3 className="text-2xl font-serif text-white mb-6">Customer Reviews</h3>
+    <motion.div className="mt-16 pt-10 border-t border-gray-200" variants={infoItemVariants}>
+      <h3 className="text-2xl font-serif text-gray-900 font-bold mb-6">Customer Reviews</h3>
       
       {/* Review Form */}
-      <div className="bg-[#0a0a0a] p-6 mb-10 border border-gray-800">
+      <div className="bg-[#FAF8F5] p-6 mb-10 border border-gray-200 rounded-sm shadow-xs">
       {isAuthenticated && user ? (
           <>
-          <h4 className="text-lg font-semibold text-gray-200 mb-4">Leave a Review</h4>
+          <h4 className="text-base font-semibold text-gray-900 mb-4">Leave a Review</h4>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-400 mb-2">Rating</label>
+              <label className="block text-xs uppercase tracking-wider font-semibold text-gray-700 mb-2">Rating</label>
               <div className="flex items-center space-x-1" onMouseLeave={() => setHoverRating(0)}>
                 {[...Array(5)].map((_, i) => (
                   <button
@@ -76,25 +76,25 @@ const ReviewsSection: React.FC<{ productId: string, infoItemVariants: Variants, 
                     onClick={() => setFormData({ ...formData, rating: i + 1 })}
                     aria-label={`Set rating to ${i + 1}`}
                   >
-                    <StarIcon className={`h-6 w-6 cursor-pointer transition-colors ${(hoverRating || formData.rating) > i ? 'text-brand-gold' : 'text-gray-800'}`} />
+                    <StarIcon className={`h-6 w-6 cursor-pointer transition-colors ${(hoverRating || formData.rating) > i ? 'text-[#8C6D47]' : 'text-gray-300'}`} />
                   </button>
                 ))}
               </div>
             </div>
             <div>
-              <label htmlFor="comment" className="block text-sm font-medium text-gray-400 mb-2">Your Review</label>
-              <textarea id="comment" rows={3} value={formData.comment} onChange={e => setFormData({...formData, comment: e.target.value})} className="block w-full px-4 py-2 bg-black border-gray-700 rounded-sm focus:ring-brand-gold focus:border-brand-gold transition text-gray-200 placeholder-gray-600" placeholder="Share your thoughts..." required></textarea>
+              <label htmlFor="comment" className="block text-xs uppercase tracking-wider font-semibold text-gray-700 mb-2">Your Review</label>
+              <textarea id="comment" rows={3} value={formData.comment} onChange={e => setFormData({...formData, comment: e.target.value})} className="block w-full px-4 py-2 bg-white border border-gray-300 rounded-sm focus:ring-1 focus:ring-[#C0A080] focus:border-[#C0A080] transition text-gray-900 placeholder-gray-400 text-sm" placeholder="Share your experience..." required></textarea>
             </div>
-            <motion.button type="submit" className="bg-brand-gold text-brand-dark py-2 px-6 tracking-widest text-xs font-bold uppercase" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+            <motion.button type="submit" className="bg-black hover:bg-gray-800 text-white py-2.5 px-6 tracking-widest text-xs font-bold uppercase rounded-sm transition" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
               Submit Review
             </motion.button>
           </form>
           </>
       ) : (
         <div className="text-center py-4">
-             <h4 className="text-lg font-medium text-gray-200 mb-2">Have you tried this scent?</h4>
-             <p className="text-gray-400 mb-4 text-sm">Log in to share your experience with our community.</p>
-             <motion.button onClick={onLoginRequest} className="border border-brand-gold text-brand-gold py-2 px-6 tracking-widest text-xs font-bold uppercase hover:bg-brand-gold hover:text-brand-dark transition-colors">
+             <h4 className="text-base font-semibold text-gray-900 mb-2">Have you tried this scent?</h4>
+             <p className="text-gray-600 mb-4 text-xs">Log in to share your experience with our community.</p>
+             <motion.button onClick={onLoginRequest} className="border border-black text-black py-2 px-6 tracking-widest text-xs font-bold uppercase hover:bg-black hover:text-white transition-colors rounded-sm">
                 Login to Review
              </motion.button>
         </div>
@@ -102,18 +102,18 @@ const ReviewsSection: React.FC<{ productId: string, infoItemVariants: Variants, 
       </div>
 
       {/* Reviews List */}
-      <div className="space-y-8">
+      <div className="space-y-6">
         {currentReviews.length > 0 ? (
           currentReviews.map((review: Review) => (
-            <div key={review.id} className="border-b border-gray-800 pb-6 group last:border-0">
+            <div key={review.id} className="border-b border-gray-200 pb-6 group last:border-0">
               <div className="flex items-start justify-between">
                 <div className="flex items-start space-x-4">
-                    <div className="w-10 h-10 rounded-full bg-gray-900 border border-gray-700 flex items-center justify-center text-gray-300 font-bold text-sm select-none">
+                    <div className="w-10 h-10 rounded-full bg-gray-100 border border-gray-200 flex items-center justify-center text-gray-800 font-bold text-sm select-none">
                       {review.authorName.charAt(0).toUpperCase()}
                     </div>
                     <div>
                         <div className="flex items-center space-x-3">
-                            <p className="font-semibold text-gray-200">{review.authorName}</p>
+                            <p className="font-semibold text-gray-900 text-sm">{review.authorName}</p>
                             <p className="text-xs text-gray-500">{new Date(review.date).toLocaleDateString()}</p>
                         </div>
                          <div className="my-1">
@@ -124,7 +124,7 @@ const ReviewsSection: React.FC<{ productId: string, infoItemVariants: Variants, 
                 {isAuthenticated && user?.id === review.userId && (
                   <motion.button 
                     onClick={() => deleteReview(review.id)} 
-                    className="text-gray-600 hover:text-red-700 opacity-0 group-hover:opacity-100 transition-all"
+                    className="text-gray-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-all"
                     aria-label="Delete review"
                     whileTap={{ scale: 0.9 }}
                   >
@@ -132,7 +132,7 @@ const ReviewsSection: React.FC<{ productId: string, infoItemVariants: Variants, 
                   </motion.button>
                 )}
               </div>
-              <p className="mt-2 text-gray-400 font-light whitespace-pre-wrap pl-14 text-sm leading-relaxed">{review.comment}</p>
+              <p className="mt-2 text-gray-700 font-normal whitespace-pre-wrap pl-14 text-sm leading-relaxed">{review.comment}</p>
             </div>
           ))
         ) : (
@@ -145,7 +145,7 @@ const ReviewsSection: React.FC<{ productId: string, infoItemVariants: Variants, 
 
 
 interface ProductDetailPageProps {
-  productSlug: string; // Changed from productId to productSlug
+  productSlug: string;
   navigate: (pageState: PageState) => void;
   onLoginRequest: () => void;
 }
@@ -170,14 +170,13 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ productSlug, navi
     if (product) {
       setSelectedVariant(product.variants?.[0] || null);
       setQuantity(1);
-      const metaDescription = `Buy ${product.name}, a premium non-alcoholic attar oil by Darul Attar in Chennai. Scent notes: ${product.scentProfile.top}, ${product.scentProfile.heart}. Available at our MMDA Colony store.`;
+      const metaDescription = `Buy ${product.name}, a pure non-alcoholic attar oil by Darul Attar in Chennai. Scent notes: ${product.scentProfile.top}, ${product.scentProfile.heart}.`;
       setMetadata(
         `${product.name} - Authentic Attar Oil | Darul Attar Chennai`,
         metaDescription.substring(0, 160)
       );
     }
   }, [product]);
-
 
   const averageRating = useMemo(() => {
     if (productReviews.length === 0) return 0;
@@ -193,8 +192,8 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ productSlug, navi
 
   if (!product || !selectedVariant) {
     return (
-        <div className="flex items-center justify-center min-h-screen bg-brand-dark">
-            <div className="text-xl text-gray-400 animate-pulse">Loading Essence...</div>
+        <div className="flex items-center justify-center min-h-screen bg-white">
+            <div className="text-xl text-gray-500 animate-pulse font-serif">Loading Essence...</div>
         </div>
     );
   }
@@ -223,8 +222,8 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ productSlug, navi
   return (
     <>
       <ProductSchema product={product} reviews={productReviews} />
-      <div className="bg-brand-dark min-h-screen">
-        <div className="max-w-screen-2xl mx-auto px-8 sm:px-12 lg:px-16 pt-32 pb-12 font-sans">
+      <div className="bg-white min-h-screen text-gray-900 font-sans">
+        <div className="max-w-screen-2xl mx-auto px-8 sm:px-12 lg:px-16 pt-32 pb-12">
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -234,21 +233,20 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ productSlug, navi
           </motion.div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 mt-10 items-start">
-            {/* Image Section - REMOVED sticky top-32 */}
+            {/* Image Section */}
             <motion.div 
               className="w-full"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.8 }}
             >
-                <div className="relative w-full aspect-[4/5] bg-black border border-gray-800 shadow-2xl">
+                <div className="relative w-full aspect-[4/5] bg-white border border-gray-200 shadow-md rounded-sm overflow-hidden">
                   <ImageZoom 
                     imageUrl={product.imageUrl} 
                     altText={`${product.name} - ${product.categories[0]} Attar Oil Chennai`}
                   />
-                  {/* Updated Badge to Gold/Dark */}
-                  <div className="absolute bottom-4 right-4 bg-[#111] border border-brand-gold/30 text-brand-gold text-[10px] px-3 py-1.5 uppercase tracking-widest font-bold">
-                    Alcohol Free
+                  <div className="absolute bottom-4 right-4 bg-white/95 border border-[#C0A080] text-gray-900 text-[10px] px-3 py-1.5 uppercase tracking-widest font-bold shadow-xs">
+                    100% Pure Oil
                   </div>
                 </div>
             </motion.div>
@@ -260,39 +258,39 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ productSlug, navi
               initial="hidden"
               animate="visible"
             >
-              <motion.h1 variants={infoItemVariants} className="text-4xl md:text-5xl font-thin text-white font-serif tracking-tight">{product.name}</motion.h1>
+              <motion.h1 variants={infoItemVariants} className="text-4xl md:text-5xl font-thin text-gray-900 font-serif tracking-tight">{product.name}</motion.h1>
               
               <motion.div variants={infoItemVariants} className="mt-3 flex items-center space-x-3">
                 <div className="flex items-center">
                     <StarRating rating={averageRating} />
                 </div>
-                <span className="text-gray-500 text-sm">|</span>
-                <span className="text-gray-400 text-sm">{productReviews.length} {productReviews.length === 1 ? 'Review' : 'Reviews'}</span>
+                <span className="text-gray-400 text-sm">|</span>
+                <span className="text-gray-500 text-sm">{productReviews.length} {productReviews.length === 1 ? 'Review' : 'Reviews'}</span>
               </motion.div>
 
-              <motion.p variants={infoItemVariants} className="mt-6 text-3xl text-brand-gold font-serif">₹{selectedVariant.price.toFixed(2)}</motion.p>
+              <motion.p variants={infoItemVariants} className="mt-6 text-3xl text-gray-900 font-serif font-bold">₹{selectedVariant.price.toFixed(2)}</motion.p>
               
-              <motion.div variants={infoItemVariants} className="mt-8 pt-8 border-t border-gray-800">
-                  <p className="text-gray-300 leading-relaxed font-light text-lg">{product.description}</p>
+              <motion.div variants={infoItemVariants} className="mt-8 pt-8 border-t border-gray-200">
+                  <p className="text-gray-700 leading-relaxed font-normal text-base">{product.description}</p>
               </motion.div>
               
-              <motion.div variants={infoItemVariants} className="mt-8 bg-[#0a0a0a] p-6 border border-gray-800">
-                  <h3 className="text-xs font-bold text-gray-500 tracking-[0.2em] uppercase mb-4">Olfactory Notes</h3>
+              <motion.div variants={infoItemVariants} className="mt-8 bg-[#FAF8F5] p-6 border border-gray-200 rounded-sm shadow-xs">
+                  <h3 className="text-xs font-bold text-gray-600 tracking-[0.2em] uppercase mb-4">Olfactory Notes</h3>
                   <div className="grid grid-cols-1 gap-3 text-sm">
-                      <div className="flex"><span className="w-24 text-brand-gold font-medium">Top:</span> <span className="text-gray-300">{product.scentProfile.top}</span></div>
-                      <div className="flex"><span className="w-24 text-brand-gold font-medium">Heart:</span> <span className="text-gray-300">{product.scentProfile.heart}</span></div>
-                      <div className="flex"><span className="w-24 text-brand-gold font-medium">Base:</span> <span className="text-gray-300">{product.scentProfile.base}</span></div>
+                      <div className="flex"><span className="w-24 text-[#8C6D47] font-semibold">Top:</span> <span className="text-gray-800">{product.scentProfile.top}</span></div>
+                      <div className="flex"><span className="w-24 text-[#8C6D47] font-semibold">Heart:</span> <span className="text-gray-800">{product.scentProfile.heart}</span></div>
+                      <div className="flex"><span className="w-24 text-[#8C6D47] font-semibold">Base:</span> <span className="text-gray-800">{product.scentProfile.base}</span></div>
                   </div>
               </motion.div>
               
               <motion.div variants={infoItemVariants} className="mt-8">
-                  <h3 className="text-xs font-bold text-gray-500 tracking-[0.2em] uppercase mb-3">Select Size</h3>
+                  <h3 className="text-xs font-bold text-gray-600 tracking-[0.2em] uppercase mb-3">Select Size</h3>
                   <div className="flex items-center space-x-3">
                     {product.variants.map(variant => (
                       <button
                         key={variant.size}
                         onClick={() => setSelectedVariant(variant)}
-                        className={`px-6 py-3 border text-sm font-medium transition-all duration-200 ${selectedVariant.size === variant.size ? 'bg-brand-gold text-brand-dark border-brand-gold' : 'border-gray-700 text-gray-400 hover:border-white hover:text-white'}`}
+                        className={`px-6 py-3 border text-sm font-semibold transition-all duration-200 rounded-sm ${selectedVariant.size === variant.size ? 'bg-black text-white border-black' : 'border-gray-300 text-gray-700 hover:border-black hover:text-black bg-white'}`}
                       >
                         {variant.size}
                       </button>
@@ -301,25 +299,25 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ productSlug, navi
               </motion.div>
 
               <motion.div variants={infoItemVariants} className="mt-10 flex flex-col sm:flex-row gap-4">
-                  <div className="flex items-center border border-gray-700 w-fit">
-                      <motion.button onClick={() => setQuantity(q => Math.max(1, q - 1))} className="p-4 text-gray-400 hover:bg-gray-800 transition" whileTap={{ scale: 0.9 }}><MinusIcon /></motion.button>
-                      <span className="px-6 text-lg font-medium text-white w-12 text-center">{quantity}</span>
-                      <motion.button onClick={() => setQuantity(q => q + 1)} className="p-4 text-gray-400 hover:bg-gray-800 transition" whileTap={{ scale: 0.9 }}><PlusIcon/></motion.button>
+                  <div className="flex items-center border border-gray-300 rounded-sm bg-white w-fit shadow-xs">
+                      <motion.button onClick={() => setQuantity(q => Math.max(1, q - 1))} className="p-4 text-gray-600 hover:text-black transition" whileTap={{ scale: 0.9 }}><MinusIcon /></motion.button>
+                      <span className="px-6 text-lg font-bold text-gray-900 w-12 text-center">{quantity}</span>
+                      <motion.button onClick={() => setQuantity(q => q + 1)} className="p-4 text-gray-600 hover:text-black transition" whileTap={{ scale: 0.9 }}><PlusIcon/></motion.button>
                   </div>
                   <motion.button 
                       onClick={handleAddToCart}
-                      className="flex-1 bg-brand-gold text-brand-dark py-4 px-8 tracking-widest text-sm font-bold uppercase shadow-lg shadow-brand-gold/10 hover:bg-white transition-colors duration-300"
+                      className="flex-1 bg-black hover:bg-gray-800 text-white py-4 px-8 tracking-widest text-xs font-bold uppercase rounded-sm transition-colors duration-300 shadow-sm"
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                   >
-                    Add to Cart — ₹{(selectedVariant.price * quantity).toFixed(2)}
+                    Add to Cart &mdash; ₹{(selectedVariant.price * quantity).toFixed(2)}
                   </motion.button>
               </motion.div>
               
               {/* Local Store Trust Signal */}
-              <motion.div variants={infoItemVariants} className="mt-6 flex items-center text-sm text-[#FF5A00]">
+              <motion.div variants={infoItemVariants} className="mt-6 flex items-center text-xs text-[#8C6D47] font-semibold">
                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                 <span>Available to experience at our Thousand Lights, Chennai boutique.</span>
+                 <span>Available to experience at Thousand Lights, Chennai boutique.</span>
               </motion.div>
 
               {/* Delhivery Shipping Calculator Integration */}

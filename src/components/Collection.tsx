@@ -99,7 +99,7 @@ const Collection = React.forwardRef<HTMLElement, { navigate: (pageState: PageSta
   };
 
   return (
-    <section ref={ref} className="py-24 bg-brand-dark relative border-t border-gray-900">
+    <section ref={ref} className="py-24 bg-white relative border-t border-gray-200">
       <div className="max-w-screen-2xl mx-auto px-8 sm:px-12 lg:px-16">
         <motion.header 
             className="text-center mb-16 relative"
@@ -108,17 +108,17 @@ const Collection = React.forwardRef<HTMLElement, { navigate: (pageState: PageSta
             viewport={{ once: true, amount: 0.5 }}
             transition={{ duration: 0.8 }}
         >
-          <h2 className="text-4xl md:text-5xl font-thin text-white font-serif mb-4">
-            Alcohol-Free <span className="italic text-[#FF5A00]">French Perfume Oils</span>
+          <h2 className="text-4xl md:text-5xl font-serif text-gray-950 mb-4">
+            Alcohol-Free <span className="italic text-brand-gold">French Perfume Oils</span>
           </h2>
-          <p className="text-lg text-gray-400 max-w-3xl mx-auto font-light">
-            Discover our curated range of <strong className="text-gray-300 font-normal">long-lasting musk &amp; rose scents</strong>. 
+          <p className="text-lg text-gray-600 max-w-3xl mx-auto font-light">
+            Discover our curated range of <strong className="text-gray-900 font-semibold">long-lasting musk &amp; rose scents</strong>. 
             Well-suited for daily wear in Chennai&apos;s climate, these oils evolve steadily on your skin.
           </p>
 
-          {/* Sliding Orange Pill Indicator across Category Filter Bar */}
+          {/* Sliding Pill Indicator across Category Filter Bar */}
           <div className="mt-8 flex items-center justify-center">
-            <div className="inline-flex flex-wrap items-center justify-center gap-1.5 p-1.5 bg-[#0f0f0f] border border-gray-800 rounded-full">
+            <div className="inline-flex flex-wrap items-center justify-center gap-1.5 p-1.5 bg-gray-100 border border-gray-200 rounded-full">
               {[
                 { label: 'All Fragrances', value: '' },
                 { label: 'Best Sellers', value: 'Best Sellers' },
@@ -141,13 +141,13 @@ const Collection = React.forwardRef<HTMLElement, { navigate: (pageState: PageSta
                       }
                     }}
                     className={`relative px-4 py-2 text-xs font-semibold uppercase tracking-wider rounded-full transition-colors z-10 ${
-                      isActive ? 'text-white' : 'text-gray-400 hover:text-white'
+                      isActive ? 'text-white' : 'text-gray-700 hover:text-black'
                     }`}
                   >
                     {isActive && (
                       <motion.div
                         layoutId="activeCategoryPill"
-                        className="absolute inset-0 bg-[#FF5A00] rounded-full -z-10 shadow-md"
+                        className="absolute inset-0 bg-black rounded-full -z-10 shadow-sm"
                         transition={{ type: 'spring', stiffness: 350, damping: 30 }}
                       />
                     )}
@@ -172,11 +172,11 @@ const Collection = React.forwardRef<HTMLElement, { navigate: (pageState: PageSta
           {/* Products Grid */}
           <main className="lg:col-span-3">
             <div className="flex justify-between items-center mb-8">
-              <button onClick={() => setIsFilterOpen(true)} className="lg:hidden flex items-center space-x-2 bg-black/50 text-white px-4 py-2 border border-gray-700">
+              <button onClick={() => setIsFilterOpen(true)} className="lg:hidden flex items-center space-x-2 bg-white text-gray-900 px-4 py-2 border border-gray-300 shadow-sm">
                 <FilterIcon />
                 <span>Filters</span>
               </button>
-              <p className="text-gray-400 text-sm hidden sm:block">{sortedProducts.length} premium oils found</p>
+              <p className="text-gray-600 text-sm hidden sm:block">{sortedProducts.length} premium oils found</p>
               <SortDropdown selected={sortOption} onSelect={setSortOption} />
             </div>
             
@@ -199,21 +199,21 @@ const Collection = React.forwardRef<HTMLElement, { navigate: (pageState: PageSta
                 <motion.div 
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    className="flex flex-col items-center justify-center h-96 border border-gray-800 bg-black/30"
+                    className="flex flex-col items-center justify-center h-96 border border-gray-200 bg-gray-50 rounded-sm"
                 >
                     <p className="text-xl text-gray-500">No products match your criteria.</p>
-                    <button onClick={() => setFilters({ categories: [], priceRange: { min: priceBounds.min, max: priceBounds.max }, notes: [] })} className="text-brand-gold mt-4 hover:underline">Reset Filters</button>
+                    <button onClick={() => setFilters({ categories: [], priceRange: { min: priceBounds.min, max: priceBounds.max }, notes: [] })} className="text-brand-gold mt-4 hover:underline font-bold">Reset Filters</button>
                 </motion.div>
             )}
             </AnimatePresence>
 
             {totalPages > 1 && (
               <div className="flex justify-center items-center mt-16 space-x-4">
-                <motion.button onClick={handlePrev} disabled={currentPage === 0} className="p-3 bg-gray-900 text-gray-300 rounded-sm disabled:opacity-30 hover:text-white" aria-label="Previous products">
+                <motion.button onClick={handlePrev} disabled={currentPage === 0} className="p-3 bg-gray-100 border border-gray-200 text-gray-800 rounded-sm disabled:opacity-30 hover:bg-black hover:text-white transition" aria-label="Previous products">
                   <ArrowLeftIcon />
                 </motion.button>
-                <span className="text-gray-400 font-sans text-sm tracking-widest">PAGE {currentPage + 1} OF {totalPages}</span>
-                <motion.button onClick={handleNext} disabled={currentPage === totalPages - 1} className="p-3 bg-gray-900 text-gray-300 rounded-sm disabled:opacity-30 hover:text-white" aria-label="Next products">
+                <span className="text-gray-600 font-sans text-sm tracking-widest font-semibold">PAGE {currentPage + 1} OF {totalPages}</span>
+                <motion.button onClick={handleNext} disabled={currentPage === totalPages - 1} className="p-3 bg-gray-100 border border-gray-200 text-gray-800 rounded-sm disabled:opacity-30 hover:bg-black hover:text-white transition" aria-label="Next products">
                   <ArrowRightIcon />
                 </motion.button>
               </div>
@@ -229,7 +229,7 @@ const Collection = React.forwardRef<HTMLElement, { navigate: (pageState: PageSta
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/90 z-50 backdrop-blur-sm lg:hidden"
+            className="fixed inset-0 bg-black/40 z-50 backdrop-blur-sm lg:hidden"
             onClick={() => setIsFilterOpen(false)}
           >
              <motion.div
@@ -237,13 +237,13 @@ const Collection = React.forwardRef<HTMLElement, { navigate: (pageState: PageSta
                 animate={{ x: 0 }}
                 exit={{ x: '-100%' }}
                 transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-                className="fixed top-0 left-0 bottom-0 w-4/5 max-w-sm bg-black border-r border-gray-800 shadow-2xl overflow-y-auto"
+                className="fixed top-0 left-0 bottom-0 w-4/5 max-w-sm bg-white border-r border-gray-200 shadow-2xl overflow-y-auto"
                 onClick={(e) => e.stopPropagation()}
              >
                 <div className="p-6">
                     <div className="flex justify-between items-center mb-8">
-                        <h3 className="text-xl font-serif text-white">Refine Search</h3>
-                        <button onClick={() => setIsFilterOpen(false)} className="text-gray-400 hover:text-white"><XIcon /></button>
+                        <h3 className="text-xl font-serif text-gray-950">Refine Search</h3>
+                        <button onClick={() => setIsFilterOpen(false)} className="text-gray-600 hover:text-black"><XIcon /></button>
                     </div>
                     <FilterPanel 
                         filters={filters} 
