@@ -53,8 +53,11 @@ export default async function handler(req: any, res: any) {
   const keySecret = process.env.RAZORPAY_KEY_SECRET;
 
   if (!keyId || !keySecret) {
+    const missing: string[] = [];
+    if (!keyId) missing.push('RAZORPAY_KEY_ID');
+    if (!keySecret) missing.push('RAZORPAY_KEY_SECRET');
     return sendJson(res, 401, {
-      error: 'Razorpay credentials not configured or unauthorized.'
+      error: `Missing environment variable(s): ${missing.join(', ')}. Configure them in Vercel Project Settings > Environment Variables.`
     });
   }
 

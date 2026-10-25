@@ -54,7 +54,7 @@ export default async function handler(req: any, res: any) {
   if (!keySecret) {
     return sendJson(res, 401, {
       success: false,
-      error: 'Razorpay secret key not configured on server.'
+      error: 'Missing environment variable: RAZORPAY_KEY_SECRET. Configure it in Vercel Project Settings > Environment Variables.'
     });
   }
 
