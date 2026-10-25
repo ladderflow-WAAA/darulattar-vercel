@@ -5,6 +5,7 @@ import { useCart } from '../contexts/CartContext';
 import { STORE_CONFIG } from '../config/storeConfig';
 import { lookupDelhiveryPincode, PincodeLookupResult, calculateShipping } from '../utils/delhiveryCalculator';
 import DirectMerchantUpi from '../components/DirectMerchantUpi';
+import RazorpayCheckout from '../components/RazorpayCheckout';
 import { ArrowLeftIcon } from '../components/icons/ArrowLeftIcon';
 import { WhatsappIcon } from '../components/icons/WhatsappIcon';
 import { setMetadata } from '../utils/metadata';
@@ -39,6 +40,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
 
   // Active Checkout Step
   const [currentStep, setCurrentStep] = useState<'details' | 'payment'>('details');
+  const [paymentMethodTab, setPaymentMethodTab] = useState<'razorpay' | 'direct_upi'>('razorpay');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
@@ -197,6 +199,51 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
     });
   };
 
+  const handleRazorpaySuccess = async (data: {
+    razorpayPaymentId: string;
+    razorpayOrderId: string;
+    razorpaySignature: string;
+    amountPaid: number;
+  }) => {
+    setIsSubmitting(true);
+
+    const orderDetails: OrderRecord = {
+      orderId,
+      items: cartItems.map(item => ({
+        id: item.id,
+        name: item.name,
+        size: item.size,
+        quantity: item.quantity,
+        price: item.price,
+        imageUrl: item.imageUrl
+      })),
+      subtotal: cartTotal,
+      shippingFee: activeShippingFee,
+      total: totalPayable,
+      shippingSpeed: shippingMode === 'standard' ? 'Delhivery Standard' : 'Delhivery Express Air',
+      estimatedDeliveryDate: shippingMode === 'standard'
+        ? (delhiveryResult?.estimatedStandardDate || '3–5 Business Days')
+        : (delhiveryResult?.estimatedExpressDate || '1–2 Business Days'),
+      customer: formData,
+      payment: {
+        method: 'RAZORPAY',
+        utrNumber: data.razorpayPaymentId,
+        vpa: 'Razorpay Online Gateway',
+        status: 'VERIFIED_PAID'
+      },
+      createdAt: new Date().toISOString()
+    };
+
+    // Save to both Supabase cloud database & LocalStorage
+    await saveOrder(orderDetails);
+    clearCart();
+    setIsSubmitting(false);
+    navigate({
+      name: 'orderConfirmation',
+      props: { orderDetails }
+    });
+  };
+
   // WhatsApp Instant Order Fallback
   const handleConfirmOnWhatsApp = async () => {
     if (!validateDetails()) {
@@ -296,7 +343,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
             <div className="flex items-center space-x-2 text-xs text-[#8C6D47] font-semibold uppercase tracking-wider mb-1">
               <span>Step {currentStep === 'details' ? '1 of 2' : '2 of 2'}</span>
               <span>•</span>
-              <span>{currentStep === 'details' ? 'Delivery & Logistics' : 'Direct Merchant UPI'}</span>
+              <span>{currentStep === 'details' ? 'Delivery & Logistics' : 'Choose Payment Method'}</span>
             </div>
             <h1 className="text-3xl font-serif text-gray-900 tracking-wide">
               Secure <span className="italic text-[#8C6D47]">Checkout</span>
@@ -591,12 +638,58 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ navigate }) => {
                   transition={{ duration: 0.3 }}
                   className="space-y-6"
                 >
-                  <DirectMerchantUpi
-                    amount={totalPayable}
-                    orderId={orderId}
-                    onPaymentSubmitted={handlePaymentSubmitted}
-                    isSubmitting={isSubmitting}
-                  />
+                  {/* Payment Method Selector Tabs */}
+                  <div className="grid grid-cols-2 gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setPaymentMethodTab('razorpay')}
+                      className={`py-3 px-4 rounded-sm border text-xs font-semibold uppercase tracking-wider flex items-center justify-center space-x-2 transition-all ${
+                        paymentMethodTab === 'razorpay'
+                          ? 'border-[#8C6D47] bg-[#8C6D47] text-white shadow-sm'
+                          : 'border-gray-200 bg-white text-gray-700 hover:border-gray-400'
+                      }`}
+                    >
+                      <span>Razorpay Online</span>
+                      <span className={`text-[10px] px-1.5 py-0.5 rounded font-bold ${
+                        paymentMethodTab === 'razorpay' ? 'bg-white/20 text-white' : 'bg-emerald-100 text-emerald-800'
+                      }`}>
+                        Instant
+                      </span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPaymentMethodTab('direct_upi')}
+                      className={`py-3 px-4 rounded-sm border text-xs font-semibold uppercase tracking-wider flex items-center justify-center space-x-2 transition-all ${
+                        paymentMethodTab === 'direct_upi'
+                          ? 'border-black bg-black text-white shadow-sm'
+                          : 'border-gray-200 bg-white text-gray-700 hover:border-gray-400'
+                      }`}
+                    >
+                      <span>Direct Merchant QR</span>
+                      <span className={`text-[10px] px-1.5 py-0.5 rounded font-bold ${
+                        paymentMethodTab === 'direct_upi' ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-600'
+                      }`}>
+                        Manual UTR
+                      </span>
+                    </button>
+                  </div>
+
+                  {paymentMethodTab === 'razorpay' ? (
+                    <RazorpayCheckout
+                      amount={totalPayable}
+                      orderId={orderId}
+                      customerInfo={formData}
+                      onPaymentSuccess={handleRazorpaySuccess}
+                      isSubmitting={isSubmitting}
+                    />
+                  ) : (
+                    <DirectMerchantUpi
+                      amount={totalPayable}
+                      orderId={orderId}
+                      onPaymentSubmitted={handlePaymentSubmitted}
+                      isSubmitting={isSubmitting}
+                    />
+                  )}
 
                   {/* Fallback WhatsApp and Call Support */}
                   <div className="bg-[#FAF8F5] border border-gray-200 p-4 rounded-sm flex flex-col sm:flex-row items-center justify-between gap-3 text-xs shadow-sm">

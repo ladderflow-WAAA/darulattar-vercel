@@ -157,24 +157,46 @@ export const OrderConfirmationPage: React.FC<OrderConfirmationPageProps> = ({
           <div className="p-4 bg-white border border-gray-200 rounded-sm space-y-2 text-xs shadow-xs">
             <div className="flex justify-between">
               <span className="text-gray-600">Payment Channel:</span>
-              <span className="text-gray-900 font-semibold">Direct Merchant UPI</span>
+              <span className="text-gray-900 font-semibold">
+                {fallbackOrder.payment.method === 'RAZORPAY' ? 'Razorpay Standard Online Checkout' : 'Direct Merchant UPI'}
+              </span>
             </div>
-            <div className="flex justify-between">
-              <span className="text-gray-600">Merchant VPA:</span>
-              <span className="font-mono text-[#8C6D47] font-bold">{STORE_CONFIG.merchantUpi.vpa}</span>
-            </div>
-            {fallbackOrder.payment.utrNumber && (
-              <div className="flex justify-between">
-                <span className="text-gray-600">12-Digit UTR Number:</span>
-                <span className="font-mono text-gray-900 font-bold select-all tracking-wider">
-                  {fallbackOrder.payment.utrNumber}
-                </span>
-              </div>
+            {fallbackOrder.payment.method === 'RAZORPAY' ? (
+              <>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Razorpay Payment ID:</span>
+                  <span className="font-mono text-[#8C6D47] font-bold select-all">
+                    {fallbackOrder.payment.utrNumber}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Payment Status:</span>
+                  <span className="text-emerald-700 font-bold flex items-center space-x-1">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block"></span>
+                    <span>Verified &amp; Paid (Signature Confirmed)</span>
+                  </span>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Merchant VPA:</span>
+                  <span className="font-mono text-[#8C6D47] font-bold">{STORE_CONFIG.merchantUpi.vpa}</span>
+                </div>
+                {fallbackOrder.payment.utrNumber && (
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">12-Digit UTR Number:</span>
+                    <span className="font-mono text-gray-900 font-bold select-all tracking-wider">
+                      {fallbackOrder.payment.utrNumber}
+                    </span>
+                  </div>
+                )}
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Payment Status:</span>
+                  <span className="text-amber-700 font-semibold">Verification in Progress</span>
+                </div>
+              </>
             )}
-            <div className="flex justify-between">
-              <span className="text-gray-600">Payment Status:</span>
-              <span className="text-amber-700 font-semibold">Verification in Progress</span>
-            </div>
           </div>
 
           {/* Verification Advisory Notice */}
