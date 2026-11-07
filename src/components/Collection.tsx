@@ -51,7 +51,6 @@ const Collection = React.forwardRef<HTMLElement, { navigate: (pageState: PageSta
     setFilters(prev => ({ ...prev, priceRange: { min: priceBounds.min, max: priceBounds.max } }));
   }, [priceBounds]);
 
-
   const filteredProducts = useMemo(() => {
     return products.filter(product => {
       const categoryMatch = filters.categories.length === 0 || product.categories.some(cat => filters.categories.includes(cat));
@@ -90,35 +89,34 @@ const Collection = React.forwardRef<HTMLElement, { navigate: (pageState: PageSta
   
   const containerVariants = {
     hidden: {},
-    visible: { transition: { staggerChildren: 0.05 } }
+    visible: { transition: { staggerChildren: 0.04 } }
   };
 
   const itemVariants: Variants = {
-    hidden: { opacity: 0, y: 30 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: 'easeOut' } }
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.45, ease: [0.16, 1, 0.3, 1] } }
   };
 
   return (
-    <section ref={ref} className="py-24 bg-white relative border-t border-gray-200">
-      <div className="max-w-screen-2xl mx-auto px-8 sm:px-12 lg:px-16">
+    <section ref={ref} className="py-24 bg-white relative border-t border-gray-100">
+      <div className="max-w-screen-2xl mx-auto px-4 sm:px-8 lg:px-12">
         <motion.header 
-            className="text-center mb-16 relative"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.5 }}
-            transition={{ duration: 0.8 }}
+          className="text-center mb-16 relative"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.4 }}
+          transition={{ duration: 0.8 }}
         >
-          <h2 className="text-4xl md:text-5xl font-serif text-gray-950 mb-4">
-            Alcohol-Free <span className="italic text-brand-gold">French Perfume Oils</span>
+          <h2 className="text-3xl sm:text-5xl lg:text-6xl font-serif text-brand-charcoal mb-4">
+            Alcohol-Free <span className="font-editorial italic font-normal text-brand-gold-dark">Concentrated</span> Attars
           </h2>
-          <p className="text-lg text-gray-600 max-w-3xl mx-auto font-light">
-            Discover our curated range of <strong className="text-gray-900 font-semibold">long-lasting musk &amp; rose scents</strong>. 
-            Well-suited for daily wear in Chennai&apos;s climate, these oils evolve steadily on your skin.
+          <p className="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto font-sans leading-relaxed">
+            Curated musk, rose, and amber oils formulated for warmth and persistence in Chennai&apos;s climate. Pure, concentrated, and free of alcohol.
           </p>
 
-          {/* Sliding Pill Indicator across Category Filter Bar */}
+          {/* Sliding Pill Category Filter Navigation */}
           <div className="mt-8 flex items-center justify-center">
-            <div className="inline-flex flex-wrap items-center justify-center gap-1.5 p-1.5 bg-gray-100 border border-gray-200 rounded-full">
+            <div className="inline-flex flex-wrap items-center justify-center gap-1.5 p-1.5 bg-brand-ivory border border-gray-200/80 rounded-full shadow-2xs">
               {[
                 { label: 'All Fragrances', value: '' },
                 { label: 'Best Sellers', value: 'Best Sellers' },
@@ -147,8 +145,8 @@ const Collection = React.forwardRef<HTMLElement, { navigate: (pageState: PageSta
                     {isActive && (
                       <motion.div
                         layoutId="activeCategoryPill"
-                        className="absolute inset-0 bg-black rounded-full -z-10 shadow-sm"
-                        transition={{ type: 'spring', stiffness: 350, damping: 30 }}
+                        className="absolute inset-0 bg-brand-charcoal rounded-full -z-10 shadow-sm"
+                        transition={{ type: 'spring', stiffness: 400, damping: 30 }}
                       />
                     )}
                     <span>{tab.label}</span>
@@ -171,49 +169,73 @@ const Collection = React.forwardRef<HTMLElement, { navigate: (pageState: PageSta
 
           {/* Products Grid */}
           <main className="lg:col-span-3">
-            <div className="flex justify-between items-center mb-8">
-              <button onClick={() => setIsFilterOpen(true)} className="lg:hidden flex items-center space-x-2 bg-white text-gray-900 px-4 py-2 border border-gray-300 shadow-sm">
+            <div className="flex justify-between items-center mb-6 pb-4 border-b border-gray-100">
+              <button 
+                onClick={() => setIsFilterOpen(true)} 
+                className="lg:hidden flex items-center space-x-2 bg-white text-gray-900 px-4 py-2 border border-gray-300 rounded-full shadow-2xs text-xs font-semibold tracking-wider uppercase"
+              >
                 <FilterIcon />
                 <span>Filters</span>
               </button>
-              <p className="text-gray-600 text-sm hidden sm:block">{sortedProducts.length} premium oils found</p>
+              <p className="text-gray-500 font-mono text-xs hidden sm:block">
+                {sortedProducts.length} artisanal {sortedProducts.length === 1 ? 'oil' : 'oils'} cataloged
+              </p>
               <SortDropdown selected={sortOption} onSelect={setSortOption} />
             </div>
             
             <AnimatePresence mode="wait">
-            {sortedProducts.length > 0 ? (
-              <motion.div 
-                key={`${currentPage}-${sortOption}-${JSON.stringify(filters)}`}
-                className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6"
-                variants={containerVariants}
-                initial="hidden"
-                animate="visible"
-              >
-                {currentProducts.map((product) => (
-                  <motion.article key={product.id} variants={itemVariants}>
-                    <ProductCard product={product} navigate={navigate} />
-                  </motion.article>
-                ))}
-              </motion.div>
-            ) : (
+              {sortedProducts.length > 0 ? (
                 <motion.div 
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="flex flex-col items-center justify-center h-96 border border-gray-200 bg-gray-50 rounded-sm"
+                  key={`${currentPage}-${sortOption}-${JSON.stringify(filters)}`}
+                  className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 gap-6"
+                  variants={containerVariants}
+                  initial="hidden"
+                  animate="visible"
                 >
-                    <p className="text-xl text-gray-500">No products match your criteria.</p>
-                    <button onClick={() => setFilters({ categories: [], priceRange: { min: priceBounds.min, max: priceBounds.max }, notes: [] })} className="text-brand-gold mt-4 hover:underline font-bold">Reset Filters</button>
+                  {currentProducts.map((product) => (
+                    <motion.article key={product.id} variants={itemVariants}>
+                      <ProductCard product={product} navigate={navigate} />
+                    </motion.article>
+                  ))}
                 </motion.div>
-            )}
+              ) : (
+                <motion.div 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="flex flex-col items-center justify-center h-80 border border-gray-200 bg-brand-ivory rounded-xl text-center p-6"
+                >
+                  <p className="text-lg font-serif text-gray-700">No oils match the specified parameters.</p>
+                  <button 
+                    onClick={() => setFilters({ categories: [], priceRange: { min: priceBounds.min, max: priceBounds.max }, notes: [] })} 
+                    className="text-brand-gold-dark mt-4 hover:underline text-xs tracking-widest uppercase font-bold"
+                  >
+                    Reset Filter Parameters
+                  </button>
+                </motion.div>
+              )}
             </AnimatePresence>
 
             {totalPages > 1 && (
               <div className="flex justify-center items-center mt-16 space-x-4">
-                <motion.button onClick={handlePrev} disabled={currentPage === 0} className="p-3 bg-gray-100 border border-gray-200 text-gray-800 rounded-sm disabled:opacity-30 hover:bg-black hover:text-white transition" aria-label="Previous products">
+                <motion.button 
+                  onClick={handlePrev} 
+                  disabled={currentPage === 0} 
+                  className="p-3 bg-brand-ivory border border-gray-200 text-gray-800 rounded-full disabled:opacity-30 hover:bg-black hover:text-white transition-colors" 
+                  aria-label="Previous products"
+                  whileTap={{ scale: 0.95 }}
+                >
                   <ArrowLeftIcon />
                 </motion.button>
-                <span className="text-gray-600 font-sans text-sm tracking-widest font-semibold">PAGE {currentPage + 1} OF {totalPages}</span>
-                <motion.button onClick={handleNext} disabled={currentPage === totalPages - 1} className="p-3 bg-gray-100 border border-gray-200 text-gray-800 rounded-sm disabled:opacity-30 hover:bg-black hover:text-white transition" aria-label="Next products">
+                <span className="text-gray-600 font-mono text-xs tracking-widest font-semibold">
+                  PAGE {currentPage + 1} OF {totalPages}
+                </span>
+                <motion.button 
+                  onClick={handleNext} 
+                  disabled={currentPage === totalPages - 1} 
+                  className="p-3 bg-brand-ivory border border-gray-200 text-gray-800 rounded-full disabled:opacity-30 hover:bg-black hover:text-white transition-colors" 
+                  aria-label="Next products"
+                  whileTap={{ scale: 0.95 }}
+                >
                   <ArrowRightIcon />
                 </motion.button>
               </div>
@@ -229,29 +251,34 @@ const Collection = React.forwardRef<HTMLElement, { navigate: (pageState: PageSta
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/40 z-50 backdrop-blur-sm lg:hidden"
+            className="fixed inset-0 bg-black/50 z-50 backdrop-blur-sm lg:hidden"
             onClick={() => setIsFilterOpen(false)}
           >
-             <motion.div
-                initial={{ x: '-100%' }}
-                animate={{ x: 0 }}
-                exit={{ x: '-100%' }}
-                transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-                className="fixed top-0 left-0 bottom-0 w-4/5 max-w-sm bg-white border-r border-gray-200 shadow-2xl overflow-y-auto"
-                onClick={(e) => e.stopPropagation()}
-             >
-                <div className="p-6">
-                    <div className="flex justify-between items-center mb-8">
-                        <h3 className="text-xl font-serif text-gray-950">Refine Search</h3>
-                        <button onClick={() => setIsFilterOpen(false)} className="text-gray-600 hover:text-black"><XIcon /></button>
-                    </div>
-                    <FilterPanel 
-                        filters={filters} 
-                        setFilters={setFilters} 
-                        priceBounds={priceBounds}
-                    />
+            <motion.div
+              initial={{ x: '-100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '-100%' }}
+              transition={{ type: 'spring', stiffness: 350, damping: 32 }}
+              className="fixed top-0 left-0 bottom-0 w-4/5 max-w-sm bg-white border-r border-gray-200 shadow-2xl overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="p-6">
+                <div className="flex justify-between items-center mb-6 pb-4 border-b border-gray-100">
+                  <h3 className="text-lg font-serif text-brand-charcoal">Refine Fragrances</h3>
+                  <button 
+                    onClick={() => setIsFilterOpen(false)} 
+                    className="p-1.5 text-gray-600 hover:text-black rounded-full hover:bg-gray-100 transition-colors"
+                  >
+                    <XIcon />
+                  </button>
                 </div>
-             </motion.div>
+                <FilterPanel 
+                  filters={filters} 
+                  setFilters={setFilters} 
+                  priceBounds={priceBounds}
+                />
+              </div>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>

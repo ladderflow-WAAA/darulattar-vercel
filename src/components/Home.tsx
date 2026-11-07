@@ -1,6 +1,5 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import type { Variants } from 'framer-motion';
+import React, { useRef } from 'react';
+import { motion, useScroll, useTransform, useSpring, useMotionValue } from 'motion/react';
 import { PageState } from '../App';
 
 interface HomeProps {
@@ -8,101 +7,191 @@ interface HomeProps {
   onDiscoverClick: () => void;
 }
 
-const Home: React.FC<HomeProps> = React.forwardRef<HTMLElement, HomeProps>(({ navigate, onDiscoverClick }, ref) => {
-  const containerVariants: Variants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.2,
-      },
-    },
+// Magnetic button helper for luxury tactile interaction
+const MagneticButton: React.FC<{
+  children: React.ReactNode;
+  onClick: () => void;
+  className?: string;
+  variant?: 'primary' | 'secondary';
+}> = ({ children, onClick, className = '', variant = 'primary' }) => {
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+
+  const springConfig = { damping: 15, stiffness: 200, mass: 0.1 };
+  const smoothX = useSpring(x, springConfig);
+  const smoothY = useSpring(y, springConfig);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLButtonElement>) => {
+    if (!buttonRef.current) return;
+    const { clientX, clientY } = e;
+    const { left, top, width, height } = buttonRef.current.getBoundingClientRect();
+    const centerX = left + width / 2;
+    const centerY = top + height / 2;
+    x.set((clientX - centerX) * 0.25);
+    y.set((clientY - centerY) * 0.25);
   };
 
-  const itemVariants: Variants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.8,
-        ease: "easeOut",
-      },
-    },
+  const handleMouseLeave = () => {
+    x.set(0);
+    y.set(0);
   };
+
+  const baseStyle = variant === 'primary'
+    ? 'bg-brand-charcoal text-white hover:bg-brand-gold-dark hover:text-white shadow-elevation-2 hover:shadow-luxury border border-brand-charcoal'
+    : 'bg-white/80 backdrop-blur-md text-brand-charcoal border border-gray-300 hover:border-brand-gold-dark hover:text-brand-gold-dark shadow-elevation-1';
 
   return (
-    <header ref={ref} className="relative h-screen bg-white overflow-hidden flex items-center justify-start text-left text-gray-900">
-      {/* Background Image & Overlay */}
-      <div className="absolute inset-0 z-0">
+    <motion.button
+      ref={buttonRef}
+      style={{ x: smoothX, y: smoothY }}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      onClick={onClick}
+      whileTap={{ scale: 0.96 }}
+      className={`relative px-8 py-4 rounded-full text-xs tracking-[0.18em] font-semibold uppercase transition-all duration-300 select-none ${baseStyle} ${className}`}
+    >
+      {children}
+    </motion.button>
+  );
+};
+
+const Home: React.FC<HomeProps> = React.forwardRef<HTMLElement, HomeProps>(({ navigate, onDiscoverClick }, ref) => {
+  const containerRef = useRef<HTMLElement>(null);
+  const { scrollY } = useScroll();
+
+  // Subtle parallax on hero background
+  const backgroundY = useTransform(scrollY, [0, 600], ['0%', '18%']);
+  const contentOpacity = useTransform(scrollY, [0, 400], [1, 0.4]);
+
+  // Subtle geometric dust particles data (strictly geometric/abstract light circles)
+  const ambientParticles = [
+    { top: '18%', left: '12%', size: 4, duration: 6, delay: 0 },
+    { top: '32%', left: '78%', size: 6, duration: 8, delay: 1.2 },
+    { top: '65%', left: '22%', size: 5, duration: 7, delay: 0.8 },
+    { top: '75%', left: '84%', size: 3, duration: 9, delay: 2 },
+    { top: '48%', left: '92%', size: 4, duration: 6.5, delay: 1.5 },
+  ];
+
+  return (
+    <header 
+      ref={ref} 
+      className="relative min-h-[92vh] lg:min-h-screen bg-brand-cream overflow-hidden flex flex-col justify-between pt-24 pb-12"
+    >
+      {/* Background Layer with Parallax & Light Treatment */}
+      <motion.div 
+        style={{ y: backgroundY }}
+        className="absolute inset-0 z-0 pointer-events-none"
+      >
         <img
-            className="absolute inset-0 w-full h-full object-cover object-[center_0%] opacity-30"
-            src="https://res.cloudinary.com/dy3jvbisa/image/upload/v1762525463/hero_kes4cm.png"
-            alt="Luxury perfume oils background"
+          className="w-full h-full object-cover object-[center_20%] opacity-25 filter brightness-[1.05] contrast-[1.02]"
+          src="https://res.cloudinary.com/dy3jvbisa/image/upload/v1762525463/hero_kes4cm.png"
+          alt="Artisanal perfume oils and distillations"
+          loading="eager"
         />
-        {/* Crisp Light Gradient */}
-        <div className="absolute inset-0 bg-gradient-to-r from-white via-white/90 to-white/40"></div>
+        {/* Editorial Light Gradients */}
+        <div className="absolute inset-0 bg-gradient-to-r from-brand-cream via-brand-cream/85 to-transparent"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-brand-cream via-transparent to-brand-cream/40"></div>
+        <div className="absolute -top-32 -left-32 w-96 h-96 ambient-glow-gold rounded-full blur-3xl pointer-events-none"></div>
+        <div className="absolute top-1/3 -right-32 w-[30rem] h-[30rem] ambient-glow-warm rounded-full blur-3xl pointer-events-none"></div>
+      </motion.div>
+
+      {/* Floating Geometric Light Particles (Micro-Interaction) */}
+      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+        {ambientParticles.map((particle, i) => (
+          <motion.div
+            key={i}
+            className="absolute rounded-full bg-brand-gold/40"
+            style={{
+              top: particle.top,
+              left: particle.left,
+              width: particle.size,
+              height: particle.size,
+            }}
+            animate={{
+              y: [0, -18, 0],
+              opacity: [0.2, 0.7, 0.2],
+            }}
+            transition={{
+              duration: particle.duration,
+              delay: particle.delay,
+              repeat: Infinity,
+              ease: 'easeInOut',
+            }}
+          />
+        ))}
       </div>
 
+      {/* Main Hero Editorial Typography & Composition */}
       <motion.div 
-        className="relative z-10 flex flex-col items-start max-w-4xl px-8 sm:px-12 lg:px-16 mt-16"
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
+        style={{ opacity: contentOpacity }}
+        className="relative z-10 max-w-5xl mx-auto px-6 sm:px-12 lg:px-16 my-auto pt-8"
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
       >
-        <motion.span 
-            variants={itemVariants}
-            className="text-brand-gold font-sans tracking-[0.2em] text-sm uppercase mb-4 font-bold"
-        >
-            EST. 2024 • Thousand Lights, Chennai
-        </motion.span>
+        {/* Craft Mark */}
+        <div className="inline-flex items-center space-x-3 mb-6 px-3.5 py-1.5 rounded-full bg-brand-gold-subtle border border-brand-gold/30">
+          <span className="w-1.5 h-1.5 rounded-full bg-brand-gold-dark animate-pulse"></span>
+          <span className="text-[11px] font-sans font-semibold tracking-[0.2em] text-brand-gold-dark uppercase">
+            100% Alcohol-Free • Greams Road, Chennai
+          </span>
+        </div>
 
-        <motion.h1 
-          className="font-serif text-4xl md:text-6xl lg:text-7xl font-bold leading-tight text-gray-950"
-          variants={itemVariants}
-        >
-          Authentic Oud &amp; Premium <br/>
-          <span className="italic text-brand-gold">Attar Shop in Chennai</span>
-        </motion.h1>
+        {/* Editorial Heading with One-Word Font Alternation */}
+        <h1 className="font-serif text-4xl sm:text-6xl lg:text-7xl xl:text-8xl font-normal leading-[1.08] text-brand-charcoal tracking-tight">
+          Pure Concentrated <br className="hidden sm:inline" />
+          <span className="font-editorial italic font-normal text-brand-gold-dark">Oud</span> &amp; Artisanal Attars
+        </h1>
         
-        <motion.p 
-          className="mt-6 text-lg md:text-xl max-w-2xl text-gray-700 font-normal leading-relaxed"
-          variants={itemVariants}
-        >
-          Experience the tradition of pure, alcohol-free fragrances. We bring you handcrafted long-lasting musk and rose scents, right here in MMDA Colony.
-        </motion.p>
+        {/* Clear Sub-lead Copy */}
+        <p className="mt-8 text-base sm:text-xl max-w-2xl text-gray-700 font-sans font-normal leading-relaxed">
+          Distilled essences of wild Assam Agarwood, Kannauj hydro-distilled Ruh Khus, and enduring amber compositions. Handcrafted for longevity, purity, and daily reverence.
+        </p>
         
-        <motion.div variants={itemVariants} className="mt-10 flex flex-col sm:flex-row gap-4">
-          <motion.button 
-            onClick={onDiscoverClick}
-            className="bg-black text-white hover:bg-brand-gold hover:text-black py-4 px-10 tracking-widest text-sm font-bold uppercase shadow-lg transition-colors duration-300"
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-          >
-            Shop Collection
-          </motion.button>
+        {/* Interactive Magnetic CTA Cluster */}
+        <div className="mt-10 flex flex-wrap items-center gap-4">
+          <MagneticButton onClick={onDiscoverClick} variant="primary">
+            Explore Collection
+          </MagneticButton>
           
-          <motion.button 
+          <MagneticButton 
             onClick={() => navigate({ name: 'home', props: { section: 'contact' } })}
-            className="border-2 border-black text-black py-4 px-10 tracking-widest text-sm font-bold uppercase hover:bg-black hover:text-white transition-colors duration-300 backdrop-blur-sm"
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
+            variant="secondary"
           >
-            Visit Our Store
-          </motion.button>
-        </motion.div>
+            Visit Boutique
+          </MagneticButton>
+        </div>
       </motion.div>
 
-      {/* Scroll indicator */}
-      <motion.div 
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 text-brand-gold"
-        animate={{ y: [0, 10, 0] }}
-        transition={{ duration: 2, repeat: Infinity }}
-      >
-        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
-        </svg>
-      </motion.div>
+      {/* Hallmarks Bottom Strip */}
+      <div className="relative z-10 max-w-6xl mx-auto px-6 sm:px-12 w-full pt-12">
+        <div className="border-t border-brand-gold/25 pt-6 grid grid-cols-2 md:grid-cols-4 gap-6 text-left">
+          <div className="space-y-1">
+            <span className="text-[11px] font-mono uppercase tracking-widest text-brand-gold-dark font-semibold">01 • Formulation</span>
+            <p className="text-xs text-gray-800 font-medium">100% Pure Oil Base</p>
+            <p className="text-[11px] text-gray-500">Zero alcohol or evaporative fillers</p>
+          </div>
+          
+          <div className="space-y-1">
+            <span className="text-[11px] font-mono uppercase tracking-widest text-brand-gold-dark font-semibold">02 • Provenance</span>
+            <p className="text-xs text-gray-800 font-medium">Authentic Distillation</p>
+            <p className="text-[11px] text-gray-500">Assam woods &amp; Kannauj copper degs</p>
+          </div>
+
+          <div className="space-y-1">
+            <span className="text-[11px] font-mono uppercase tracking-widest text-brand-gold-dark font-semibold">03 • Longevity</span>
+            <p className="text-xs text-gray-800 font-medium">Enduring Sillage</p>
+            <p className="text-[11px] text-gray-500">Substantive base notes on skin</p>
+          </div>
+
+          <div className="space-y-1">
+            <span className="text-[11px] font-mono uppercase tracking-widest text-brand-gold-dark font-semibold">04 • Boutique</span>
+            <p className="text-xs text-gray-800 font-medium">Thousand Lights</p>
+            <p className="text-[11px] text-gray-500">Bespoke olfactory sampling in store</p>
+          </div>
+        </div>
+      </div>
     </header>
   );
 });

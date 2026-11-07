@@ -2,8 +2,7 @@ import React from 'react';
 import { Logo } from './Logo';
 import { InstagramIcon } from './icons/InstagramIcon';
 import { WhatsappIcon } from './icons/WhatsappIcon';
-import { motion } from 'framer-motion';
-import type { Variants } from 'framer-motion';
+import { motion, type Variants } from 'motion/react';
 import { PageState } from '../App';
 
 interface FooterProps {
@@ -11,133 +10,217 @@ interface FooterProps {
 }
 
 const Footer: React.FC<FooterProps> = ({ navigate }) => {
-
   const containerVariants: Variants = {
     hidden: {},
     visible: {
       transition: {
-        staggerChildren: 0.1,
+        staggerChildren: 0.08,
       },
     },
   };
 
   const itemVariants: Variants = {
-    hidden: { opacity: 0, y: 10 },
+    hidden: { opacity: 0, y: 12 },
     visible: {
       opacity: 1,
       y: 0,
-      transition: { duration: 0.5 },
+      transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] },
     },
   };
 
-  const linkHover = { color: '#C0A080', x: 5, transition: { duration: 0.2 } };
-
   return (
     <motion.footer 
-      className="bg-[#FAFAF9] border-t border-gray-200"
+      className="bg-brand-ivory border-t border-gray-200/80 font-sans"
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, amount: 0.1 }}
       variants={containerVariants}
     >
-      <div className="max-w-screen-2xl mx-auto px-8 sm:px-12 lg:px-16 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+      <div className="max-w-screen-2xl mx-auto px-4 sm:px-8 lg:px-12 py-16 sm:py-20">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 lg:gap-12">
           
-          {/* Brand Column */}
-          <motion.div className="space-y-6" variants={itemVariants}>
-            <button onClick={() => navigate({ name: 'home' })} aria-label="Darul Attar Home" className="block w-32">
-                <Logo className="w-full h-auto" />
+          {/* Brand Atelier Summary */}
+          <motion.div className="lg:col-span-4 space-y-6" variants={itemVariants}>
+            <button 
+              onClick={() => navigate({ name: 'home' })} 
+              aria-label="Darul Attar Home" 
+              className="block w-36 focus:outline-none"
+            >
+              <Logo className="w-full h-auto" />
             </button>
-            <p className="text-gray-600 text-sm leading-relaxed font-normal">
-              Purveyors of fine, alcohol-free attars and oud oils. Deeply rooted in tradition, crafted for the modern connoisseur in Chennai.
+            <p className="text-gray-600 text-sm leading-relaxed max-w-sm">
+              Artisanal purveyors of 100% alcohol-free concentrated perfume oils and pure Assam Oud. Rooted in traditional Indian and Arabian distillation traditions, tailored for Chennai.
             </p>
-            <div className="flex space-x-4">
-                <a href="https://instagram.com/darulattar" target="_blank" rel="noopener noreferrer" className="text-gray-700 hover:text-brand-gold transition"><InstagramIcon /></a>
-                <a href="https://wa.me/919578994377" target="_blank" rel="noopener noreferrer" className="text-gray-700 hover:text-brand-gold transition"><WhatsappIcon /></a>
+            <div className="flex items-center space-x-3 pt-1">
+              <a 
+                href="https://instagram.com/darulattar" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                aria-label="Instagram profile"
+                className="w-9 h-9 rounded-full bg-white border border-gray-200 flex items-center justify-center text-gray-700 hover:text-brand-gold-dark hover:border-brand-gold-dark transition-colors shadow-2xs"
+              >
+                <InstagramIcon />
+              </a>
+              <a 
+                href="https://wa.me/919578994377" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                aria-label="WhatsApp consultation"
+                className="w-9 h-9 rounded-full bg-white border border-gray-200 flex items-center justify-center text-gray-700 hover:text-brand-gold-dark hover:border-brand-gold-dark transition-colors shadow-2xs"
+              >
+                <WhatsappIcon />
+              </a>
             </div>
           </motion.div>
 
-          {/* Shop Links */}
-          <motion.div variants={itemVariants}>
-            <h4 className="font-serif text-gray-950 text-lg mb-6 font-bold">Collections</h4>
+          {/* Fragrance Portfolios */}
+          <motion.div className="lg:col-span-3" variants={itemVariants}>
+            <h4 className="font-serif text-brand-charcoal text-lg mb-5 font-normal tracking-wide">
+              Fragrance Portfolios
+            </h4>
             <ul className="space-y-3 text-sm text-gray-600">
-                <li><motion.button onClick={() => navigate({ name: 'category', props: { category: 'Woody & Musk' } })} whileHover={linkHover}>Oud &amp; Musk</motion.button></li>
-                <li><motion.button onClick={() => navigate({ name: 'category', props: { category: 'Floral & Fresh' } })} whileHover={linkHover}>French Florals</motion.button></li>
-                <li><motion.button onClick={() => navigate({ name: 'category', props: { category: 'Best Sellers' } })} whileHover={linkHover}>Best Sellers</motion.button></li>
-                <li><motion.button onClick={() => navigate({ name: 'home', props: { section: 'collection' } })} whileHover={linkHover}>All Attars</motion.button></li>
+              <li>
+                <button 
+                  onClick={() => navigate({ name: 'category', props: { category: 'Woody & Musk' } })} 
+                  className="hover:text-brand-gold-dark hover:translate-x-1 transition-all inline-block"
+                >
+                  Pure Oudh &amp; Musk
+                </button>
+              </li>
+              <li>
+                <button 
+                  onClick={() => navigate({ name: 'category', props: { category: 'Floral & Fresh' } })} 
+                  className="hover:text-brand-gold-dark hover:translate-x-1 transition-all inline-block"
+                >
+                  Taif Rose &amp; French Florals
+                </button>
+              </li>
+              <li>
+                <button 
+                  onClick={() => navigate({ name: 'category', props: { category: 'Best Sellers' } })} 
+                  className="hover:text-brand-gold-dark hover:translate-x-1 transition-all inline-block"
+                >
+                  Signature Best Sellers
+                </button>
+              </li>
+              <li>
+                <button 
+                  onClick={() => navigate({ name: 'home', props: { section: 'collection' } })} 
+                  className="hover:text-brand-gold-dark hover:translate-x-1 transition-all inline-block"
+                >
+                  Catalog of Concentrated Oils
+                </button>
+              </li>
             </ul>
           </motion.div>
 
-          {/* Support Links */}
-          <motion.div variants={itemVariants}>
-            <h4 className="font-serif text-gray-950 text-lg mb-6 font-bold">Support</h4>
+          {/* Boutique Services & Policies */}
+          <motion.div className="lg:col-span-2" variants={itemVariants}>
+            <h4 className="font-serif text-brand-charcoal text-lg mb-5 font-normal tracking-wide">
+              Information
+            </h4>
             <ul className="space-y-3 text-sm text-gray-600">
-                <li><motion.button onClick={() => navigate({ name: 'home', props: { section: 'contact' } })} whileHover={linkHover}>Contact Us</motion.button></li>
-                <li><motion.button onClick={() => navigate({ name: 'shipping' })} whileHover={linkHover}>Shipping Policy</motion.button></li>
-                <li><motion.button onClick={() => navigate({ name: 'privacy' })} whileHover={linkHover}>Privacy Policy</motion.button></li>
-                <li><motion.button onClick={() => navigate({ name: 'faqs' })} whileHover={linkHover}>FAQs</motion.button></li>
+              <li>
+                <button 
+                  onClick={() => navigate({ name: 'ourStory' })} 
+                  className="hover:text-brand-gold-dark hover:translate-x-1 transition-all inline-block"
+                >
+                  Distillation Heritage
+                </button>
+              </li>
+              <li>
+                <button 
+                  onClick={() => navigate({ name: 'home', props: { section: 'contact' } })} 
+                  className="hover:text-brand-gold-dark hover:translate-x-1 transition-all inline-block"
+                >
+                  Store Consultation
+                </button>
+              </li>
+              <li>
+                <button 
+                  onClick={() => navigate({ name: 'shipping' })} 
+                  className="hover:text-brand-gold-dark hover:translate-x-1 transition-all inline-block"
+                >
+                  Shipping &amp; Delivery
+                </button>
+              </li>
+              <li>
+                <button 
+                  onClick={() => navigate({ name: 'privacy' })} 
+                  className="hover:text-brand-gold-dark hover:translate-x-1 transition-all inline-block"
+                >
+                  Privacy Policy
+                </button>
+              </li>
+              <li>
+                <button 
+                  onClick={() => navigate({ name: 'faqs' })} 
+                  className="hover:text-brand-gold-dark hover:translate-x-1 transition-all inline-block"
+                >
+                  Frequently Asked Questions
+                </button>
+              </li>
             </ul>
           </motion.div>
 
-          {/* Contact / Location */}
-          <motion.div variants={itemVariants}>
-            <h4 className="font-serif text-gray-950 text-lg mb-6 font-bold">Visit Us</h4>
-            <address className="not-italic text-sm text-gray-600 space-y-3">
-                <p className="font-semibold text-gray-950">Darul Attar</p>
-                <p>#144 Aziz Mulk, 1st Street,<br/> Greams Road, Thousand Lights</p>
-                <p>Chennai - 600006</p>
-                <p className="pt-2"><a href="tel:+919578994377" className="hover:text-brand-gold transition text-gray-900 font-medium">+91 95789 94377</a></p>
-                <p><a href="mailto:contact@darulattar.com" className="hover:text-brand-gold transition text-gray-900 font-medium">contact@darulattar.com</a></p>
+          {/* Location Desk */}
+          <motion.div className="lg:col-span-3" variants={itemVariants}>
+            <h4 className="font-serif text-brand-charcoal text-lg mb-5 font-normal tracking-wide">
+              Thousand Lights Atelier
+            </h4>
+            <address className="not-italic text-sm text-gray-600 space-y-2 leading-relaxed">
+              <p className="font-medium text-brand-charcoal">Darul Attar</p>
+              <p>#144 Aziz Mulk, 1st Street, Greams Road,</p>
+              <p>Thousand Lights, Chennai - 600006</p>
+              <p className="pt-2 font-mono">
+                <a href="tel:+919578994377" className="hover:text-brand-gold-dark transition text-gray-800 font-medium">
+                  +91 95789 94377
+                </a>
+              </p>
+              <p>
+                <a href="mailto:contact@darulattar.com" className="hover:text-brand-gold-dark transition text-gray-800 font-medium">
+                  contact@darulattar.com
+                </a>
+              </p>
             </address>
           </motion.div>
 
         </div>
         
-        {/* Trust Badges */}
+        {/* Trust Badges Strip */}
         <motion.div
           variants={itemVariants}
-          className="mt-12 pt-8 border-t border-gray-200"
+          className="mt-14 pt-8 border-t border-gray-200/70"
         >
-          <div className="flex flex-wrap justify-center gap-8 text-gray-700 text-xs font-medium">
-            <div className="flex items-center space-x-2">
-              <svg className="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-              </svg>
-              <span>100% Authentic Products</span>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs font-medium text-gray-700">
+            <div className="flex items-center space-x-2.5 p-3 rounded-lg bg-white/70 border border-gray-200/60">
+              <span className="w-2 h-2 rounded-full bg-emerald-600"></span>
+              <span>100% Alcohol-Free Pure Oil</span>
             </div>
-            <div className="flex items-center space-x-2">
-              <svg className="w-5 h-5 text-brand-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-              </svg>
-              <span>Alcohol-Free Formulations</span>
+            <div className="flex items-center space-x-2.5 p-3 rounded-lg bg-white/70 border border-gray-200/60">
+              <span className="w-2 h-2 rounded-full bg-brand-gold-dark"></span>
+              <span>Direct Assam &amp; Kannauj Distillation</span>
             </div>
-            <div className="flex items-center space-x-2">
-              <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-              </svg>
-              <span>Secure Payments (UPI / Cash)</span>
+            <div className="flex items-center space-x-2.5 p-3 rounded-lg bg-white/70 border border-gray-200/60">
+              <span className="w-2 h-2 rounded-full bg-gray-900"></span>
+              <span>Expedited Delhivery Dispatch</span>
             </div>
-            <div className="flex items-center space-x-2">
-              <svg className="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
-              </svg>
-              <span>Ready for Store Pickup</span>
+            <div className="flex items-center space-x-2.5 p-3 rounded-lg bg-white/70 border border-gray-200/60">
+              <span className="w-2 h-2 rounded-full bg-amber-600"></span>
+              <span>Walk-in Olfactory Bar in Chennai</span>
             </div>
           </div>
         </motion.div>
 
-        {/* Bottom Bar */}
+        {/* Bottom Sign-off */}
         <motion.div 
-          className="mt-8 pt-8 border-t border-gray-200 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-gray-500"
+          className="mt-8 pt-8 border-t border-gray-200/70 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-gray-500 font-mono"
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
         >
-          <p>© {new Date().getFullYear()} Darul Attar. All Rights Reserved.</p>
-          <div className="flex items-center gap-2">
-            <span>Site by</span>
-            <a href="https://ladderflow.xyz" target="_blank" rel="noopener noreferrer" className="text-gray-900 hover:text-brand-gold transition font-bold font-mono">LADDERFLOW</a>
-          </div>
+          <p>© {new Date().getFullYear()} Darul Attar. Crafted in Chennai, India.</p>
+          <p className="text-[11px] text-gray-400">All fragrances 100% Concentrated Botanical &amp; Resinous Oils</p>
         </motion.div>
       </div>
     </motion.footer>

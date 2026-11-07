@@ -38,7 +38,7 @@ export const RazorpayCheckout: React.FC<RazorpayCheckoutProps> = ({
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [lastPaymentId, setLastPaymentId] = useState<string | null>(null);
 
-  const keyId = import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_TrpSiYzVN2p9l7';
+  const keyId = import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_live_Ts3E0Bv2SUlRBv';
 
   // Ensure Razorpay SDK script is ready
   const loadRazorpayScript = (): Promise<boolean> => {
