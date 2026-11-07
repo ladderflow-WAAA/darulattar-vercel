@@ -30,7 +30,6 @@ const NewArrivalsPage = React.lazy(() => import('./pages/NewArrivalsPage'));
 const BlogPage = React.lazy(() => import('./pages/BlogPage'));
 const AdminLoginPage = React.lazy(() => import('./pages/AdminLoginPage'));
 const AdminDashboardPage = React.lazy(() => import('./pages/AdminDashboardPage'));
-const BottleExperiencePage = React.lazy(() => import('./BottleChoreography'));
 
 export interface PageState {
   name: 'home' | 'product' | 'cart' | 'category' | 'checkout' | 'orderConfirmation' | 'terms' | 'privacy' | 'shipping' | 'ourStory' | 'faqs' | 'search' | 'dashboard' | 'newArrivals' | 'blog';
@@ -218,14 +217,6 @@ const App: React.FC = () => {
     }
   };
 
-  const isExperienceRoute = location.pathname === '/experience' || location.pathname === '/flacon';
-  if (isExperienceRoute) {
-    return (
-      <Suspense fallback={<div className="min-h-screen bg-[#070709] flex items-center justify-center text-white">Loading Flacon Experience...</div>}>
-        <BottleExperiencePage />
-      </Suspense>
-    );
-  }
 
   if (isAdminRoute) {
     return (

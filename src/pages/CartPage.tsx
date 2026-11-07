@@ -58,7 +58,6 @@ const CartPage: React.FC<CartPageProps> = ({ navigate }) => {
     const shippingFee = shipping.isFreeShippingEligible ? 0 : shipping.standardFee;
     const finalTotal = cartTotal + shippingFee;
 
-    // Log order to database and local backup
     saveOrder({
       orderId: orderRef,
       customer: {
@@ -94,92 +93,90 @@ const CartPage: React.FC<CartPageProps> = ({ navigate }) => {
     ).join('\n');
 
     const messageParts = [
-      `*ORDER REQUEST - DARUL ATTAR AND OUD*`,
+      `*ORDER REQUEST - DARUL ATTAR*`,
       `Order Ref: ${orderRef}`,
       `---------------------------------`,
       `*Customer Details:*`,
       `Name: ${formData.name}`,
       `Phone: ${formData.phone}`,
-      `Delivery Address: ${formData.address}`,
+      `Address: ${formData.address}`,
       `---------------------------------`,
-      `*Logistics: Delhivery Courier*`,
-      `Shipping: ${shipping.isFreeShippingEligible ? 'Free Shipping (Over ₹999)' : `₹${shippingFee.toFixed(2)}`}`,
-      `---------------------------------`,
-      `*Items in Bag:*`,
+      `*Items:*`,
       itemsSummary,
       `---------------------------------`,
       `Subtotal: ₹${cartTotal.toFixed(2)}`,
-      `Shipping: ₹${shippingFee.toFixed(2)}`,
-      `*Total Amount: ₹${finalTotal.toFixed(2)}*`,
+      `Shipping: ${shipping.isFreeShippingEligible ? 'FREE' : `₹${shippingFee.toFixed(2)}`}`,
+      `*Estimated Total: ₹${finalTotal.toFixed(2)}*`,
       `---------------------------------`,
-      `Official Merchant VPA: ${STORE_CONFIG.merchantUpi.vpa}`,
-      `Please confirm order acceptance.`
+      `Please confirm stock and provide payment instructions.`
     ];
 
-    const message = messageParts.join('\n');
-    const whatsappUrl = `https://wa.me/${STORE_CONFIG.storeWhatsappNumber}?text=${encodeURIComponent(message)}`;
-    window.open(whatsappUrl, '_blank');
-    clearCart();
-    navigate({ name: 'home' });
+    const encoded = encodeURIComponent(messageParts.join('\n'));
+    window.open(`https://wa.me/${STORE_CONFIG.storeWhatsappNumber}?text=${encoded}`, '_blank');
   };
 
   const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: { opacity: 1, transition: { staggerChildren: 0.08 } },
+    hidden: {},
+    visible: {
+      transition: {
+        staggerChildren: 0.08,
+      },
+    },
   };
 
   const itemVariants = {
-    hidden: { opacity: 0, x: -20 },
-    visible: { opacity: 1, x: 0 },
-    exit: { opacity: 0, height: 0, marginBottom: 0, transition: { duration: 0.3 } },
+    hidden: { opacity: 0, y: 15 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] } },
   };
 
   return (
-    <div className="bg-white min-h-screen text-gray-900">
-      <div className="max-w-screen-2xl mx-auto px-4 sm:px-8 lg:px-16 pt-32 pb-24 font-sans">
+    <div className="bg-white min-h-screen text-gray-900 font-sans pt-28 pb-20">
+      <div className="max-w-screen-2xl mx-auto px-4 sm:px-8 lg:px-12">
+        
+        {/* Header Navigation */}
         <motion.div
-          className="flex flex-col sm:flex-row justify-between sm:items-center mb-10 border-b border-gray-200 pb-6"
-          initial={{ opacity: 0, y: -20 }}
+          className="flex flex-col sm:flex-row sm:items-center justify-between pb-8 mb-8 border-b border-gray-100"
+          initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
+          transition={{ duration: 0.4 }}
         >
           <div>
-            <h1 className="text-3xl md:text-4xl font-thin text-gray-900 font-serif">
-              Shopping Bag <span className="text-sm text-gray-500 font-sans font-normal ml-2">({cartCount} Items)</span>
+            <h1 className="text-3xl sm:text-4xl font-serif text-brand-charcoal font-normal">
+              Your Fragrance <span className="font-editorial italic text-brand-gold-dark font-normal">Bag</span>
             </h1>
-            <p className="text-xs text-gray-500 mt-1">
-              Dispatched with official Delhivery courier tracking.
+            <p className="text-xs font-mono text-gray-500 mt-1">
+              Dispatched with official Delhivery courier tracking across India.
             </p>
           </div>
 
           <button
             onClick={() => navigate({ name: 'home', props: { section: 'collection' } })}
-            className="mt-4 sm:mt-0 flex items-center space-x-2 text-xs uppercase tracking-wider text-gray-600 hover:text-black transition-colors font-medium"
+            className="mt-4 sm:mt-0 flex items-center space-x-2 text-xs font-mono uppercase tracking-wider text-gray-600 hover:text-black transition-colors font-semibold"
           >
             <ArrowLeftIcon />
-            <span>Continue Shopping</span>
+            <span>Continue Exploring Blends</span>
           </button>
         </motion.div>
 
         {cartCount === 0 ? (
           <motion.div
-            className="text-center py-28 bg-[#FAF8F5] rounded-sm border border-gray-200 max-w-xl mx-auto p-8 shadow-sm"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
+            className="text-center py-24 bg-brand-ivory rounded-2xl border border-gray-200/80 max-w-xl mx-auto p-8 shadow-xs"
+            initial={{ opacity: 0, scale: 0.98 }}
+            animate={{ opacity: 1, scale: 1 }}
           >
-            <p className="text-xl text-gray-900 font-serif mb-2 font-bold">Your Bag is Empty</p>
-            <p className="text-sm text-gray-600 mb-6">
-              Select your authentic oud, attar oils, and French perfume blends.
+            <p className="text-2xl text-brand-charcoal font-serif mb-2 font-normal">Your Bag is Empty</p>
+            <p className="text-sm text-gray-600 mb-6 font-sans">
+              Discover authentic alcohol-free Oud oils, Kannauj distillations, and French floral extracts.
             </p>
             <button
               onClick={() => navigate({ name: 'home', props: { section: 'collection' } })}
-              className="bg-black hover:bg-gray-800 text-white py-3 px-8 font-bold text-xs tracking-widest uppercase transition-colors rounded-sm"
+              className="bg-brand-charcoal hover:bg-brand-gold-dark text-white py-3.5 px-8 font-semibold text-xs tracking-[0.16em] uppercase transition-all duration-300 rounded-full shadow-elevation-1"
             >
-              Explore Collection
+              Explore Fragrances
             </button>
           </motion.div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
             {/* Cart Items List */}
             <motion.div
               className="lg:col-span-7 space-y-4"
@@ -191,11 +188,11 @@ const CartPage: React.FC<CartPageProps> = ({ navigate }) => {
                 {cartItems.map((item) => (
                   <motion.div
                     key={item.cartItemId}
-                    className="flex flex-col sm:flex-row items-start sm:items-center gap-4 p-5 bg-[#FAF8F5] border border-gray-200 rounded-sm hover:border-gray-300 transition-colors shadow-xs"
+                    className="flex flex-col sm:flex-row items-start sm:items-center gap-4 p-5 bg-brand-ivory border border-gray-200/80 rounded-xl hover:border-gray-300 transition-colors shadow-2xs"
                     variants={itemVariants}
                     layout
                   >
-                    <div className="w-20 h-24 flex-shrink-0 bg-white overflow-hidden rounded-sm border border-gray-200">
+                    <div className="w-20 h-24 flex-shrink-0 bg-white overflow-hidden rounded-lg border border-gray-200/70">
                       <img
                         src={item.imageUrl}
                         alt={item.name}
@@ -207,17 +204,17 @@ const CartPage: React.FC<CartPageProps> = ({ navigate }) => {
                     <div className="flex-grow min-w-0 w-full">
                       <div className="flex justify-between items-start">
                         <div>
-                          <h3 className="text-base text-gray-900 font-serif font-bold tracking-wide truncate">
+                          <h3 className="text-base text-brand-charcoal font-serif font-normal tracking-wide truncate">
                             {item.name}
                           </h3>
-                          <p className="text-xs text-[#8C6D47] font-semibold mt-0.5">
-                            Size: {item.size}
+                          <p className="text-xs font-mono text-brand-gold-dark font-medium mt-0.5">
+                            Volume: {item.size}
                           </p>
                         </div>
                         <motion.button
-                          whileHover={{ scale: 1.1, color: '#ef4444' }}
+                          whileHover={{ scale: 1.1 }}
                           onClick={() => removeFromCart(item.cartItemId)}
-                          className="text-gray-400 hover:text-red-600 transition p-1"
+                          className="text-gray-400 hover:text-red-600 transition-colors p-1"
                           aria-label={`Remove ${item.name}`}
                         >
                           <TrashIcon />
@@ -225,10 +222,11 @@ const CartPage: React.FC<CartPageProps> = ({ navigate }) => {
                       </div>
 
                       <div className="flex justify-between items-end mt-4">
-                        <div className="flex items-center border border-gray-300 rounded-sm bg-white">
+                        <div className="flex items-center border border-gray-200 rounded-full bg-white px-2 py-0.5 shadow-2xs">
                           <button
                             onClick={() => updateQuantity(item.cartItemId, item.quantity - 1)}
-                            className="p-1.5 text-gray-600 hover:text-black transition"
+                            className="p-1 text-gray-600 hover:text-black rounded-full hover:bg-gray-100 transition-colors"
+                            aria-label="Decrease quantity"
                           >
                             <MinusIcon />
                           </button>
@@ -237,12 +235,13 @@ const CartPage: React.FC<CartPageProps> = ({ navigate }) => {
                           </span>
                           <button
                             onClick={() => updateQuantity(item.cartItemId, item.quantity + 1)}
-                            className="p-1.5 text-gray-600 hover:text-black transition"
+                            className="p-1 text-gray-600 hover:text-black rounded-full hover:bg-gray-100 transition-colors"
+                            aria-label="Increase quantity"
                           >
                             <PlusIcon />
                           </button>
                         </div>
-                        <p className="text-base font-mono font-bold text-gray-900">
+                        <p className="text-base font-mono font-semibold text-brand-charcoal">
                           ₹{(item.price * item.quantity).toFixed(2)}
                         </p>
                       </div>
@@ -264,15 +263,15 @@ const CartPage: React.FC<CartPageProps> = ({ navigate }) => {
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5, delay: 0.1 }}
             >
-              <div className="bg-[#FAF8F5] border border-gray-200 p-6 sm:p-8 rounded-sm sticky top-32 space-y-6 shadow-sm">
-                <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-900 border-b border-gray-200 pb-3">
-                  Order Summary
+              <div className="bg-brand-ivory border border-gray-200/90 p-6 sm:p-8 rounded-2xl sticky top-28 space-y-6 shadow-sm">
+                <h2 className="text-xs font-mono font-semibold uppercase tracking-widest text-brand-charcoal border-b border-gray-200/80 pb-3">
+                  Bag Summary
                 </h2>
 
                 <div className="space-y-3 text-xs">
                   <div className="flex justify-between text-gray-600">
                     <span>Subtotal</span>
-                    <span className="font-mono text-gray-900 font-bold">₹{cartTotal.toFixed(2)}</span>
+                    <span className="font-mono text-brand-charcoal font-bold">₹{cartTotal.toFixed(2)}</span>
                   </div>
 
                   <div className="flex justify-between text-gray-600">
@@ -286,9 +285,9 @@ const CartPage: React.FC<CartPageProps> = ({ navigate }) => {
                     </span>
                   </div>
 
-                  <div className="flex justify-between text-base font-bold text-gray-900 border-t border-gray-200 pt-3">
+                  <div className="flex justify-between text-base font-semibold text-brand-charcoal border-t border-gray-200/80 pt-3">
                     <span>Estimated Total</span>
-                    <span className="font-mono text-black font-bold text-lg">
+                    <span className="font-mono text-brand-charcoal font-bold text-lg">
                       ₹{(cartTotal + shipping.standardFee).toFixed(2)}
                     </span>
                   </div>
@@ -296,10 +295,9 @@ const CartPage: React.FC<CartPageProps> = ({ navigate }) => {
 
                 {/* Primary CTA: Full Checkout */}
                 <motion.button
-                  whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={() => navigate({ name: 'checkout' })}
-                  className="w-full bg-black hover:bg-gray-800 text-white py-4 px-6 tracking-widest text-xs font-bold uppercase rounded-sm shadow-md transition-all text-center flex items-center justify-center space-x-2"
+                  className="w-full bg-brand-charcoal hover:bg-brand-gold-dark text-white py-4 px-6 tracking-[0.16em] text-xs font-semibold uppercase rounded-full shadow-elevation-1 transition-all duration-300 text-center flex items-center justify-center space-x-2"
                 >
                   <span>Proceed to UPI Checkout</span>
                   <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -308,9 +306,9 @@ const CartPage: React.FC<CartPageProps> = ({ navigate }) => {
                 </motion.button>
 
                 {/* Quick WhatsApp Form */}
-                <div className="pt-4 border-t border-gray-200">
-                  <span className="text-[11px] font-semibold uppercase tracking-wider text-gray-700 block mb-3">
-                    Or Quick Order via WhatsApp
+                <div className="pt-4 border-t border-gray-200/80">
+                  <span className="text-[11px] font-mono font-semibold uppercase tracking-wider text-gray-700 block mb-3">
+                    Or Direct WhatsApp Order
                   </span>
                   <div className="space-y-3">
                     <input
@@ -319,39 +317,43 @@ const CartPage: React.FC<CartPageProps> = ({ navigate }) => {
                       value={formData.name}
                       onChange={handleInputChange}
                       placeholder="Your Full Name"
-                      className={`w-full bg-white border ${errors.name ? 'border-red-500' : 'border-gray-300'} rounded-sm px-3 py-2 text-xs text-gray-900 focus:border-[#C0A080] outline-none`}
+                      className={`w-full bg-white border ${errors.name ? 'border-red-400' : 'border-gray-200'} rounded-xl px-4 py-2.5 text-xs text-gray-900 focus:border-brand-gold-dark outline-none transition-colors`}
                     />
                     <input
                       type="text"
                       name="address"
                       value={formData.address}
                       onChange={handleInputChange}
-                      placeholder="Delivery Address & PIN"
-                      className={`w-full bg-white border ${errors.address ? 'border-red-500' : 'border-gray-300'} rounded-sm px-3 py-2 text-xs text-gray-900 focus:border-[#C0A080] outline-none`}
+                      placeholder="Delivery Address & Postal Code"
+                      className={`w-full bg-white border ${errors.address ? 'border-red-400' : 'border-gray-200'} rounded-xl px-4 py-2.5 text-xs text-gray-900 focus:border-brand-gold-dark outline-none transition-colors`}
                     />
                     <input
                       type="tel"
                       name="phone"
                       value={formData.phone}
                       onChange={handleInputChange}
-                      placeholder="Phone Number"
-                      className={`w-full bg-white border ${errors.phone ? 'border-red-500' : 'border-gray-300'} rounded-sm px-3 py-2 text-xs text-gray-900 focus:border-[#C0A080] outline-none`}
+                      placeholder="Contact Number"
+                      className={`w-full bg-white border ${errors.phone ? 'border-red-400' : 'border-gray-200'} rounded-xl px-4 py-2.5 text-xs text-gray-900 focus:border-brand-gold-dark outline-none transition-colors`}
                     />
 
                     <motion.button
+                      whileTap={{ scale: 0.98 }}
                       onClick={handleConfirmOnWhatsApp}
-                      whileHover={{ scale: 1.01 }}
-                      whileTap={{ scale: 0.99 }}
-                      className="w-full bg-[#25D366] hover:bg-[#20bd4d] text-white py-3 px-4 tracking-wider text-xs font-bold uppercase rounded-sm flex items-center justify-center space-x-2 shadow-sm transition-all"
+                      className="w-full bg-brand-gold-subtle hover:bg-brand-charcoal text-brand-charcoal hover:text-white border border-brand-gold/60 py-3.5 px-4 rounded-full text-xs font-semibold tracking-wider uppercase transition-all duration-300 flex items-center justify-center space-x-2 shadow-2xs"
                     >
                       <WhatsappIcon />
-                      <span>Confirm via WhatsApp</span>
+                      <span>Confirm Order via WhatsApp Desk</span>
                     </motion.button>
                   </div>
                 </div>
 
-                <div className="pt-2 text-center text-[11px] text-gray-500">
-                  <span>Merchant VPA: {STORE_CONFIG.merchantUpi.vpa} &bull; Official Darul Attar Store</span>
+                <div className="pt-2 text-center">
+                  <button
+                    onClick={clearCart}
+                    className="text-[11px] font-mono text-gray-400 hover:text-red-600 transition-colors uppercase tracking-wider"
+                  >
+                    Clear Bag
+                  </button>
                 </div>
               </div>
             </motion.div>
