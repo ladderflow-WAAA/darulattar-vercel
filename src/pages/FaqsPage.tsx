@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
-import type { Variants } from 'motion/react';
+import { motion, AnimatePresence, type Variants } from 'motion/react';
 import { PageState } from '../App';
 import { ArrowLeftIcon } from '../components/icons/ArrowLeftIcon';
 import { PlusIcon } from '../components/icons/PlusIcon';
@@ -13,37 +12,39 @@ interface FaqsPageProps {
 
 const faqs = [
   {
-    question: "Where in Chennai is Darul Attar located?",
-    answer: "We are located at #144 Aziz Mulk, 1st Street, Greams Road, Thousand Lights, Chennai - 600006. You are welcome to visit our store to experience our fragrances in person."
+    question: "Where in Chennai is the Darul Attar atelier located?",
+    answer: "Our physical boutique is located at #144 Aziz Mulk, 1st Street, Greams Road, Thousand Lights, Chennai - 600006. Visitors are welcome for personal olfactory sampling seven days a week from 10:00 AM to 9:00 PM."
   },
   {
-    question: "Are your perfumes alcohol-free?",
-    answer: "Yes, all our attars and oud oils are 100% alcohol-free, suitable for prayer and daily wear."
+    question: "Are your attars and oud formulations 100% alcohol-free?",
+    answer: "Yes, every oil in our catalog is 100% alcohol-free concentrated oil, completely compliant with devotional prayer requirements and gentle on sensitive skin."
   },
   {
-    question: "How do I place an order online?",
-    answer: "Add items to your bag and proceed to checkout using Direct Merchant UPI or click Order via WhatsApp for instant communication."
+    question: "How long do pure perfume oils last compared to commercial sprays?",
+    answer: "Because our formulations contain zero alcohol carrier or evaporative water, they bind with skin lipids and body warmth. Most blends endure 8 to 12 hours on skin and over 24 hours on natural fabrics."
   },
   {
-    question: "How long does the scent last?",
-    answer: "Our concentrated oils typically last 6-8 hours on skin and over 24 hours on fabric depending on the specific profile (Oud and Musk base notes have the longest longevity)."
+    question: "How do you dispatch orders across India?",
+    answer: "All orders are dispatched via Delhivery insured logistics with live tracking notifications delivered via SMS and email. Standard transit within Chennai is 1-2 days; pan-India delivery is typically 3-5 business days."
   },
   {
-    question: "Do you provide tracking for delivery?",
-    answer: "Yes, orders are shipped via Delhivery courier with real-time tracking updates."
+    question: "Can I consult directly with a perfumer for bridal or custom gifting?",
+    answer: "Yes. You can contact our Thousand Lights consultation desk directly on WhatsApp (+91 95789 94377) for custom tola presentations, velvet gift boxes, and curated fragrance samplers."
   }
 ];
 
 const AccordionItem: React.FC<{ faq: { question: string, answer: string }, isOpen: boolean, onClick: () => void }> = ({ faq, isOpen, onClick }) => {
   return (
-    <div className="border-b border-gray-200 py-5">
+    <div className="border-b border-gray-200/70 py-5 last:border-0">
       <motion.button
         onClick={onClick}
         className="w-full flex justify-between items-center text-left group"
         aria-expanded={isOpen}
       >
-        <h3 className={`text-base sm:text-lg font-serif font-bold transition-colors ${isOpen ? 'text-[#8C6D47]' : 'text-gray-900 group-hover:text-black'}`}>{faq.question}</h3>
-        <div className={`transition-transform duration-300 ${isOpen ? 'rotate-180 text-[#8C6D47]' : 'text-gray-500'}`}>
+        <h3 className={`text-base sm:text-lg font-serif font-normal transition-colors pr-4 ${isOpen ? 'text-brand-gold-dark' : 'text-brand-charcoal group-hover:text-black'}`}>
+          {faq.question}
+        </h3>
+        <div className={`p-1.5 rounded-full transition-transform duration-300 flex-shrink-0 ${isOpen ? 'rotate-180 text-brand-gold-dark bg-brand-gold-subtle' : 'text-gray-400 bg-gray-100'}`}>
           {isOpen ? <MinusIcon /> : <PlusIcon />}
         </div>
       </motion.button>
@@ -58,10 +59,12 @@ const AccordionItem: React.FC<{ faq: { question: string, answer: string }, isOpe
               open: { opacity: 1, height: 'auto', marginTop: '12px' },
               collapsed: { opacity: 0, height: 0, marginTop: '0px' },
             }}
-            transition={{ duration: 0.3, ease: 'easeInOut' }}
+            transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
             className="overflow-hidden"
           >
-            <p className="text-gray-600 leading-relaxed font-normal text-sm pr-8">{faq.answer}</p>
+            <p className="text-gray-600 leading-relaxed font-sans text-sm pr-8">
+              {faq.answer}
+            </p>
           </motion.div>
         )}
       </AnimatePresence>
@@ -85,32 +88,39 @@ const FaqsPage: React.FC<FaqsPageProps> = ({ navigate }) => {
   
   const containerVariants: Variants = {
     hidden: { opacity: 0 },
-    visible: { opacity: 1, transition: { staggerChildren: 0.1 } },
+    visible: { opacity: 1, transition: { staggerChildren: 0.08 } },
   };
 
   const itemVariants: Variants = {
-    hidden: { opacity: 0, y: 10 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
+    hidden: { opacity: 0, y: 12 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.45, ease: [0.16, 1, 0.3, 1] } },
   };
 
   return (
     <div className="bg-white min-h-screen text-gray-900 font-sans">
-      <div className="max-w-3xl mx-auto px-8 sm:px-12 lg:px-16 pt-32 pb-24">
+      <div className="max-w-3xl mx-auto px-4 sm:px-8 lg:px-12 pt-28 pb-24">
          <motion.div
           variants={containerVariants}
           initial="hidden"
           animate="visible"
         >
           <motion.div variants={itemVariants}>
-            <button onClick={() => navigate({ name: 'home' })} className="flex items-center space-x-2 text-sm text-gray-600 hover:text-black group mb-8 transition-colors font-medium">
+            <button 
+              onClick={() => navigate({ name: 'home' })} 
+              className="flex items-center space-x-2 text-xs font-mono uppercase tracking-wider text-gray-600 hover:text-black mb-8 group transition-colors font-semibold"
+            >
               <ArrowLeftIcon />
-              <span className="group-hover:underline">Back to Home</span>
+              <span>Back to Atelier</span>
             </button>
-            <h1 className="text-4xl md:text-5xl font-thin text-gray-900 font-serif mb-4">Frequently Asked <span className="italic text-[#8C6D47]">Questions</span></h1>
-            <p className="text-base text-gray-600 font-normal">Everything you need to know about Darul Attar.</p>
+            <h1 className="text-3xl sm:text-5xl font-serif text-brand-charcoal mb-3">
+              Frequently Asked <span className="font-editorial italic font-normal text-brand-gold-dark">Inquiries</span>
+            </h1>
+            <p className="text-base text-gray-600 font-normal leading-relaxed">
+              Essential details regarding pure oil distillation, store hours in Thousand Lights, and nationwide delivery.
+            </p>
           </motion.div>
           
-          <motion.div className="mt-12 bg-[#FAF8F5] p-4 sm:p-8 rounded-sm border border-gray-200 shadow-xs" variants={itemVariants}>
+          <motion.div className="mt-10 bg-brand-ivory p-6 sm:p-10 rounded-2xl border border-gray-200/80 shadow-2xs" variants={itemVariants}>
             {faqs.map((faq, index) => (
               <AccordionItem
                 key={index}
@@ -122,12 +132,12 @@ const FaqsPage: React.FC<FaqsPageProps> = ({ navigate }) => {
           </motion.div>
 
           <motion.div variants={itemVariants} className="mt-12 text-center">
-            <p className="text-gray-600 text-sm">Still have questions?</p>
+            <p className="text-gray-600 text-sm">Require bespoke assistance or bridal sampling?</p>
             <button 
-                onClick={() => navigate({ name: 'home', props: { section: 'contact' } })}
-                className="mt-3 text-[#8C6D47] border-b border-[#8C6D47] pb-0.5 hover:text-black hover:border-black transition-all text-xs font-bold uppercase tracking-wider"
+              onClick={() => navigate({ name: 'home', props: { section: 'contact' } })}
+              className="mt-3 text-brand-charcoal border-b-2 border-brand-gold-dark pb-1 hover:text-brand-gold-dark transition-colors text-xs font-mono font-bold uppercase tracking-widest inline-block"
             >
-                Contact Us Directly
+              Contact Thousand Lights Atelier
             </button>
           </motion.div>
         </motion.div>

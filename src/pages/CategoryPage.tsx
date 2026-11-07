@@ -53,7 +53,7 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ navigate, category }) => {
     }
     
     if (maxPrice - minPrice < 100) {
-        maxPrice = minPrice + 100;
+      maxPrice = minPrice + 100;
     }
 
     return { min: Math.floor(minPrice), max: Math.ceil(maxPrice) };
@@ -93,9 +93,9 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ navigate, category }) => {
   if (!category) {
     return (
       <div className="text-center py-40 bg-white min-h-screen text-gray-900">
-        <p className="text-xl text-gray-500 font-serif">Category not found.</p>
-        <button onClick={() => navigate({ name: 'home' })} className="mt-4 text-[#8C6D47] font-semibold hover:underline">
-          Return Home
+        <p className="text-xl text-gray-500 font-serif">Category portfolio not located.</p>
+        <button onClick={() => navigate({ name: 'home' })} className="mt-4 text-brand-gold-dark font-semibold hover:underline">
+          Return to Atelier
         </button>
       </div>
     );
@@ -103,25 +103,25 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ navigate, category }) => {
   
   const breadcrumbs = [
     { label: 'Home', pageState: { name: 'home' } as PageState },
-    { label: 'Collections', pageState: { name: 'home', props: {section: 'collection'} } as PageState },
+    { label: 'Collections', pageState: { name: 'home', props: { section: 'collection' } } as PageState },
     { label: category }
   ];
 
   const containerVariants: Variants = {
     hidden: {},
-    visible: { transition: { staggerChildren: 0.05 } }
+    visible: { transition: { staggerChildren: 0.04 } }
   };
 
   const itemVariants: Variants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: 'easeOut' } }
+    hidden: { opacity: 0, y: 15 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.45, ease: [0.16, 1, 0.3, 1] } }
   };
 
   return (
     <div className="bg-white min-h-screen text-gray-900 font-sans">
-      <section className="pt-32 pb-24">
-        <div className="max-w-screen-2xl mx-auto px-8 sm:px-12 lg:px-16">
-          <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
+      <section className="pt-28 pb-24">
+        <div className="max-w-screen-2xl mx-auto px-4 sm:px-8 lg:px-12">
+          <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}>
              <Breadcrumbs items={breadcrumbs} navigate={navigate} />
           </motion.div>
           
@@ -129,18 +129,18 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ navigate, category }) => {
             initial={{ opacity: 0, y: 20 }} 
             animate={{ opacity: 1, y: 0 }} 
             transition={{ delay: 0.1 }} 
-            className="mt-8 mb-12"
+            className="mt-6 mb-12"
           >
-            <h1 className="text-4xl md:text-6xl font-thin text-gray-900 font-serif mb-4">
-              {category} <span className="italic text-[#8C6D47]">Collection</span>
+            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-serif text-brand-charcoal mb-3">
+              {category} <span className="font-editorial italic font-normal text-brand-gold-dark">Portfolio</span>
             </h1>
-            <p className="text-base text-gray-600 max-w-3xl font-normal">
-              Explore our {category.toLowerCase()} attars, crafted for longevity and depth.
+            <p className="text-base text-gray-600 max-w-2xl font-normal leading-relaxed">
+              Explore our {category.toLowerCase()} extraits and concentrated oils, handcrafted for longevity and authentic aromatic depth.
             </p>
           </motion.div>
 
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-            {/* Sidebar */}
+            {/* Filter Sidebar */}
             <aside className="hidden lg:block lg:col-span-1">
               <FilterPanel 
                 filters={filters} 
@@ -150,14 +150,19 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ navigate, category }) => {
               />
             </aside>
 
-            {/* Grid */}
+            {/* Main Products Grid */}
             <main className="lg:col-span-3">
-              <div className="flex justify-between items-center mb-8">
-                <button onClick={() => setIsFilterOpen(true)} className="lg:hidden flex items-center space-x-2 bg-white text-gray-900 px-4 py-2 border border-gray-300 rounded-sm shadow-xs font-medium text-xs">
+              <div className="flex justify-between items-center mb-6 pb-4 border-b border-gray-100">
+                <button 
+                  onClick={() => setIsFilterOpen(true)} 
+                  className="lg:hidden flex items-center space-x-2 bg-white text-gray-900 px-4 py-2 border border-gray-300 rounded-full shadow-2xs font-medium text-xs tracking-wider uppercase"
+                >
                   <FilterIcon />
                   <span>Filters</span>
                 </button>
-                <p className="text-gray-500 text-sm hidden sm:block">{sortedProducts.length} products found</p>
+                <p className="text-gray-500 font-mono text-xs hidden sm:block">
+                  {sortedProducts.length} {sortedProducts.length === 1 ? 'blend' : 'blends'} in this family
+                </p>
                 <SortDropdown selected={sortOption} onSelect={setSortOption} />
               </div>
 
@@ -165,7 +170,7 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ navigate, category }) => {
                 {sortedProducts.length > 0 ? (
                   <motion.div 
                     key={`${sortOption}-${JSON.stringify(filters)}`}
-                    className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6"
+                    className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 gap-6"
                     variants={containerVariants}
                     initial="hidden"
                     animate="visible"
@@ -180,10 +185,15 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ navigate, category }) => {
                   <motion.div 
                     initial={{ opacity: 0 }} 
                     animate={{ opacity: 1 }} 
-                    className="flex flex-col items-center justify-center h-80 border border-gray-200 bg-[#FAF8F5] rounded-sm"
+                    className="flex flex-col items-center justify-center h-80 border border-gray-200 bg-brand-ivory rounded-2xl p-6 text-center"
                   >
-                    <p className="text-lg text-gray-600 font-serif">No scents found in this range.</p>
-                    <button onClick={() => setFilters({ priceRange: { min: priceBounds.min, max: priceBounds.max }, notes: [] })} className="text-[#8C6D47] mt-2 font-semibold hover:underline text-sm">Clear Filters</button>
+                    <p className="text-lg text-gray-700 font-serif">No scents found matching current parameters.</p>
+                    <button 
+                      onClick={() => setFilters({ priceRange: { min: priceBounds.min, max: priceBounds.max }, notes: [] })} 
+                      className="text-brand-gold-dark mt-3 font-semibold hover:underline text-xs font-mono uppercase tracking-widest"
+                    >
+                      Reset Filter Criteria
+                    </button>
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -198,24 +208,34 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ navigate, category }) => {
           <motion.div 
             initial={{ opacity: 0 }} 
             animate={{ opacity: 1 }} 
-            exit={{ opacity: 0 }} 
-            className="fixed inset-0 bg-black/60 z-50 backdrop-blur-xs lg:hidden" 
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 z-50 backdrop-blur-sm lg:hidden"
             onClick={() => setIsFilterOpen(false)}
           >
-            <motion.div 
-                initial={{ x: '-100%' }} 
-                animate={{ x: 0 }} 
-                exit={{ x: '-100%' }} 
-                transition={{ type: 'spring', stiffness: 300, damping: 30 }} 
-                className="fixed top-0 left-0 bottom-0 w-4/5 max-w-sm bg-white border-r border-gray-200 shadow-xl overflow-y-auto" 
-                onClick={(e) => e.stopPropagation()}
+            <motion.div
+              initial={{ x: '-100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '-100%' }}
+              transition={{ type: 'spring', stiffness: 350, damping: 32 }}
+              className="fixed top-0 left-0 bottom-0 w-4/5 max-w-sm bg-white border-r border-gray-200 shadow-2xl overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
             >
               <div className="p-6">
-                <div className="flex justify-between items-center mb-8 pb-3 border-b border-gray-200">
-                  <h3 className="text-xl font-serif text-gray-900 font-bold">Filter</h3>
-                  <button onClick={() => setIsFilterOpen(false)} className="text-gray-500 hover:text-black"><XIcon /></button>
+                <div className="flex justify-between items-center mb-6 pb-4 border-b border-gray-100">
+                  <h3 className="text-lg font-serif text-brand-charcoal">Filter {category}</h3>
+                  <button 
+                    onClick={() => setIsFilterOpen(false)} 
+                    className="p-1.5 text-gray-600 hover:text-black rounded-full hover:bg-gray-100"
+                  >
+                    <XIcon />
+                  </button>
                 </div>
-                <FilterPanel filters={filters} setFilters={setFilters} priceBounds={priceBounds} showCategories={false} />
+                <FilterPanel 
+                  filters={filters} 
+                  setFilters={setFilters} 
+                  priceBounds={priceBounds}
+                  showCategories={false}
+                />
               </div>
             </motion.div>
           </motion.div>

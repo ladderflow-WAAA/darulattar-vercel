@@ -3,7 +3,7 @@ import { PageState } from '../App';
 import { useProducts } from '../contexts/ProductContext';
 import ProductCard from '../components/ProductCard';
 import { ArrowLeftIcon } from '../components/icons/ArrowLeftIcon';
-import { motion, Variants } from 'motion/react';
+import { motion, type Variants } from 'motion/react';
 import SortDropdown, { SortOption } from '../components/SortDropdown';
 import { setMetadata } from '../utils/metadata';
 
@@ -54,9 +54,12 @@ const SearchPage: React.FC<SearchPageProps> = ({ navigate, query }) => {
 
   if (!query) {
     return (
-      <div className="text-center py-40 bg-white min-h-screen text-gray-900">
-        <p className="text-xl text-gray-500 font-serif">Please enter a search term.</p>
-        <button onClick={() => navigate({ name: 'home' })} className="mt-4 text-[#8C6D47] hover:underline font-semibold">
+      <div className="text-center py-40 bg-white min-h-screen text-gray-900 font-sans">
+        <p className="text-xl text-gray-500 font-serif">Please specify a search query.</p>
+        <button 
+          onClick={() => navigate({ name: 'home' })} 
+          className="mt-4 text-brand-gold-dark hover:underline font-semibold font-mono text-xs uppercase tracking-widest"
+        >
           Return to Collection
         </button>
       </div>
@@ -66,59 +69,57 @@ const SearchPage: React.FC<SearchPageProps> = ({ navigate, query }) => {
   const containerVariants: Variants = {
     hidden: {},
     visible: {
-      transition: { staggerChildren: 0.05 }
+      transition: { staggerChildren: 0.04 }
     }
   };
 
   const itemVariants: Variants = {
-    hidden: { opacity: 0, y: 20 },
+    hidden: { opacity: 0, y: 15 },
     visible: { 
       opacity: 1, 
       y: 0,
-      transition: { duration: 0.5, ease: 'easeOut' }
+      transition: { duration: 0.45, ease: [0.16, 1, 0.3, 1] }
     }
   };
 
   return (
     <div className="bg-white min-h-screen text-gray-900 font-sans">
-      <section className="pt-32 pb-24">
-        <div className="max-w-screen-2xl mx-auto px-8 sm:px-12 lg:px-16">
+      <section className="pt-28 pb-24">
+        <div className="max-w-screen-2xl mx-auto px-4 sm:px-8 lg:px-12">
           <motion.button 
             onClick={() => navigate({ name: 'home' })} 
-            className="flex items-center space-x-2 text-sm text-gray-600 hover:text-black mb-8 group transition-colors font-medium"
-            initial={{ opacity: 0, x: -10 }}
+            className="flex items-center space-x-2 text-xs font-mono uppercase tracking-wider text-gray-600 hover:text-black mb-8 group transition-colors font-semibold"
+            initial={{ opacity: 0, x: -8 }}
             animate={{ opacity: 1, x: 0 }}
           >
             <ArrowLeftIcon />
-            <span className="group-hover:underline">Back to Home</span>
+            <span>Return to Atelier</span>
           </motion.button>
           
           <motion.div 
-            className="text-left mb-10"
+            className="text-left mb-8 pb-4 border-b border-gray-100 flex flex-col sm:flex-row sm:items-end justify-between gap-4"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
           >
-            <div className="flex flex-col md:flex-row justify-between md:items-end gap-6">
-              <div>
-                <span className="text-[#8C6D47] text-xs tracking-widest uppercase font-semibold">Search Results</span>
-                <h2 className="text-3xl md:text-5xl font-thin text-gray-900 font-serif mt-2">
-                  "{query}"
-                </h2>
-                <p className="mt-2 text-gray-600 font-normal text-sm">
-                  We found {searchResults.length} {searchResults.length === 1 ? 'scent' : 'scents'} matching your search.
-                </p>
-              </div>
-              <div className="flex-shrink-0 w-full md:w-auto">
-                <SortDropdown selected={sortOption} onSelect={setSortOption} />
-              </div>
+            <div>
+              <span className="text-[11px] font-mono uppercase tracking-widest text-brand-gold-dark font-semibold block mb-1">
+                Olfactory Index Search
+              </span>
+              <h1 className="text-3xl sm:text-5xl font-serif text-brand-charcoal font-normal">
+                Results for <span className="font-editorial italic font-normal text-brand-gold-dark">&ldquo;{query}&rdquo;</span>
+              </h1>
+            </div>
+            
+            <div className="flex items-center space-x-4">
+              <span className="text-xs font-mono text-gray-500">{searchResults.length} blends cataloged</span>
+              <SortDropdown selected={sortOption} onSelect={setSortOption} />
             </div>
           </motion.div>
 
           {searchResults.length > 0 ? (
             <motion.div 
-              key={sortOption}
-              className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
+              className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6"
               variants={containerVariants}
               initial="hidden"
               animate="visible"
@@ -131,18 +132,19 @@ const SearchPage: React.FC<SearchPageProps> = ({ navigate, query }) => {
             </motion.div>
           ) : (
             <motion.div 
-              className="text-center py-24 border border-gray-200 bg-[#FAF8F5] rounded-sm"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.2 }}
+              initial={{ opacity: 0 }} 
+              animate={{ opacity: 1 }} 
+              className="text-center py-24 bg-brand-ivory border border-gray-200/80 rounded-2xl p-8 max-w-xl mx-auto shadow-2xs"
             >
-              <p className="text-xl text-gray-800 font-serif font-bold">No matches found.</p>
-              <p className="text-sm text-gray-500 mt-2 mb-6">Try searching for "Oud", "Musk", "Rose", or "Sandal".</p>
+              <p className="text-2xl text-brand-charcoal font-serif mb-2">No Fragrance Oils Found</p>
+              <p className="text-sm text-gray-600 mb-6 font-sans">
+                We could not locate any blends matching &ldquo;{query}&rdquo;. Try searching for notes such as <span className="font-semibold text-brand-charcoal">Oud, Rose, Khus, Musk,</span> or <span className="font-semibold text-brand-charcoal">Amber</span>.
+              </p>
               <button 
-                onClick={() => navigate({ name: 'home', props: { section: 'collection' } })}
-                className="bg-black hover:bg-gray-800 text-white py-3 px-8 text-xs font-bold uppercase tracking-widest rounded-sm transition-colors shadow-xs"
+                onClick={() => navigate({ name: 'home', props: { section: 'collection' } })} 
+                className="bg-brand-charcoal hover:bg-brand-gold-dark text-white py-3 px-8 text-xs font-semibold tracking-widest uppercase transition-all duration-300 rounded-full"
               >
-                Browse All Scents
+                Browse Full Catalog
               </button>
             </motion.div>
           )}

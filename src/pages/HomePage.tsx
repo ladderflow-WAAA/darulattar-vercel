@@ -4,6 +4,8 @@ import Categories from '../components/Categories';
 import Collection from '../components/Collection';
 import About from '../components/About';
 import Contact from '../components/Contact';
+import { ScentPyramid } from '../components/ScentPyramid';
+import { FragranceConsultation } from '../components/FragranceConsultation';
 import { PageState } from '../App';
 import { setMetadata } from '../utils/metadata';
 
@@ -48,7 +50,9 @@ const HomePage: React.FC<HomePageProps> = ({ navigate, section }) => {
     <div className="overflow-x-hidden bg-white text-brand-charcoal">
       <Home navigate={navigate} onDiscoverClick={handleDiscoverClick} />
       <Collection navigate={navigate} ref={collectionRef} />
+      <ScentPyramid navigate={navigate} />
       <Categories navigate={navigate} />
+      <FragranceConsultation navigate={navigate} />
       <About ref={aboutRef} navigate={navigate} />
       <Contact ref={contactRef} />
     </div>

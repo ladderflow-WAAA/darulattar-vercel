@@ -21,51 +21,51 @@ const blogPosts: BlogPost[] = [
     id: "oud-chennai-weather",
     title: "Why Oud is Well-Suited for Chennai's Humid Weather",
     date: "Oct 12, 2024",
-    excerpt: "Discover why oil-based perfumes last longer than alcohol sprays in tropical climates like Chennai.",
+    excerpt: "Discover why concentrated oil-based perfumes outlast alcohol sprays in tropical climates.",
     content: `
-      <p class="mb-4">Living in Chennai means contending with a tropical climate where heat and humidity are constant companions. For fragrance lovers, this poses a unique challenge: standard alcohol-based French perfumes tend to evaporate rapidly when they hit warm skin.</p>
+      <p class="mb-4">Living in Chennai means contending with a tropical climate where heat and coastal humidity are constant companions. For fragrance enthusiasts, this poses a unique challenge: standard alcohol-based spray perfumes evaporate rapidly when they contact warm skin.</p>
       
-      <h3 class="text-2xl font-serif text-gray-900 font-bold mt-8 mb-4">The Chemistry of Heat</h3>
-      <p class="mb-4">Alcohol is volatile. In the heat of Chennai, an alcohol spray might project loudly for 30 minutes and then vanish. <strong>Attar and Oud oils</strong>, however, are hydrophobic and heavier.</p>
+      <h3 class="text-2xl font-serif text-brand-charcoal font-normal mt-8 mb-4">The Chemistry of Heat &amp; Evaporation</h3>
+      <p class="mb-4">Alcohol is volatile. In Chennai's ambient temperature, an alcohol spray projects loudly for twenty to thirty minutes before vanishing into the air. <strong>Concentrated Attar and Oudh oils</strong>, however, are hydrophobic and substantive.</p>
       
-      <p class="mb-4">Instead of evaporating, these oils sink into your pores. They rely on body warmth to slowly release their aroma. Chennai's warmth actually helps Oud develop, creating a consistent scent bubble that lasts 8-12 hours.</p>
+      <p class="mb-4">Rather than evaporating into the atmosphere, these viscous botanical oils bond with your skin warmth. Body heat activates the heavier resinous molecules over eight to twelve hours, generating an intimate and lasting sillage.</p>
 
-      <h3 class="text-2xl font-serif text-gray-900 font-bold mt-8 mb-4">Best Profiles for Humidity</h3>
+      <h3 class="text-2xl font-serif text-brand-charcoal font-normal mt-8 mb-4">Recommended Profiles for Tropical Humidity</h3>
       <ul class="list-disc list-inside space-y-2 mb-6 text-gray-700">
-        <li><strong>Vetiver (Ruh Khus):</strong> Known as the "Oil of Tranquility," it cools and smells like wet earth after rain.</li>
-        <li><strong>White Oud:</strong> A lighter, cleaner variant of Oud that is not cloying in humid weather.</li>
-        <li><strong>Shamama:</strong> A complex herbal blend that stands up powerfully against heat.</li>
+        <li><strong>Ruh Khus (Vetiver):</strong> Known as the "Oil of Tranquility," it cools the pulse points and smells of deep green roots after rain.</li>
+        <li><strong>White Oud:</strong> A clean, airy iteration of agarwood that provides elegance without becoming cloying in heat.</li>
+        <li><strong>Shamamatul Amber:</strong> A multifaceted spiced botanical blend that withstands outdoor warmth.</li>
       </ul>
       
-      <p>Visit our boutique in Thousand Lights to test these oils on your skin.</p>
+      <p>Visit our boutique at #144 Aziz Mulk, Greams Road, Thousand Lights to sample these distillations.</p>
     `
   },
   {
     id: "attar-vs-perfume",
-    title: "The Difference Between Attar and French Perfume",
+    title: "The Difference Between Concentrated Attar and Alcohol Perfume",
     date: "Sep 28, 2024",
-    excerpt: "Understanding the concentration, ingredients, and evolution of traditional Itra vs modern EDPs.",
+    excerpt: "Understanding carrier purity, oil concentration, and the evolution of traditional Itra.",
     content: `
-      <p class="mb-4">Standard alcohol perfumes contain 80-95% alcohol carrier. Authentic Attar is 100% pure concentrated oil, using sandalwood or premium plant/mineral carriers to deliver pure scent without drying the skin or evaporating quickly.</p>
+      <p class="mb-4">Commercial perfumes are typically 80% to 90% denatured alcohol. In contrast, authentic Attar is 100% pure concentrated oil, using sandalwood or premium plant carriers to deliver pure botanical scent without drying skin.</p>
       
-      <h3 class="text-2xl font-serif text-gray-900 font-bold mt-8 mb-4">1. Longevity</h3>
-      <p class="mb-4">Because attars are oil-based, they evolve slowly over hours and bind directly with fabric and skin warmth.</p>
+      <h3 class="text-2xl font-serif text-brand-charcoal font-normal mt-8 mb-4">1. Evolution on Pulse Points</h3>
+      <p class="mb-4">Because attars are pure oil extracts, they evolve gradually across top, heart, and base phases, creating a personal signature that lingers on cuffs and pulse points.</p>
 
-      <h3 class="text-2xl font-serif text-gray-900 font-bold mt-8 mb-4">2. Alcohol-Free Purity</h3>
-      <p class="mb-4">Our Attars are completely free of alcohol, making them ideal for religious worship, prayer times, and sensitive skin.</p>
+      <h3 class="text-2xl font-serif text-brand-charcoal font-normal mt-8 mb-4">2. Pure Alcohol-Free Integrity</h3>
+      <p class="mb-4">Our formulations are completely free of alcohol, rendering them suitable for prayers, sensitive skin, and mindful daily wear.</p>
     `
   },
   {
     id: "top-5-musk",
-    title: "Top 5 Long-Lasting Musk Scents for Men",
+    title: "Understanding Musk Profiles & Longevity",
     date: "Sep 15, 2024",
-    excerpt: "Our curated list of masculine musk fragrances that stay with you all day long.",
+    excerpt: "A guide to clean, powdery, and animalic musk profiles available at Darul Attar.",
     content: `
-      <p class="mb-4">Musk is timeless and clean. Here are the top selections available at Darul Attar:</p>
+      <p class="mb-4">Musk forms the enduring cornerstone of classical Arabian perfumery. Here is an overview of the primary profiles available at our Thousand Lights atelier:</p>
       <div class="space-y-4 mt-6">
-        <div><h4 class="text-lg font-serif font-bold text-gray-900">1. Musk Rijali</h4><p class="text-sm text-gray-600">Thick, potent, and traditionally masculine with spicy undertones.</p></div>
-        <div><h4 class="text-lg font-serif font-bold text-gray-900">2. White Musk (Tahara)</h4><p class="text-sm text-gray-600">Fresh and soapy, ideal for office and summer wear.</p></div>
-        <div><h4 class="text-lg font-serif font-bold text-gray-900">3. Black Musk</h4><p class="text-sm text-gray-600">Deep, warm, and sophisticated for evening gatherings.</p></div>
+        <div><h4 class="text-lg font-serif text-brand-charcoal font-medium">1. Musk Rijali</h4><p class="text-sm text-gray-600">Thick, potent, and traditionally warm with spicy undertones.</p></div>
+        <div><h4 class="text-lg font-serif text-brand-charcoal font-medium">2. White Musk (Misk Tahara)</h4><p class="text-sm text-gray-600">Clean, velvety, and powdery; well-suited for daily wear and warm afternoons.</p></div>
+        <div><h4 class="text-lg font-serif text-brand-charcoal font-medium">3. Black Amber Musk</h4><p class="text-sm text-gray-600">Deep, resinous, and sophisticated for evening gatherings and special assemblies.</p></div>
       </div>
     `
   }
@@ -76,115 +76,113 @@ const BlogPage: React.FC<BlogPageProps> = ({ navigate }) => {
 
   useEffect(() => {
     if (selectedPost) {
-        window.scrollTo(0,0);
-        setMetadata(
-            `${selectedPost.title} | Darul Attar Blog`,
-            selectedPost.excerpt
-        );
+      window.scrollTo(0, 0);
+      setMetadata(
+        `${selectedPost.title} | Darul Attar Journal`,
+        selectedPost.excerpt
+      );
     } else {
-        setMetadata(
-            'Fragrance Journal | Darul Attar Chennai',
-            'Read about the history of Oud, tips for applying attar, and the best scents for the Chennai climate.'
-        );
+      setMetadata(
+        'Fragrance Journal | Darul Attar Chennai',
+        'Read about the history of Oud, tips for applying attar, and the best scents for the Chennai climate.'
+      );
     }
   }, [selectedPost]);
 
   return (
     <div className="bg-white min-h-screen text-gray-900 font-sans">
-      <div className="max-w-4xl mx-auto px-8 sm:px-12 lg:px-16 pt-32 pb-24">
+      <div className="max-w-4xl mx-auto px-4 sm:px-8 lg:px-12 pt-28 pb-24">
         <AnimatePresence mode="wait">
-            {!selectedPost ? (
-                <motion.div
-                    key="list"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
-                    transition={{ duration: 0.5, ease: 'easeOut' }}
-                >
-                    <div className="text-center mb-16">
-                        <span className="text-[#8C6D47] text-xs tracking-widest uppercase font-semibold">The Journal</span>
-                        <h1 className="text-4xl md:text-5xl font-thin text-gray-900 font-serif mt-4">
-                            Notes on <span className="italic text-[#8C6D47]">Fragrance</span>
-                        </h1>
-                        <p className="mt-4 text-base text-gray-600">
-                            Insights into the world of traditional perfumery from Thousand Lights, Chennai.
-                        </p>
+          {!selectedPost ? (
+            <motion.div
+              key="list"
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, x: -15 }}
+              transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <div className="mb-14 pb-6 border-b border-gray-100">
+                <h1 className="text-3xl sm:text-5xl font-serif text-brand-charcoal mb-3">
+                  Notes on <span className="font-editorial italic font-normal text-brand-gold-dark">Fragrance</span>
+                </h1>
+                <p className="text-base text-gray-600 font-normal leading-relaxed">
+                  Artisanal insights into traditional extraction, climate longevity, and scent layering from Thousand Lights, Chennai.
+                </p>
+              </div>
+              
+              <div className="space-y-8">
+                {blogPosts.map((post, index) => (
+                  <motion.article 
+                    key={post.id}
+                    initial={{ opacity: 0, y: 15 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.5, delay: index * 0.08 }}
+                    onClick={() => setSelectedPost(post)}
+                    className="p-6 sm:p-8 bg-brand-ivory border border-gray-200/80 rounded-2xl hover:border-brand-gold/60 cursor-pointer transition-all duration-300 shadow-2xs hover:shadow-xs group"
+                  >
+                    <div className="flex justify-between items-center text-xs font-mono text-gray-400 mb-2">
+                      <span className="text-brand-gold-dark font-semibold">ESSAY #{String(index + 1).padStart(2, '0')}</span>
+                      <span>{post.date}</span>
                     </div>
-                    
-                    <div className="space-y-10">
-                        {blogPosts.map((post, index) => (
-                            <motion.article 
-                                key={post.id}
-                                initial={{ opacity: 0, y: 20 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                viewport={{ once: true }}
-                                transition={{ delay: index * 0.1 }}
-                                className="border-b border-gray-200 pb-10 last:border-0 group cursor-pointer"
-                                onClick={() => setSelectedPost(post)}
-                            >
-                                <div className="text-xs text-[#8C6D47] mb-2 font-bold tracking-wider uppercase">{post.date}</div>
-                                <h2 className="text-2xl sm:text-3xl font-serif font-bold text-gray-900 group-hover:text-[#8C6D47] transition-colors">{post.title}</h2>
-                                <p className="text-gray-600 mt-3 font-normal leading-relaxed text-base">{post.excerpt}</p>
-                                <button 
-                                    className="mt-4 text-xs font-bold text-black uppercase tracking-wider group-hover:underline underline-offset-4 transition-all"
-                                >
-                                    Read Article &rarr;
-                                </button>
-                            </motion.article>
-                        ))}
+                    <h2 className="text-xl sm:text-2xl font-serif text-brand-charcoal group-hover:text-brand-gold-dark transition-colors duration-300 font-normal">
+                      {post.title}
+                    </h2>
+                    <p className="mt-2 text-sm text-gray-600 font-sans leading-relaxed">
+                      {post.excerpt}
+                    </p>
+                    <div className="mt-4 pt-4 border-t border-gray-200/60 flex items-center justify-between text-xs font-mono">
+                      <span className="text-brand-charcoal font-semibold group-hover:text-brand-gold-dark transition-colors">Read Treatise →</span>
+                      <span className="text-gray-400">4 Min Read</span>
                     </div>
-                </motion.div>
-            ) : (
-                <motion.div
-                    key="detail"
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, y: 20 }}
-                    transition={{ duration: 0.5, ease: 'easeOut' }}
+                  </motion.article>
+                ))}
+              </div>
+            </motion.div>
+          ) : (
+            <motion.div
+              key="post"
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, x: 15 }}
+              transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <button 
+                onClick={() => setSelectedPost(null)}
+                className="flex items-center space-x-2 text-xs font-mono uppercase tracking-wider text-gray-600 hover:text-black mb-8 group transition-colors font-semibold"
+              >
+                <ArrowLeftIcon />
+                <span>Return to Journal</span>
+              </button>
+              
+              <div className="mb-8 pb-6 border-b border-gray-100">
+                <span className="text-xs font-mono text-brand-gold-dark uppercase tracking-widest font-semibold block mb-2">{selectedPost.date}</span>
+                <h1 className="text-3xl sm:text-5xl font-serif text-brand-charcoal leading-tight font-normal">
+                  {selectedPost.title}
+                </h1>
+              </div>
+
+              <div 
+                className="prose prose-lg text-gray-700 leading-relaxed max-w-none font-sans"
+                dangerouslySetInnerHTML={{ __html: selectedPost.content }}
+              />
+
+              <div className="mt-14 pt-8 border-t border-gray-100 flex justify-between items-center">
+                <button 
+                  onClick={() => setSelectedPost(null)}
+                  className="text-xs font-mono uppercase tracking-widest text-brand-charcoal font-semibold hover:text-brand-gold-dark transition-colors"
                 >
-                    <button 
-                        onClick={() => setSelectedPost(null)}
-                        className="flex items-center space-x-2 text-sm text-gray-600 hover:text-black mb-10 group transition-colors font-medium"
-                    >
-                        <ArrowLeftIcon />
-                        <span className="group-hover:underline">Back to Journal</span>
-                    </button>
-
-                    <article>
-                        <header className="mb-10 border-b border-gray-200 pb-8">
-                            <div className="text-xs text-[#8C6D47] mb-3 font-bold tracking-wider uppercase">{selectedPost.date}</div>
-                            <h1 className="text-3xl md:text-5xl font-serif font-bold text-gray-900 leading-tight">
-                                {selectedPost.title}
-                            </h1>
-                        </header>
-                        
-                        <div 
-                            className="prose prose-lg max-w-none prose-headings:font-serif prose-headings:font-bold prose-headings:text-gray-900 prose-p:text-gray-700 prose-p:font-normal prose-p:leading-8 prose-li:text-gray-700 prose-strong:text-black"
-                            dangerouslySetInnerHTML={{ __html: selectedPost.content }}
-                        />
-
-                        {/* Article Footer / CTA */}
-                        <div className="mt-16 bg-[#FAF8F5] border border-gray-200 p-8 text-center rounded-sm shadow-xs">
-                            <h3 className="text-2xl font-serif font-bold text-gray-900 mb-3">Experience Authentic Attar</h3>
-                            <p className="text-gray-600 mb-6 text-sm">Explore our collection of authentic oils or visit us in Chennai.</p>
-                            <div className="flex flex-col sm:flex-row justify-center gap-4">
-                                <button
-                                    onClick={() => navigate({ name: 'home', props: { section: 'collection' } })}
-                                    className="bg-black hover:bg-gray-800 text-white py-3 px-8 text-xs font-bold uppercase tracking-widest rounded-sm transition-colors shadow-xs"
-                                >
-                                    Shop Collection
-                                </button>
-                                <button
-                                    onClick={() => navigate({ name: 'home', props: { section: 'contact' } })}
-                                    className="border border-gray-300 text-gray-900 py-3 px-8 text-xs font-bold uppercase tracking-widest hover:border-black rounded-sm transition-colors bg-white shadow-xs"
-                                >
-                                    Visit Store
-                                </button>
-                            </div>
-                        </div>
-                    </article>
-                </motion.div>
-            )}
+                  ← Back to All Articles
+                </button>
+                <button
+                  onClick={() => navigate({ name: 'home', props: { section: 'collection' } })}
+                  className="bg-brand-charcoal hover:bg-brand-gold-dark text-white py-2.5 px-6 rounded-full text-xs font-mono uppercase tracking-wider transition-colors"
+                >
+                  Explore Blends
+                </button>
+              </div>
+            </motion.div>
+          )}
         </AnimatePresence>
       </div>
     </div>
